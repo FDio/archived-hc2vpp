@@ -1,21 +1,21 @@
 {
-  "interfaces":{
-    "interface": [{
-      "name": "eth2",
-      "acl": {
+  "attachment-points": {
+    "interface": [
+      {
+        "interface-id": "eth2",
         "ingress": {
-          "vpp-acls": [
-            {
-              "type": "vpp-acl:vpp-acl",
-              "name": "standard-acl"
-            }
-          ],
-          "vpp-macip-acl": {
-            "name": "acl4",
-            "type": "vpp-acl:vpp-macip-acl"
+          "acl-sets": {
+            "acl-set": [
+              {
+                "name": "standard-acl"
+              },
+              {
+                "name": "acl4"
+              }
+            ]
           }
         }
       }
-    }]
+    ]
   }
 }

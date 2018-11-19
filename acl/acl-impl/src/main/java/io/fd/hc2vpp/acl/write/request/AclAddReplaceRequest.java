@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.acl.util.acl;
+package io.fd.hc2vpp.acl.write.request;
 
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.ace.AceConverter;
+import io.fd.hc2vpp.acl.util.acl.AclDataExtractor;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -30,21 +31,25 @@ import io.fd.vpp.jvpp.acl.dto.MacipAclDel;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.Ace;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-/**
- * Write standard and mac-ip acls
- */
-public interface AclWriter extends AclDataExtractor, AceConverter, JvppReplyConsumer {
+public class AclAddReplaceRequest implements AclDataExtractor, AceConverter, JvppReplyConsumer {
 
     int ACL_INDEX_CREATE_NEW = -1;
+    private final FutureJVppAclFacade futureFacade;
+    private final MappingContext mappingContext;
 
-    default void addStandardAcl(@Nonnull final FutureJVppAclFacade futureFacade,
-                                @Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl acl,
-                                @Nonnull final AclContextManager standardAclContext,
-                                @Nonnull final MappingContext mappingContext) throws WriteFailedException {
+    public AclAddReplaceRequest(@Nonnull final FutureJVppAclFacade futureFacade,
+                                @Nonnull final MappingContext mappingContext) {
+        this.futureFacade = futureFacade;
+        this.mappingContext = mappingContext;
+    }
+
+
+    public void addStandardAcl(@Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl acl,
+                               @Nonnull final AclContextManager standardAclContext) throws WriteFailedException {
 
         final AclAddReplace request = new AclAddReplace();
 
@@ -59,38 +64,35 @@ public interface AclWriter extends AclDataExtractor, AceConverter, JvppReplyCons
                 getReplyForWrite(futureFacade.aclAddReplace(request).toCompletableFuture(), id);
 
         // maps new acl to returned index
-        standardAclContext.addAcl(reply.aclIndex, acl.getAclName(), aces, mappingContext);
+        standardAclContext.addAcl(reply.aclIndex, acl.getName(), aces, mappingContext);
     }
 
     // according to vpp team, this was tested extensively, and should work
-    default void updateStandardAcl(@Nonnull final FutureJVppAclFacade futureFacade,
-                                   @Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl acl,
-                                   @Nonnull final AclContextManager standardAclContext,
-                                   @Nonnull final MappingContext mappingContext) throws WriteFailedException {
+    public void updateStandardAcl(@Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl acl,
+                                  @Nonnull final AclContextManager standardAclContext) throws WriteFailedException {
 
         final AclAddReplace request = new AclAddReplace();
 
         request.tag = getAclTag(acl);
         // by setting existing index, request is resolved as update
-        request.aclIndex = standardAclContext.getAclIndex(acl.getAclName(), mappingContext);
+        request.aclIndex = standardAclContext.getAclIndex(acl.getName(), mappingContext);
 
         final List<Ace> aces = getAces(acl);
         request.r = toStandardAclRules(aces);
         request.count = request.r.length;
 
-        final AclAddReplaceReply reply = getReplyForWrite(futureFacade.aclAddReplace(request).toCompletableFuture(), id);
+        final AclAddReplaceReply reply =
+                getReplyForWrite(futureFacade.aclAddReplace(request).toCompletableFuture(), id);
 
         // overwrites existing acl metadata (aces might have been changed):
-        standardAclContext.addAcl(reply.aclIndex, acl.getAclName(), aces, mappingContext);
+        standardAclContext.addAcl(reply.aclIndex, acl.getName(), aces, mappingContext);
     }
 
-    default void deleteStandardAcl(@Nonnull final FutureJVppAclFacade futureFacade,
-                                   @Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl acl,
-                                   @Nonnull final AclContextManager standardAclContext,
-                                   @Nonnull final MappingContext mappingContext) throws WriteFailedException {
+    public void deleteStandardAcl(@Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl acl,
+                                  @Nonnull final AclContextManager standardAclContext) throws WriteFailedException {
 
         final AclDel request = new AclDel();
-        final String aclName = acl.getAclName();
+        final String aclName = acl.getName();
         request.aclIndex = standardAclContext.getAclIndex(aclName, mappingContext);
 
         getReplyForDelete(futureFacade.aclDel(request).toCompletableFuture(), id);
@@ -99,10 +101,8 @@ public interface AclWriter extends AclDataExtractor, AceConverter, JvppReplyCons
         standardAclContext.removeAcl(aclName, mappingContext);
     }
 
-    default void addMacIpAcl(@Nonnull final FutureJVppAclFacade futureFacade,
-                             @Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl acl,
-                             @Nonnull final AclContextManager macIpAclContext,
-                             @Nonnull final MappingContext mappingContext) throws WriteFailedException {
+    public void addMacIpAcl(@Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl acl,
+                            @Nonnull final AclContextManager macIpAclContext) throws WriteFailedException {
         final MacipAclAdd request = new MacipAclAdd();
 
         request.tag = getAclTag(acl);
@@ -114,15 +114,13 @@ public interface AclWriter extends AclDataExtractor, AceConverter, JvppReplyCons
         final MacipAclAddReply reply = getReplyForWrite(futureFacade.macipAclAdd(request).toCompletableFuture(), id);
 
         // map mac-ip acl to returned index
-        macIpAclContext.addAcl(reply.aclIndex, acl.getAclName(), aces, mappingContext);
+        macIpAclContext.addAcl(reply.aclIndex, acl.getName(), aces, mappingContext);
     }
 
-    default void deleteMacIpAcl(@Nonnull final FutureJVppAclFacade futureFacade,
-                                @Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl acl,
-                                @Nonnull final AclContextManager macIpAclContext,
-                                @Nonnull final MappingContext mappingContext) throws WriteFailedException {
+    public void deleteMacIpAcl(@Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl acl,
+                               @Nonnull final AclContextManager macIpAclContext) throws WriteFailedException {
         final MacipAclDel request = new MacipAclDel();
-        final String aclName = acl.getAclName();
+        final String aclName = acl.getName();
         request.aclIndex = macIpAclContext.getAclIndex(aclName, mappingContext);
 
         getReplyForDelete(futureFacade.macipAclDel(request).toCompletableFuture(), id);

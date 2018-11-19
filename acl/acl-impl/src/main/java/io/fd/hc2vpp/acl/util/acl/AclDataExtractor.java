@@ -16,16 +16,19 @@
 
 package io.fd.hc2vpp.acl.util.acl;
 
+import com.google.common.base.Preconditions;
+import io.fd.hc2vpp.acl.write.AclValidator;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.Matches;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppAclAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.VppAce;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.VppMacipAce;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppAcl;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppAclAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppMacipAcl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.AclBase;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.Ipv4AclType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.Ace;
 
 /**
  * Extracts data from Acls.
@@ -34,31 +37,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.
 public interface AclDataExtractor {
 
     /**
-     * Checks if provided {@link Acl} has aces of type {@link VppAce}
+     * Checks if provided {@link Acl} has aces of type {@link Ipv4AclType} or {@link VppAcl}
      */
     default boolean isStandardAcl(@Nonnull final Acl acl) {
-        return acl.getAccessListEntries().getAce().stream()
-                .map(Ace::getMatches)
-                .map(Matches::getAceType)
-                .filter(aceType -> aceType instanceof VppAce)
-                .findAny()
-                .isPresent();
+        Class<? extends AclBase> type =
+                Preconditions.checkNotNull(acl.getType(), "Type is not set for ACL:{}", acl);
+        return type.equals(VppAcl.class);
     }
 
     /**
-     * Checks if provided {@link Acl} has aces of type {@link VppMacipAce}
+     * Checks if provided {@link Acl} has aces of type {@link VppMacipAcl}
      */
     default boolean isMacIpAcl(@Nonnull final Acl acl) {
-        return acl.getAccessListEntries().getAce().stream()
-                .map(Ace::getMatches)
-                .map(Matches::getAceType)
-                .filter(aceType -> aceType instanceof VppMacipAce)
-                .findAny()
-                .isPresent();
+        Class<? extends AclBase> type =
+                Preconditions.checkNotNull(acl.getType(), "Type is not set for ACL:{}", acl);
+        return type.equals(VppMacipAcl.class);
     }
 
     default List<Ace> getAces(@Nonnull final Acl acl) {
-        return Optional.ofNullable(acl.getAccessListEntries()).orElseThrow(() ->
+        return Optional.ofNullable(acl.getAces()).orElseThrow(() ->
                 new IllegalArgumentException(String.format("Unable to extract aces from %s", acl))).getAce();
     }
 

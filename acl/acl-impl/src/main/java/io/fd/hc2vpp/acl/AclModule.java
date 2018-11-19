@@ -26,8 +26,8 @@ import io.fd.hc2vpp.acl.read.factory.AclReaderFactory;
 import io.fd.hc2vpp.acl.read.factory.InterfaceAclReaderFactory;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.AclContextManagerImpl;
+import io.fd.hc2vpp.acl.write.factory.AclWriterFactory;
 import io.fd.hc2vpp.acl.write.factory.InterfaceAclWriterFactory;
-import io.fd.hc2vpp.acl.write.factory.VppAclWriterFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
@@ -72,7 +72,7 @@ public class AclModule extends AbstractModule {
 
         final Multibinder<WriterFactory> writerFactoryMultibinder =
                 Multibinder.newSetBinder(binder(), WriterFactory.class);
-        writerFactoryMultibinder.addBinding().to(VppAclWriterFactory.class);
+        writerFactoryMultibinder.addBinding().to(AclWriterFactory.class);
         writerFactoryMultibinder.addBinding().to(InterfaceAclWriterFactory.class);
 
         final Multibinder<ReaderFactory> readerFactoryMultibinder =

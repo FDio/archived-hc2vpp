@@ -1,6 +1,6 @@
 module vpp-acl-context {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:vpp:acl:context";
+    namespace "http://fd.io/hc2vpp/yang/vpp/acl/context";
     prefix "vac";
 
     import naming-context {

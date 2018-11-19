@@ -26,10 +26,10 @@ import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 /**
  * Created by jsrnicek on 12.12.2016.
  */
-class AbstractAclWriterFactory {
+abstract class AbstractAclWriterFactory {
 
     @Inject
-    protected FutureJVppAclFacade futureAclFacade;
+    FutureJVppAclFacade futureAclFacade;
 
     @Inject
     @Named(AclModule.STANDARD_ACL_CONTEXT_NAME)
@@ -37,7 +37,7 @@ class AbstractAclWriterFactory {
 
     @Inject
     @Named(AclModule.MAC_IP_ACL_CONTEXT_NAME)
-    protected AclContextManager macIpAClContext;
+    protected AclContextManager macIpAclContext;
 
     @Inject
     @Named("interface-context")

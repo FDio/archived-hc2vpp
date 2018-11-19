@@ -16,30 +16,32 @@
 
 package io.fd.hc2vpp.acl.read;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static io.fd.vpp.jvpp.Assertions.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceListDetailsReplyDump;
 import javax.annotation.Nonnull;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.Ingress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.IngressBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAcls;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAclsKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.Ingress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.AclSets;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.AclSetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.acl.sets.AclSet;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.acl.sets.AclSetKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class IngressVppAclCustomizerTest extends AbstractVppAclCustomizerTest {
+public class IngressAclCustomizerTest extends AbstractAclCustomizerTest {
 
-    public IngressVppAclCustomizerTest() {
-        super(IngressBuilder.class);
+    public IngressAclCustomizerTest() {
+        super(AclSetsBuilder.class);
     }
 
     @Override
-    protected IngressVppAclCustomizer initCustomizer() {
-        return new IngressVppAclCustomizer(aclApi, interfaceContext, standardAclContext);
+    protected IngressAclCustomizer initCustomizer() {
+        return new IngressAclCustomizer(aclApi, interfaceContext, standardAclContext, macIpAclContext);
     }
+
 
     @Test
     public void testGetAllIdsNoInputAclConfigured() throws ReadFailedException {
@@ -57,12 +59,12 @@ public class IngressVppAclCustomizerTest extends AbstractVppAclCustomizerTest {
     }
 
     @Override
-    protected InstanceIdentifier<VppAcls> getWildcardedIid(@Nonnull final String ifName) {
-        return getAclId(ifName).child(Ingress.class).child(VppAcls.class);
+    protected InstanceIdentifier<AclSet> getWildcardedIid(@Nonnull final String ifName) {
+        return getAclId(ifName).child(Ingress.class).child(AclSets.class).child(AclSet.class);
     }
 
     @Override
-    protected InstanceIdentifier<VppAcls> getIid(@Nonnull final String ifName, @Nonnull final VppAclsKey key) {
-        return getAclId(ifName).child(Ingress.class).child(VppAcls.class, key);
+    protected InstanceIdentifier<AclSet> getIid(@Nonnull final String ifName, @Nonnull final AclSetKey key) {
+        return getAclId(ifName).child(Ingress.class).child(AclSets.class).child(AclSet.class, key);
     }
 }

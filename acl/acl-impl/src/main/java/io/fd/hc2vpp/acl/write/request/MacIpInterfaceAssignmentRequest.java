@@ -15,7 +15,7 @@
  */
 
 
-package io.fd.hc2vpp.acl.util.iface.macip;
+package io.fd.hc2vpp.acl.write.request;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -28,8 +28,7 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceAddDel;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAcl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,8 @@ public class MacIpInterfaceAssignmentRequest implements ByteDataTranslator, Jvpp
 
     private final boolean isNew;
     private final MappingContext mappingContext;
-    private InstanceIdentifier<VppMacipAcl> identifier;
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.Interface>
+            identifier;
     private String aclName;
     private AclContextManager macIpAclContext;
     private NamingContext interfaceContext;
@@ -59,7 +59,8 @@ public class MacIpInterfaceAssignmentRequest implements ByteDataTranslator, Jvpp
         return new MacIpInterfaceAssignmentRequest(false, mappingContext);
     }
 
-    public MacIpInterfaceAssignmentRequest identifier(@Nonnull final InstanceIdentifier<VppMacipAcl> identifier) {
+    public MacIpInterfaceAssignmentRequest identifier(
+            @Nonnull final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.Interface> identifier) {
         this.identifier = identifier;
         return this;
     }
@@ -93,7 +94,7 @@ public class MacIpInterfaceAssignmentRequest implements ByteDataTranslator, Jvpp
         synchronized (mappingContext) {
             checkValidRequest();
 
-            final String interfaceName = identifier.firstKeyOf(Interface.class).getName();
+            final String interfaceName = identifier.firstKeyOf(Interface.class).getInterfaceId();
 
             MacipAclInterfaceAddDel request = new MacipAclInterfaceAddDel();
             request.isAdd = booleanToByte(isNew);

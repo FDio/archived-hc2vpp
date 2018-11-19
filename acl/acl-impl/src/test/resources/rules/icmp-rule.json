@@ -1,23 +1,25 @@
 {
-  "access-lists": {
+  "acls": {
     "acl": [
       {
-        "acl-name": "standard-acl",
-        "acl-type": "vpp-acl:vpp-acl",
-        "access-list-entries": {
+        "name": "standard-acl",
+        "type": "vpp-acl:vpp-acl",
+        "aces": {
           "ace": [
             {
-              "rule-name": "imcp-rule",
+              "name": "imcp-rule",
               "matches": {
-                "vpp-ace-nodes": {
-                  "destination-ipv4-network": "192.168.2.1/32",
+                "ipv4": {
                   "source-ipv4-network": "192.168.2.2/32",
-                  "icmp-nodes": {
-                    "icmp-type-range": {
+                  "destination-ipv4-network": "192.168.2.1/32"
+                },
+                "icmp": {
+                  "vpp-acl:vpp-icmp-ace": {
+                    "vpp-acl:icmp-type-range": {
                       "first": "5",
                       "last": "8"
                     },
-                    "icmp-code-range": {
+                    "vpp-acl:icmp-code-range": {
                       "first": "1",
                       "last": "3"
                     }

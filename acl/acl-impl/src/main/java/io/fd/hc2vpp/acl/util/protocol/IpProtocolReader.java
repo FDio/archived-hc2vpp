@@ -21,40 +21,42 @@ import static io.fd.hc2vpp.acl.util.protocol.ProtoPreBindRuleProducer.ICMP_INDEX
 import static io.fd.hc2vpp.acl.util.protocol.ProtoPreBindRuleProducer.TCP_INDEX;
 import static io.fd.hc2vpp.acl.util.protocol.ProtoPreBindRuleProducer.UDP_INDEX;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.fd.vpp.jvpp.acl.types.AclRule;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppIcmpAceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppIcmpAceAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppTcpAceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppTcpAceAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.acl.icmp.header.fields.IcmpCodeRange;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.acl.icmp.header.fields.IcmpCodeRangeBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.acl.icmp.header.fields.IcmpTypeRange;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.acl.icmp.header.fields.IcmpTypeRangeBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.acls.acl.aces.ace.matches.l4.icmp.icmp.VppIcmpAceBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.acls.acl.aces.ace.matches.l4.tcp.tcp.VppTcpAceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.L4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.Icmp;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.IcmpBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.Tcp;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.TcpBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.Udp;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.UdpBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.tcp.tcp.DestinationPortBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.tcp.tcp.SourcePortBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.tcp.tcp.source.port.source.port.RangeOrOperatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.DestinationPortRange;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.DestinationPortRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.SourcePortRange;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.SourcePortRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.icmp.header.fields.IcmpCodeRange;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.icmp.header.fields.IcmpCodeRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.icmp.header.fields.IcmpTypeRange;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.icmp.header.fields.IcmpTypeRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.IpProtocol;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.Icmp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.IcmpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.IcmpV6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.IcmpV6Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.Other;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.OtherBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.Tcp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.TcpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.Udp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.UdpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.icmp.IcmpNodesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.icmp.v6.IcmpV6NodesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.other.OtherNodesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.tcp.TcpNodesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.udp.UdpNodesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.AclTcpHeaderFields;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.port.range.or.operator.PortRangeOrOperator;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.port.range.or.operator.port.range.or.operator.Range;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.port.range.or.operator.port.range.or.operator.RangeBuilder;
 
 /**
  * Utility for parsing IpProtocol DO based on data returned by vpp as {@link AclRule}.
  */
 public interface IpProtocolReader {
 
-    default IpProtocol parseProtocol(final AclRule rule) {
+    default L4 parseProtocol(final AclRule rule) {
         switch (rule.proto) {
+            case ICMPV6_INDEX:
             case ICMP_INDEX: {
                 return Impl.parseIcmp(rule);
             }
@@ -66,14 +68,8 @@ public interface IpProtocolReader {
             case UDP_INDEX: {
                 return Impl.parseUdp(rule);
             }
-
-            case ICMPV6_INDEX: {
-                return Impl.parseIcmp6(rule);
-            }
-            default: {
-                return Impl.parse(rule);
-            }
         }
+        return null;
     }
 
     class Impl {
@@ -91,51 +87,107 @@ public interface IpProtocolReader {
         }
 
         private static Icmp parseIcmp(final AclRule rule) {
-            final IcmpNodesBuilder nodes = new IcmpNodesBuilder();
-            nodes.setIcmpCodeRange(parseIcmpCodeRange(rule));
-            nodes.setIcmpTypeRange(parseIcmpTypeRange(rule));
-            return new IcmpBuilder().setIcmpNodes(nodes.build()).build();
+            return new IcmpBuilder().setIcmp(
+                    new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.icmp.IcmpBuilder()
+                            .addAugmentation(VppIcmpAceAugmentation.class,
+                                    new VppIcmpAceAugmentationBuilder()
+                                            .setVppIcmpAce(new VppIcmpAceBuilder()
+                                                    .setIcmpCodeRange(parseIcmpCodeRange(rule))
+                                                    .setIcmpTypeRange(parseIcmpTypeRange(rule))
+                                                    .build())
+                                            .build())
+                            .build())
+                    .build();
         }
 
-        private static DestinationPortRange parseDstPortRange(final AclRule rule) {
-            return new DestinationPortRangeBuilder()
-                .setLowerPort(new PortNumber(Short.toUnsignedInt(rule.dstportOrIcmpcodeFirst)))
-                .setUpperPort(new PortNumber(Short.toUnsignedInt(rule.dstportOrIcmpcodeLast))).build();
+        private static PortRangeOrOperator parseDstPortRange(final AclRule rule) {
+            return new RangeBuilder()
+                    .setLowerPort(new PortNumber(Short.toUnsignedInt(rule.dstportOrIcmpcodeFirst)))
+                    .setUpperPort(new PortNumber(Short.toUnsignedInt(rule.dstportOrIcmpcodeLast))).build();
         }
 
-        private static SourcePortRange parseSrcPortRange(final AclRule rule) {
-            return new SourcePortRangeBuilder()
+        private static Range parseSrcPortRange(final AclRule rule) {
+            return new RangeBuilder()
                 .setLowerPort(new PortNumber(Short.toUnsignedInt(rule.srcportOrIcmptypeFirst)))
                 .setUpperPort(new PortNumber(Short.toUnsignedInt(rule.srcportOrIcmptypeLast))).build();
         }
 
         private static Tcp parseTcp(final AclRule rule) {
-            final TcpNodesBuilder nodes = new TcpNodesBuilder();
-            nodes.setDestinationPortRange(parseDstPortRange(rule));
-            nodes.setSourcePortRange(parseSrcPortRange(rule));
-            nodes.setTcpFlagsMask((short) Byte.toUnsignedInt(rule.tcpFlagsMask));
-            nodes.setTcpFlagsValue((short) Byte.toUnsignedInt(rule.tcpFlagsValue));
-            return new TcpBuilder().setTcpNodes(nodes.build()).build();
+            return new TcpBuilder().setTcp(
+                    new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.tcp.TcpBuilder()
+                            .setFlags(parseTcpFlags((short) Byte.toUnsignedInt(rule.tcpFlagsValue)))
+                            .addAugmentation(VppTcpAceAugmentation.class, new VppTcpAceAugmentationBuilder()
+                                    .setVppTcpAce(new VppTcpAceBuilder()
+                                            .setFlagsMask(
+                                                    parseTcpFlagsMask((short) Byte.toUnsignedInt(rule.tcpFlagsMask)))
+                                            .build())
+                                    .build())
+                            .setSourcePort(new SourcePortBuilder()
+                                    .setSourcePort(new RangeOrOperatorBuilder()
+                                            .setPortRangeOrOperator(parseSrcPortRange(rule))
+                                            .build())
+                                    .build())
+                            .setDestinationPort(new DestinationPortBuilder()
+                                    .setDestinationPort(
+                                            new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.tcp.tcp.destination.port.destination.port.RangeOrOperatorBuilder()
+                                                    .setPortRangeOrOperator(parseDstPortRange(rule))
+                                                    .build())
+                                    .build())
+                            .build())
+                    .build();
+        }
+
+        @VisibleForTesting
+        private static org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.AclTcpHeaderFields.FlagsMask parseTcpFlagsMask(
+                final short tcpFlagsMask) {
+            // Flags from bit on position 1 to 8
+            final Boolean cwr = (tcpFlagsMask & 0b00000001) == 1;
+            final Boolean ece = (tcpFlagsMask & 0b00000010) >> 1 == 1;
+            final Boolean urg = (tcpFlagsMask & 0b00000100) >> 2 == 1;
+            final Boolean ack = (tcpFlagsMask & 0b00001000) >> 3 == 1;
+            final Boolean psh = (tcpFlagsMask & 0b00010000) >> 4 == 1;
+            final Boolean rst = (tcpFlagsMask & 0b00100000) >> 5 == 1;
+            final Boolean syn = (tcpFlagsMask & 0b01000000) >> 6 == 1;
+            final Boolean fin = (tcpFlagsMask & 0b10000000) >> 7 == 1;
+
+            return new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.AclTcpHeaderFields.FlagsMask(
+                    ack, cwr, ece, fin, psh, rst, syn, urg);
+        }
+
+        @VisibleForTesting
+        private static AclTcpHeaderFields.Flags parseTcpFlags(final short tcpFlagsValue) {
+            // Flags from bit on position 1 to 8
+            final Boolean cwr = (tcpFlagsValue & 0b00000001) == 1;
+            final Boolean ece = (tcpFlagsValue & 0b00000010) >> 1 == 1;
+            final Boolean urg = (tcpFlagsValue & 0b00000100) >> 2 == 1;
+            final Boolean ack = (tcpFlagsValue & 0b00001000) >> 3 == 1;
+            final Boolean psh = (tcpFlagsValue & 0b00010000) >> 4 == 1;
+            final Boolean rst = (tcpFlagsValue & 0b00100000) >> 5 == 1;
+            final Boolean syn = (tcpFlagsValue & 0b01000000) >> 6 == 1;
+            final Boolean fin = (tcpFlagsValue & 0b10000000) >> 7 == 1;
+
+            return new AclTcpHeaderFields.Flags(ack, cwr, ece, fin, psh, rst, syn, urg);
         }
 
         private static Udp parseUdp(final AclRule rule) {
-            final UdpNodesBuilder nodes = new UdpNodesBuilder();
-            nodes.setDestinationPortRange(parseDstPortRange(rule));
-            nodes.setSourcePortRange(parseSrcPortRange(rule));
-            return new UdpBuilder().setUdpNodes(nodes.build()).build();
-        }
-
-        private static IcmpV6 parseIcmp6(final AclRule rule) {
-            final IcmpV6NodesBuilder nodes = new IcmpV6NodesBuilder();
-            nodes.setIcmpCodeRange(parseIcmpCodeRange(rule));
-            nodes.setIcmpTypeRange(parseIcmpTypeRange(rule));
-            return new IcmpV6Builder().setIcmpV6Nodes(nodes.build()).build();
-        }
-
-        private static Other parse(final AclRule rule) {
-            final OtherNodesBuilder nodes = new OtherNodesBuilder();
-            nodes.setProtocol((short) Short.toUnsignedInt(rule.proto));
-            return new OtherBuilder().setOtherNodes(nodes.build()).build();
+            return new UdpBuilder().setUdp(
+                    new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.udp.UdpBuilder()
+                            .setSourcePort(
+                                    new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.udp.udp.SourcePortBuilder()
+                                            .setSourcePort(
+                                                    new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.udp.udp.source.port.source.port.RangeOrOperatorBuilder()
+                                                            .setPortRangeOrOperator(parseSrcPortRange(rule))
+                                                            .build())
+                                            .build())
+                            .setDestinationPort(
+                                    new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.udp.udp.DestinationPortBuilder()
+                                            .setDestinationPort(
+                                                    new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.udp.udp.destination.port.destination.port.RangeOrOperatorBuilder()
+                                                            .setPortRangeOrOperator(parseDstPortRange(rule))
+                                                            .build())
+                                            .build())
+                            .build())
+                    .build();
         }
     }
 }

@@ -41,16 +41,13 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AccessListsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AclBase;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.AclBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.AclKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.AccessListEntriesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppAcl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppAclAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppAclAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppMacipAcl;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppAclAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppAclAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.AclsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.AclKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.AcesBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -119,7 +116,7 @@ public class AclCustomizer extends FutureJVppAclCustomizer
         if (vppAclDump.isPresent()) {
             vppAclDump.get().aclDetails.stream()
                 .map(details -> standardAclContext.getAclName(details.aclIndex, context.getMappingContext()))
-                .forEach(name -> keys.add(new AclKey(name, VppAcl.class)));
+                    .forEach(name -> keys.add(new AclKey(name)));
         }
 
         final Optional<MacipAclDetailsReplyDump> macipAclDump =
@@ -127,7 +124,7 @@ public class AclCustomizer extends FutureJVppAclCustomizer
         if (macipAclDump.isPresent()) {
             macipAclDump.get().macipAclDetails.stream()
                 .map(details -> macipAclContext.getAclName(details.aclIndex, context.getMappingContext()))
-                .forEach(name -> keys.add(new AclKey(name, VppMacipAcl.class)));
+                    .forEach(name -> keys.add(new AclKey(name)));
         }
 
         return keys;
@@ -135,7 +132,7 @@ public class AclCustomizer extends FutureJVppAclCustomizer
 
     @Override
     public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<Acl> readData) {
-        ((AccessListsBuilder)builder).setAcl(readData);
+        ((AclsBuilder) builder).setAcl(readData);
     }
 
     @Nonnull
@@ -149,10 +146,9 @@ public class AclCustomizer extends FutureJVppAclCustomizer
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
         final AclKey key = id.firstKeyOf(Acl.class);
         builder.withKey(key);
-        final Class<? extends AclBase> aclType = key.getAclType();
-        final String name = key.getAclName();
+        final String name = key.getName();
 
-        if (aclType.equals(VppAcl.class)) {
+        if (standardAclContext.containsAcl(name, ctx.getMappingContext())) {
             final int index = standardAclContext.getAclIndex(name, ctx.getMappingContext());
             final Optional<AclDetailsReplyDump> dump = vppAclDumpManager.getDump(id, ctx.getModificationCache(), index);
 
@@ -162,12 +158,12 @@ public class AclCustomizer extends FutureJVppAclCustomizer
                 if (detail.isPresent()) {
                     final AclDetails aclDetails = detail.get();
                     setTag(builder, aclDetails.tag);
-                    builder.setAccessListEntries(new AccessListEntriesBuilder()
+                    builder.setAces(new AcesBuilder()
                         .setAce(toStandardAces(name, aclDetails.r, standardAclContext, ctx.getMappingContext()))
                         .build());
                 }
             }
-        } else if (aclType.equals(VppMacipAcl.class)) {
+        } else if (macipAclContext.containsAcl(name, ctx.getMappingContext())) {
             final int index = macipAclContext.getAclIndex(name, ctx.getMappingContext());
             final Optional<MacipAclDetailsReplyDump> dump =
                 macipAclDumpManager.getDump(id, ctx.getModificationCache(), index);
@@ -178,13 +174,13 @@ public class AclCustomizer extends FutureJVppAclCustomizer
                 final MacipAclDetails macipAclDetails = detail.get();
                 setTag(builder, macipAclDetails.tag);
                 if (detail.isPresent()) {
-                    builder.setAccessListEntries(new AccessListEntriesBuilder()
+                    builder.setAces(new AcesBuilder()
                         .setAce(toMacIpAces(name, macipAclDetails.r, macipAclContext, ctx.getMappingContext()))
                         .build());
                 }
             }
         } else {
-            throw new IllegalArgumentException("Unsupported acl type: " + aclType);
+            throw new IllegalArgumentException("Unsupported acl: " + id);
         }
     }
 

@@ -1,13 +1,13 @@
 {
-  "access-lists": {
+  "acls": {
     "acl": [
       {
-        "acl-name": "standard-acl",
-        "acl-type": "ipv4-acl",
-        "access-list-entries": {
+        "name": "standard-acl",
+        "type": "ipv4-acl-type",
+        "aces": {
           "ace": [
             {
-              "rule-name": "rule1"
+              "name": "rule1"
             }
           ]
         }

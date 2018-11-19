@@ -25,21 +25,23 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceListDetailsReplyDump;
 import javax.annotation.Nonnull;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.Egress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.EgressBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAcls;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAclsKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.Egress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.AclSets;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.AclSetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.acl.sets.AclSet;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.acl.sets.AclSetKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
-public class EgressVppAclCustomizerTest extends AbstractVppAclCustomizerTest {
+public class EgressAclCustomizerTest extends AbstractAclCustomizerTest {
 
-    public EgressVppAclCustomizerTest() {
-        super(EgressBuilder.class);
+    public EgressAclCustomizerTest() {
+        super(AclSetsBuilder.class);
     }
 
     @Override
-    protected EgressVppAclCustomizer initCustomizer() {
-        return new EgressVppAclCustomizer(aclApi, interfaceContext, standardAclContext);
+    protected EgressAclCustomizer initCustomizer() {
+        return new EgressAclCustomizer(aclApi, interfaceContext, standardAclContext);
     }
 
     @Test
@@ -57,12 +59,12 @@ public class EgressVppAclCustomizerTest extends AbstractVppAclCustomizerTest {
     }
 
     @Override
-    protected InstanceIdentifier<VppAcls> getWildcardedIid(@Nonnull final String ifName) {
-        return getAclId(ifName).child(Egress.class).child(VppAcls.class);
+    protected InstanceIdentifier<AclSet> getWildcardedIid(@Nonnull final String ifName) {
+        return getAclId(ifName).child(Egress.class).child(AclSets.class).child(AclSet.class);
     }
 
-    @Override
-    protected InstanceIdentifier<VppAcls> getIid(@Nonnull final String ifName, @Nonnull final VppAclsKey key) {
-        return getAclId(ifName).child(Egress.class).child(VppAcls.class, key);
+    protected KeyedInstanceIdentifier<AclSet, AclSetKey> getIid(@Nonnull final String ifName,
+                                                                @Nonnull final AclSetKey key) {
+        return getAclId(ifName).child(Egress.class).child(AclSets.class).child(AclSet.class, key);
     }
 }

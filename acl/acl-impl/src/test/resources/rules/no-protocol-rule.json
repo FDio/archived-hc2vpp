@@ -1,17 +1,17 @@
 {
-  "access-lists": {
+  "acls": {
     "acl": [
       {
-        "acl-name": "standard-acl",
-        "acl-type": "vpp-acl:vpp-acl",
-        "access-list-entries": {
+        "name": "standard-acl",
+        "type": "vpp-acl:vpp-acl",
+        "aces": {
           "ace": [
             {
-              "rule-name": "no-protocol-rule",
+              "name": "no-protocol-rule",
               "matches": {
-                "vpp-ace-nodes": {
-                  "destination-ipv4-network": "192.168.2.1/32",
-                  "source-ipv4-network": "192.168.2.2/32"
+                "ipv4": {
+                  "source-ipv4-network": "192.168.2.2/32",
+                  "destination-ipv4-network": "192.168.2.1/32"
                 }
               }
             }

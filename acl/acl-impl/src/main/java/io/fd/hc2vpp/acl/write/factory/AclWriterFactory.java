@@ -16,28 +16,24 @@
 
 package io.fd.hc2vpp.acl.write.factory;
 
-import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.acl.AclIIds;
-import io.fd.hc2vpp.acl.write.InterfaceAclCustomizer;
-import io.fd.honeycomb.translate.impl.write.GenericWriter;
+import io.fd.hc2vpp.acl.write.AclCustomizer;
+import io.fd.hc2vpp.acl.write.AclValidator;
+import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
-import java.util.Set;
 import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class InterfaceAclWriterFactory extends AbstractAclWriterFactory implements WriterFactory {
+public class AclWriterFactory extends AbstractAclWriterFactory implements WriterFactory {
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
-        registry.subtreeAddAfter(AclIIds.aclHandledChildren(AclIIds.IFC_ACL),
-                new GenericWriter<>(AclIIds.ACLS_AP_INT,
-                        new InterfaceAclCustomizer(futureAclFacade, interfaceContext, standardAclContext,
-                                macIpAclContext)),
-                aclRequiredIids());
-    }
 
-    static Set<InstanceIdentifier<?>> aclRequiredIids() {
-        return ImmutableSet.of(AclIIds.IFC, AclIIds.IFC_ACL, AclIIds.ACLS_ACL);
+        registry.subtreeAddBefore(AclIIds.vppAclChildren(AclIIds.ACL),
+                new GenericListWriter<>(AclIIds.ACLS_ACL,
+                        new AclCustomizer(futureAclFacade, standardAclContext, macIpAclContext),
+                        new AclValidator()
+                ),
+                AclIIds.aclHandledChildren(AclIIds.IFC_ACL));
     }
 }

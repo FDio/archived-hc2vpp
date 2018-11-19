@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.acl.AclIIds;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.test.read.InitializingListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -35,29 +36,34 @@ import io.fd.vpp.jvpp.acl.dto.AclDetailsReplyDump;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceListDetails;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceListDetailsReplyDump;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceListDump;
+import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceGetReply;
+import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceListDetails;
+import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceListDetailsReplyDump;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.annotation.Nonnull;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.VppAclInterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAcls;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAclsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAclsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppAcl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.acl.sets.AclSet;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.acl.sets.AclSetBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.acl.sets.AclSetKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
-public abstract class AbstractVppAclCustomizerTest
-    extends InitializingListReaderCustomizerTest<VppAcls, VppAclsKey, VppAclsBuilder> {
+public abstract class AbstractAclCustomizerTest
+        extends InitializingListReaderCustomizerTest<AclSet, AclSetKey, AclSetBuilder> {
 
     protected static final String IF_NAME = "eth1";
     protected static final int IF_ID = 1;
+    protected static final int ACL_ID = 1;
+    protected static final int ACL_MAC_ID = 2;
+    private static final String ACL_NAME = "acl-name";
+    private static final String ACL_MAC_NAME = "acl-mac-name";
 
     protected static final String IF_NAME_NO_ACL = "eth2";
     protected static final int IF_ID_NO_ACL = 2;
@@ -73,32 +79,39 @@ public abstract class AbstractVppAclCustomizerTest
     @Mock
     protected AclContextManager standardAclContext;
 
-    protected AbstractVppAclCustomizerTest(final Class<? extends Builder<? extends DataObject>> parentBuilderClass) {
-        super(VppAcls.class, parentBuilderClass);
+    @Mock
+    protected AclContextManager macIpAclContext;
+
+    protected AbstractAclCustomizerTest(final Class<? extends Builder<? extends DataObject>> parentBuilderClass) {
+        super(AclSet.class, parentBuilderClass);
     }
 
-    protected static InstanceIdentifier<Acl> getAclId(final String ifName) {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(ifName))
-            .augmentation(VppAclInterfaceStateAugmentation.class).child(Acl.class);
+    protected static KeyedInstanceIdentifier<Interface, InterfaceKey> getAclId(final String ifName) {
+        return AclIIds.ACLS_AP.child(Interface.class, new InterfaceKey(ifName));
     }
 
     @Override
     protected void setUp() throws Exception {
         defineMapping(mappingContext, IF_NAME, IF_ID, IFC_CTX_NAME);
         defineMapping(mappingContext, IF_NAME_NO_ACL, IF_ID_NO_ACL, IFC_CTX_NAME);
+        when(macIpAclContext.getAclName(ACL_MAC_ID, mappingContext)).thenReturn(ACL_MAC_NAME);
+        when(standardAclContext.getAclName(ACL_ID, mappingContext)).thenReturn(ACL_NAME);
+        when(macIpAclContext.containsAcl(ACL_MAC_NAME, mappingContext)).thenReturn(true);
+        when(standardAclContext.containsAcl(ACL_NAME, mappingContext)).thenReturn(true);
+        final MacipAclInterfaceListDetailsReplyDump macReply = macAaclInterfaceDump(0);
+        when(aclApi.macipAclInterfaceListDump(any())).thenReturn(future(macReply));
+        final AclInterfaceListDetailsReplyDump reply = aclInterfaceDump((byte) 0);
+        when(aclApi.aclInterfaceListDump(any())).thenReturn(future(reply));
     }
 
     @Test
     public void testGetAllIdsNoAclConfigured() throws ReadFailedException {
-        final AclInterfaceListDetailsReplyDump reply = aclInterfaceDump((byte) 0);
-        when(aclApi.aclInterfaceListDump(any())).thenReturn(future(reply));
         assertTrue(getCustomizer().getAllIds(getWildcardedIid(IF_NAME), ctx).isEmpty());
     }
 
     @Test
     public void testRead() throws ReadFailedException {
         final String aclName = "acl-name";
-        final Class<VppAcl> aclType = VppAcl.class;
         defineMapping(mappingContext, aclName, 1, ACL_CTX_NAME);
 
         final AclDetailsReplyDump reply = new AclDetailsReplyDump();
@@ -108,19 +121,25 @@ public abstract class AbstractVppAclCustomizerTest
         reply.aclDetails.add(detail);
         when(aclApi.aclDump(any())).thenReturn(future(reply));
 
-        final VppAclsBuilder builder = mock(VppAclsBuilder.class);
-        getCustomizer().readCurrentAttributes(getIid(IF_NAME, new VppAclsKey(aclName, aclType)), builder, ctx);
+        final AclSetBuilder builder = mock(AclSetBuilder.class);
+        getCustomizer().readCurrentAttributes(getIid(IF_NAME, new AclSetKey(aclName)), builder, ctx);
         verify(builder).setName(aclName);
-        verify(builder).setType(aclType);
     }
 
     @Test
     public void testReadAllTwoIfacesInOneTx() throws ReadFailedException {
         final AclInterfaceListDetailsReplyDump reply = aclInterfaceDump((byte) 2, "acl1", "acl2", "acl3");
+        final MacipAclInterfaceListDetailsReplyDump macReply = macAaclInterfaceDump(0);
+        final MacipAclInterfaceListDetailsReplyDump macReply2 = macAaclInterfaceDump(1);
+        final MacipAclInterfaceGetReply interfaceGet = macipAclInterfaceGetReply();
+
+
         when(aclApi.aclInterfaceListDump(aclInterfaceRequest(IF_ID))).thenReturn(future(reply));
+        when(aclApi.macipAclInterfaceListDump(any())).thenReturn(future(macReply));
+        when(aclApi.macipAclInterfaceGet(any())).thenReturn(future(interfaceGet));
 
         when(aclApi.aclInterfaceListDump(aclInterfaceRequest(IF_ID_NO_ACL)))
-            .thenReturn(future(aclInterfaceDump((byte) 0)));
+                .thenReturn(future(aclInterfaceDump((byte) 0)));
 
         // read all for interface with defined ACLs:
         assertFalse(getCustomizer().getAllIds(getWildcardedIid(IF_NAME), ctx).isEmpty());
@@ -128,19 +147,28 @@ public abstract class AbstractVppAclCustomizerTest
         assertEquals(0, getCustomizer().getAllIds(getWildcardedIid(IF_NAME_NO_ACL), ctx).size());
     }
 
+    protected MacipAclInterfaceGetReply macipAclInterfaceGetReply(final String... aclNames) {
+        final MacipAclInterfaceGetReply reply = new MacipAclInterfaceGetReply();
+        reply.acls = new int[aclNames.length];
+        for (int i = 0; i < aclNames.length; ++i) {
+            defineMapping(mappingContext, aclNames[i], i, ACL_CTX_NAME);
+            reply.acls[i] = i;
+        }
+        reply.count = (byte) aclNames.length;
+        return reply;
+    }
+
     @Test
     public void testInit() {
         final String aclName = "acl-name";
-        final Class<VppAcl> aclType = VppAcl.class;
         defineMapping(mappingContext, aclName, 1, ACL_CTX_NAME);
 
-        final VppAcls readValue = new VppAclsBuilder().build();
+        final AclSet readValue = new AclSetBuilder().build();
         final Initialized<? extends DataObject> cfgValue =
-            getCustomizer().init(getIid(IF_NAME, new VppAclsKey(aclName, aclType)), readValue, ctx);
+                getCustomizer().init(getIid(IF_NAME, new AclSetKey(aclName)), readValue, ctx);
         assertEquals(readValue, cfgValue.getData());
-        assertNotNull(cfgValue.getId().firstKeyOf(
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class));
-        assertEquals(cfgValue.getId().getTargetType(), VppAcls.class);
+        assertNotNull(cfgValue.getId().firstKeyOf(Interface.class));
+        assertEquals(cfgValue.getId().getTargetType(), AclSet.class);
     }
 
     protected AclInterfaceListDump aclInterfaceRequest(final int swIfIndex) {
@@ -157,12 +185,31 @@ public abstract class AbstractVppAclCustomizerTest
             defineMapping(mappingContext, aclNames[i], i, ACL_CTX_NAME);
             details.acls[i] = i;
         }
+        details.count = (byte) aclNames.length;
         details.nInput = nInput;
         reply.aclInterfaceListDetails.add(details);
         return reply;
     }
 
-    protected abstract InstanceIdentifier<VppAcls> getWildcardedIid(@Nonnull final String ifName);
+    protected MacipAclInterfaceListDetailsReplyDump macAaclInterfaceDump(int swIfIndex, final String... aclNames) {
+        final MacipAclInterfaceListDetailsReplyDump assignedAcls = new MacipAclInterfaceListDetailsReplyDump();
 
-    protected abstract InstanceIdentifier<VppAcls> getIid(@Nonnull final String ifName, @Nonnull final VppAclsKey key);
+        MacipAclInterfaceListDetails details = new MacipAclInterfaceListDetails();
+        details.swIfIndex = swIfIndex;
+        details.count = (byte) aclNames.length;
+        details.acls = new int[aclNames.length];
+        for (int i = 0; i < aclNames.length; ++i) {
+            defineMapping(mappingContext, aclNames[i], i, ACL_CTX_NAME);
+            details.acls[i] = i;
+        }
+
+        assignedAcls.macipAclInterfaceListDetails.add(details);
+        assignedAcls.macipAclInterfaceListDetails = Collections.singletonList(details);
+
+        return assignedAcls;
+    }
+
+    protected abstract InstanceIdentifier<AclSet> getWildcardedIid(@Nonnull final String ifName);
+
+    protected abstract InstanceIdentifier<AclSet> getIid(@Nonnull final String ifName, @Nonnull final AclSetKey key);
 }

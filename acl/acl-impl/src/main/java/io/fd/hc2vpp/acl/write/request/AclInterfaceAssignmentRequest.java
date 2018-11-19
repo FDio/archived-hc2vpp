@@ -15,7 +15,7 @@
  */
 
 
-package io.fd.hc2vpp.acl.util.iface.acl;
+package io.fd.hc2vpp.acl.write.request;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -32,8 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,8 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceAssignmentRequest.class);
 
     private final MappingContext mappingContext;
-    private InstanceIdentifier<Acl> identifier;
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.Interface>
+            identifier;
     private List<String> inputAclNames = Collections.emptyList();
     private List<String> outputAclNames = Collections.emptyList();
     private AclContextManager standardAclContext;
@@ -62,7 +62,7 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
     }
 
     public AclInterfaceAssignmentRequest identifier(
-            @Nonnull final InstanceIdentifier<Acl> identifier) {
+            @Nonnull final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.Interface> identifier) {
         this.identifier = identifier;
         return this;
     }
@@ -97,7 +97,7 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
 
     public void executeAsCreate(@Nonnull final FutureJVppAclFacade api) throws WriteFailedException {
         checkValidRequest();
-        final String interfaceName = identifier.firstKeyOf(Interface.class).getName();
+        final String interfaceName = identifier.firstKeyOf(Interface.class).getInterfaceId();
 
         // locking on mapping context, to prevent modifying of mappings (for both contexts) during binding/execution of request
         synchronized (mappingContext) {
@@ -113,10 +113,12 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
         }
     }
 
-    public void executeAsUpdate(@Nonnull final FutureJVppAclFacade api, final Acl before, final Acl after)
+    public void executeAsUpdate(@Nonnull final FutureJVppAclFacade api,
+                                final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.Interface before,
+                                final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.Interface after)
             throws WriteFailedException {
         checkValidRequest();
-        final String interfaceName = identifier.firstKeyOf(Interface.class).getName();
+        final String interfaceName = identifier.firstKeyOf(Interface.class).getInterfaceId();
 
         // locking on mapping context, to prevent modifying of mappings (for both contexts) during binding/execution of request
         synchronized (mappingContext) {
@@ -134,7 +136,7 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
 
     public void executeAsDelete(@Nonnull final FutureJVppAclFacade api) throws WriteFailedException {
         checkValidRequest();
-        final String interfaceName = identifier.firstKeyOf(Interface.class).getName();
+        final String interfaceName = identifier.firstKeyOf(Interface.class).getInterfaceId();
 
         // locking on mapping context, to prevent modifying of mappings (for both contexts) during binding/execution of request
         synchronized (mappingContext) {

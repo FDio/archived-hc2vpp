@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.acl.util.ace;
 
+import com.google.common.base.Preconditions;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.ace.extractor.MacIpAceDataExtractor;
 import io.fd.hc2vpp.acl.util.ace.extractor.StandardAceDataExtractor;
@@ -27,16 +28,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.AceBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.AceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.MatchesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.VppAce;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.VppAceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.VppMacipAce;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.VppMacipAceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.VppAceNodesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.VppMacipAceNodesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.AceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.AceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.MatchesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.L3;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l2.EthBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l2.eth.Eth;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.ipv4.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.ipv6.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv4.header.fields.SourceNetwork;
 
 /**
  * Convert between Ace's and vpp rules.
@@ -45,23 +46,55 @@ public interface AceConverter extends MacIpAceDataExtractor, StandardAceDataExtr
 
     default MacipAclRule[] toMacIpAclRules(@Nonnull final List<Ace> aces) {
         return aces.stream()
+                .filter(ace -> ace.getMatches() != null && ace.getMatches().getL2() != null)
+                .filter(ace -> ace.getMatches().getL2().getImplementedInterface()
+                        .equals(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l2.Eth.class))
                 .map(ace -> {
-                    final VppMacipAce macIpAce = fromMacIpAce(ace);
-
                     MacipAclRule rule = new MacipAclRule();
+                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l2.Eth
+                            l2 =
+                            (org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l2.Eth) ace
+                                    .getMatches().getL2();
 
-                    rule.srcMac = sourceMacAsBytes(macIpAce);
-                    rule.srcMacMask = sourceMacMaskAsBytes(macIpAce);
+                    Eth eth = Preconditions
+                            .checkNotNull(l2.getEth(), "Cannot parse eth for MacIpAcl ACE rule: {}", ace);
+
+                    rule.srcMac = sourceMacAsBytes(eth.getSourceMacAddress());
+                    rule.srcMacMask = sourceMacMaskAsBytes(eth.getSourceMacAddressMask());
                     rule.isPermit = macIpAction(ace);
 
-                    if (macIpIsIpv6(macIpAce)) {
-                        rule.isIpv6 = 1;
-                        rule.srcIpAddr = ipv6Address(macIpAce);
-                        rule.srcIpPrefixLen = ipv6AddressPrefix(macIpAce);
+                    L3 l3 = ace.getMatches().getL3();
+
+                    if (l3 != null && l3.getImplementedInterface()
+                            .equals(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.Ipv4.class)) {
+                        Ipv4 ipv4 =
+                                ((org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.Ipv4) l3)
+                                        .getIpv4();
+                        if (ipv4 != null && ipv4.getSourceNetwork() != null) {
+                            // IPv4 is set for MacIpAcl
+                            SourceNetwork sourceNetwork = ipv4.getSourceNetwork();
+                            rule.isIpv6 = 0;
+                            rule.srcIpAddr = ipv4Address(sourceNetwork);
+                            rule.srcIpPrefixLen = ipv4AddressPrefix(sourceNetwork);
+                        }
+                    } else if (l3 != null && l3.getImplementedInterface()
+                            .equals(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.Ipv6.class)) {
+                        Ipv6 ipv6 =
+                                ((org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.Ipv6) l3)
+                                        .getIpv6();
+                        if (ipv6 != null && ipv6.getSourceNetwork() != null) {
+                            // IPv6 is set for MacIpAcl
+                            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv6.header.fields.SourceNetwork
+                                    sourceNetwork = ipv6.getSourceNetwork();
+                            rule.isIpv6 = 1;
+                            rule.srcIpAddr = ipv6Address(sourceNetwork);
+                            rule.srcIpPrefixLen = ipv6AddressPrefix(sourceNetwork);
+                        }
                     } else {
+                        // No IP is set for MacIpAcl
                         rule.isIpv6 = 0;
-                        rule.srcIpAddr = ipv4Address(macIpAce);
-                        rule.srcIpPrefixLen = ipv4AddressPrefix(macIpAce);
+                        rule.srcIpAddr = new byte[4];
+                        rule.srcIpPrefixLen = 0;
                     }
 
                     return rule;
@@ -72,26 +105,25 @@ public interface AceConverter extends MacIpAceDataExtractor, StandardAceDataExtr
 
     default AclRule[] toStandardAclRules(@Nonnull final List<Ace> aces) {
         return aces.stream()
+                .filter(ace -> ace.getMatches() != null)
                 .map(ace -> {
-                    final VppAce standardAce = fromStandardAce(ace);
-
                     // pre-bind rule with protocol based attributes (if present)
-                    AclRule rule = createPreBindRule(standardAce);
+                    AclRule rule = createPreBindRule(ace);
 
                     rule.isPermit = standardAction(ace);
 
-                    if (standardIsIpv6(standardAce, ace.getMatches())) {
+                    if (standardIsIpv6(ace.getMatches())) {
                         rule.isIpv6 = 1;
-                        rule.srcIpAddr = ipv6SourceAddress(standardAce);
-                        rule.srcIpPrefixLen = ipv6SourceAddressPrefix(standardAce);
-                        rule.dstIpAddr = ipv6DestinationAddress(standardAce);
-                        rule.dstIpPrefixLen = ipv6DestinationAddressPrefix(standardAce);
+                        rule.srcIpAddr = ipv6SourceAddress(ace.getMatches());
+                        rule.srcIpPrefixLen = ipv6SourceAddressPrefix(ace.getMatches());
+                        rule.dstIpAddr = ipv6DestinationAddress(ace.getMatches());
+                        rule.dstIpPrefixLen = ipv6DestinationAddressPrefix(ace.getMatches());
                     } else {
                         rule.isIpv6 = 0;
-                        rule.srcIpAddr = ipv4SourceAddress(standardAce);
-                        rule.srcIpPrefixLen = ipv4SourceAddressPrefix(standardAce);
-                        rule.dstIpAddr = ipv4DestinationAddress(standardAce);
-                        rule.dstIpPrefixLen = ipv4DestinationAddressPrefix(standardAce);
+                        rule.srcIpAddr = ipv4SourceAddress(ace.getMatches());
+                        rule.srcIpPrefixLen = ipv4SourceAddressPrefix(ace.getMatches());
+                        rule.dstIpAddr = ipv4DestinationAddress(ace.getMatches());
+                        rule.dstIpPrefixLen = ipv4DestinationAddressPrefix(ace.getMatches());
                     }
 
                     return rule;
@@ -107,18 +139,20 @@ public interface AceConverter extends MacIpAceDataExtractor, StandardAceDataExtr
         int i = 0;
         for (final MacipAclRule rule : rules) {
             final AceBuilder ace = new AceBuilder();
-            final VppMacipAceBuilder aceType = new VppMacipAceBuilder();
-            final VppMacipAceNodesBuilder nodes = new VppMacipAceNodesBuilder();
-            nodes.setAceIpVersion(ipVersion(rule));
-            nodes.setSourceMacAddress(sourceMac(rule));
-            nodes.setSourceMacAddressMask(sourceMacMask(rule));
-            aceType.setVppMacipAceNodes(nodes.build());
-
-            ace.setMatches(new MatchesBuilder().setAceType(aceType.build()).build());
+            ace.setMatches(
+                    new MatchesBuilder()
+                            .setL3(parseMacIpAceL3(rule))
+                            .setL2(new EthBuilder()
+                                    .setEth(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l2.eth.EthBuilder()
+                                            .setSourceMacAddress(sourceMac(rule))
+                                            .setSourceMacAddressMask(sourceMacMask(rule))
+                                            .build())
+                                    .build())
+                            .build());
             ace.setActions(actions(rule.isPermit));
 
             final String aceName = macipAclContext.getAceName(aclName, i++, mappingContext);
-            ace.setRuleName(aceName);
+            ace.setName(aceName);
             ace.withKey(new AceKey(aceName));
 
             aces.add(ace.build());
@@ -133,17 +167,14 @@ public interface AceConverter extends MacIpAceDataExtractor, StandardAceDataExtr
         int i = 0;
         for (final AclRule rule : rules) {
             final AceBuilder ace = new AceBuilder();
-            final VppAceBuilder aceType = new VppAceBuilder();
-            final VppAceNodesBuilder nodes = new VppAceNodesBuilder();
-            nodes.setAceIpVersion(ipVersion(rule));
-            nodes.setIpProtocol(parseProtocol(rule));
-            aceType.setVppAceNodes(nodes.build());
-
-            ace.setMatches(new MatchesBuilder().setAceType(aceType.build()).build());
+            ace.setMatches(new MatchesBuilder()
+                    .setL3(parseStandardAceL3(rule))
+                    .setL4(parseProtocol(rule))
+                    .build());
             ace.setActions(actions(rule.isPermit));
 
             final String aceName = standardAclContext.getAceName(aclName, i++, mappingContext);
-            ace.setRuleName(aceName);
+            ace.setName(aceName);
             ace.withKey(new AceKey(aceName));
             aces.add(ace.build());
         }

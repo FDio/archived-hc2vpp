@@ -33,13 +33,11 @@ public interface AclTestSchemaContext {
                                 .getInstance(),
                         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.$YangModuleInfoImpl
                                 .getInstance(),
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.$YangModuleInfoImpl
+                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.$YangModuleInfoImpl
                                 .getInstance(),
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.$YangModuleInfoImpl
+                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.$YangModuleInfoImpl
                                 .getInstance(),
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.$YangModuleInfoImpl
-                                .getInstance(),
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.$YangModuleInfoImpl
+                        org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.$YangModuleInfoImpl
                                 .getInstance()));
         return context;
     }

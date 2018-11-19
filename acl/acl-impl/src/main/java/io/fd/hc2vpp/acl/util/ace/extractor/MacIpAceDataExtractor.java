@@ -21,84 +21,67 @@ import io.fd.hc2vpp.common.translate.util.MacTranslator;
 import io.fd.vpp.jvpp.acl.types.MacipAclRule;
 import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.Matches;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Deny;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.Accept;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.Actions;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.L3;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv4.header.fields.SourceNetwork;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv4.header.fields.source.network.SourceIpv4Network;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv4.header.fields.source.network.SourceIpv4NetworkBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv6.header.fields.source.network.SourceIpv6Network;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv6.header.fields.source.network.SourceIpv6NetworkBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppMacipAceEthHeaderFields;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppMacipAceIpv4HeaderFields;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppMacipAceIpv6HeaderFields;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.VppMacipAce;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.VppMacipAceNodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.AceIpVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.ace.ip.version.AceIpv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.ace.ip.version.AceIpv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.ace.ip.version.AceIpv6Builder;
 
 public interface MacIpAceDataExtractor extends AddressExtractor, MacTranslator {
 
-    default VppMacipAce fromMacIpAce(@Nonnull final Ace ace) {
-        return Optional.ofNullable(ace.getMatches())
-                .map(Matches::getAceType)
-                .map(VppMacipAce.class::cast)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(String.format("Unable to create VppMacipAce from %s", ace)));
-    }
-
-    default boolean macIpIsIpv6(@Nonnull final VppMacipAce ace) {
-        return Optional.ofNullable(ace.getVppMacipAceNodes())
-                .map(VppMacipAceNodes::getAceIpVersion)
-                .map(aceIpVersion -> aceIpVersion instanceof AceIpv6)
-                .orElse(false);
-    }
-
-    default byte[] sourceMacAsBytes(@Nonnull final VppMacipAce ace) {
-        return macToByteArray(Optional.ofNullable(ace.getVppMacipAceNodes())
-                .map(VppMacipAceEthHeaderFields::getSourceMacAddress)
+    default byte[] sourceMacAsBytes(final MacAddress mac) {
+        return macToByteArray(Optional.ofNullable(mac)
                 .map(MacAddress::getValue)
                 .orElse(Impl.DEFAULT_MAC));
     }
 
-    default byte[] sourceMacMaskAsBytes(@Nonnull final VppMacipAce ace) {
-        return macToByteArray(Optional.ofNullable(ace.getVppMacipAceNodes())
-                .map(VppMacipAceEthHeaderFields::getSourceMacAddressMask)
+    default byte[] sourceMacMaskAsBytes(final MacAddress mac) {
+        return macToByteArray(Optional.ofNullable(mac)
                 .map(MacAddress::getValue)
                 .orElse(Impl.DEFAULT_MAC_MASK));
     }
 
-    default byte[] ipv4Address(@Nonnull final VppMacipAce ace) {
-        return extractIp4Address(extractV4NetworkAddressOrNull(ace));
+    default byte[] ipv4Address(@Nonnull final SourceNetwork network) {
+        return extractIp4Address(extractV4NetworkAddressOrNull(network));
     }
 
-    default byte ipv4AddressPrefix(@Nonnull final VppMacipAce ace) {
-        return extractIp4AddressPrefix(extractV4NetworkAddressOrNull(ace));
+    default byte ipv4AddressPrefix(@Nonnull final SourceNetwork network) {
+        return extractIp4AddressPrefix(extractV4NetworkAddressOrNull(network));
     }
 
-    static Ipv4Prefix extractV4NetworkAddressOrNull(final @Nonnull VppMacipAce ace) {
-        return Optional.ofNullable(ace.getVppMacipAceNodes())
-                .map(VppMacipAceNodes::getAceIpVersion)
-                .map(VppMacipAceIpv4HeaderFields.class::cast)
-                .map(VppMacipAceIpv4HeaderFields::getSourceIpv4Network)
+    static Ipv4Prefix extractV4NetworkAddressOrNull(final @Nonnull SourceNetwork network) {
+        return Optional.of(network).filter(net -> net instanceof SourceIpv4Network)
+                .map(SourceIpv4Network.class::cast)
+                .map(SourceIpv4Network::getSourceIpv4Network)
                 .orElse(null);
     }
 
-    default byte[] ipv6Address(@Nonnull final VppMacipAce ace) {
-        return extractIp6Address(extractV6NetworkAddressOrNull(ace));
+    default byte[] ipv6Address(
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv6.header.fields.SourceNetwork network) {
+        return extractIp6Address(extractV6NetworkAddressOrNull(network));
     }
 
-    default byte ipv6AddressPrefix(@Nonnull final VppMacipAce ace) {
-        return extractIp6AddressPrefix(extractV6NetworkAddressOrNull(ace));
+    default byte ipv6AddressPrefix(
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv6.header.fields.SourceNetwork network) {
+        return extractIp6AddressPrefix(extractV6NetworkAddressOrNull(network));
     }
 
-    default Ipv6Prefix extractV6NetworkAddressOrNull(@Nonnull final VppMacipAce ace) {
-        return Optional.ofNullable(ace.getVppMacipAceNodes())
-                .map(VppMacipAceNodes::getAceIpVersion)
-                .map(VppMacipAceIpv6HeaderFields.class::cast)
-                .map(VppMacipAceIpv6HeaderFields::getSourceIpv6Network)
+    default Ipv6Prefix extractV6NetworkAddressOrNull(
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv6.header.fields.SourceNetwork network) {
+        return Optional.of(network).filter(net -> net instanceof SourceIpv6Network)
+                .map(SourceIpv6Network.class::cast)
+                .map(SourceIpv6Network::getSourceIpv6Network)
                 .orElse(null);
     }
 
@@ -107,41 +90,54 @@ public interface MacIpAceDataExtractor extends AddressExtractor, MacTranslator {
      */
     default byte macIpAction(@Nonnull final Ace ace) {
         // action choice itself has default, but nothing stops us from not defining actions container itself
-        final PacketHandling action = Optional.ofNullable(ace.getActions()).orElseThrow(
-                () -> new IllegalArgumentException(String.format("Unable to extract Action from %s", ace)))
-                .getPacketHandling();
-        if (action instanceof Permit) {
-            return 1;
-        } else if (action instanceof Deny) {
-            return 0;
+        Actions actions = Optional.ofNullable(ace.getActions()).orElseThrow(
+                () -> new IllegalArgumentException(String.format("Unable to extract Action from %s", ace)));
+        if (actions.getForwarding() != null) {
+            if (ace.getActions().getForwarding().equals(Accept.class)) {
+                return 1;
+            } else {
+                return 0;
+            }
         } else {
             throw new IllegalArgumentException(
-                    String.format("Unsupported packet-handling action %s for ACE %s", action, ace));
+                    String.format("Unsupported packet-handling action %s for ACE %s", actions, ace));
         }
     }
 
-    default AceIpVersion ipVersion(@Nonnull final MacipAclRule rule) {
+    default L3 parseMacIpAceL3(@Nonnull final MacipAclRule rule) {
         if (rule.isIpv6 == 0) {
-            return ip4Ace(rule);
+            return ip4L3(rule);
         } else {
-            return ip6Ace(rule);
+            return ip6L3(rule);
         }
     }
 
-    default AceIpVersion ip4Ace(@Nonnull final MacipAclRule rule) {
-        final AceIpv4Builder ipVersion = new AceIpv4Builder();
+    default Ipv4 ip4L3(@Nonnull final MacipAclRule rule) {
+        final Ipv4Builder ipv4Builder = new Ipv4Builder();
+
         if (rule.srcIpAddr != null && rule.srcIpAddr.length != 0) {
-            ipVersion.setSourceIpv4Network(toIpv4Prefix(truncateIp4Array(rule.srcIpAddr), rule.srcIpPrefixLen));
+            ipv4Builder.setIpv4(
+                    new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.ipv4.Ipv4Builder()
+                            .setSourceNetwork(new SourceIpv4NetworkBuilder()
+                                    .setSourceIpv4Network(
+                                            toIpv4Prefix(truncateIp4Array(rule.srcIpAddr), rule.srcIpPrefixLen))
+                                    .build())
+                            .build());
         }
-        return ipVersion.build();
+        return ipv4Builder.build();
     }
 
-    default AceIpVersion ip6Ace(@Nonnull final MacipAclRule rule) {
-        final AceIpv6Builder ipVersion = new AceIpv6Builder();
+    default Ipv6 ip6L3(@Nonnull final MacipAclRule rule) {
+        final Ipv6Builder ipv6Builder = new Ipv6Builder();
         if (rule.srcIpAddr != null && rule.srcIpAddr.length != 0) {
-            ipVersion.setSourceIpv6Network(toIpv6Prefix(rule.srcIpAddr, rule.srcIpPrefixLen));
+            ipv6Builder.setIpv6(
+                    new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.ipv6.Ipv6Builder()
+                            .setSourceNetwork(new SourceIpv6NetworkBuilder()
+                                    .setSourceIpv6Network(toIpv6Prefix(rule.srcIpAddr, rule.srcIpPrefixLen))
+                                    .build())
+                            .build());
         }
-        return ipVersion.build();
+        return ipv6Builder.build();
     }
 
     default MacAddress sourceMac(@Nonnull final MacipAclRule rule) {

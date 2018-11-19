@@ -19,26 +19,25 @@ package io.fd.hc2vpp.acl.write;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.FutureJVppAclCustomizer;
 import io.fd.hc2vpp.acl.util.acl.AclDataExtractor;
-import io.fd.hc2vpp.acl.util.acl.AclWriter;
-import io.fd.honeycomb.translate.MappingContext;
+import io.fd.hc2vpp.acl.write.request.AclAddReplaceRequest;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.AclKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.AclKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class VppAclCustomizer extends FutureJVppAclCustomizer
-        implements ListWriterCustomizer<Acl, AclKey>, AclDataExtractor, AclWriter {
+public class AclCustomizer extends FutureJVppAclCustomizer
+        implements ListWriterCustomizer<Acl, AclKey>, AclDataExtractor {
 
     private final AclContextManager standardAclContext;
     private final AclContextManager macIpAclContext;
 
-    public VppAclCustomizer(@Nonnull final FutureJVppAclFacade jVppAclFacade,
-                            @Nonnull final AclContextManager standardAclContext,
-                            @Nonnull final AclContextManager macIpAclContext) {
+    public AclCustomizer(@Nonnull final FutureJVppAclFacade jVppAclFacade,
+                         @Nonnull final AclContextManager standardAclContext,
+                         @Nonnull final AclContextManager macIpAclContext) {
         super(jVppAclFacade);
         this.standardAclContext = standardAclContext;
         this.macIpAclContext = macIpAclContext;
@@ -47,12 +46,11 @@ public class VppAclCustomizer extends FutureJVppAclCustomizer
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        final MappingContext mappingContext = writeContext.getMappingContext();
-
+        AclAddReplaceRequest request = new AclAddReplaceRequest(getjVppAclFacade(), writeContext.getMappingContext());
         if (isStandardAcl(dataAfter)) {
-            addStandardAcl(getjVppAclFacade(), id, dataAfter, standardAclContext, mappingContext);
+            request.addStandardAcl(id, dataAfter, standardAclContext);
         } else if (isMacIpAcl(dataAfter)) {
-            addMacIpAcl(getjVppAclFacade(), id, dataAfter, macIpAclContext, mappingContext);
+            request.addMacIpAcl(id, dataAfter, macIpAclContext);
         } else {
             // double check, first one done by validation
             throw new WriteFailedException.CreateFailedException(id, dataAfter,
@@ -64,17 +62,17 @@ public class VppAclCustomizer extends FutureJVppAclCustomizer
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl dataBefore,
                                         @Nonnull final Acl dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        final MappingContext mappingContext = writeContext.getMappingContext();
+        AclAddReplaceRequest request = new AclAddReplaceRequest(getjVppAclFacade(), writeContext.getMappingContext());
 
         if (isStandardAcl(dataAfter)) {
-            updateStandardAcl(getjVppAclFacade(), id, dataAfter, standardAclContext, mappingContext);
+            request.updateStandardAcl(id, dataAfter, standardAclContext);
         } else if (isMacIpAcl(dataAfter)) {
             synchronized (macIpAclContext) {
                 // there is no direct support for update of mac-ip acl, but only one is allowed per interface
                 // so it is atomic from vpp standpoint. Enclosed in synchronized block to prevent issues with
                 // multiple threads managing naming context
-                deleteMacIpAcl(getjVppAclFacade(), id, dataBefore, macIpAclContext, mappingContext);
-                addMacIpAcl(getjVppAclFacade(), id, dataAfter, macIpAclContext, mappingContext);
+                request.deleteMacIpAcl(id, dataBefore, macIpAclContext);
+                request.addMacIpAcl(id, dataAfter, macIpAclContext);
             }
         } else {
             // double check, first one done by validation
@@ -86,12 +84,12 @@ public class VppAclCustomizer extends FutureJVppAclCustomizer
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        final MappingContext mappingContext = writeContext.getMappingContext();
+        AclAddReplaceRequest request = new AclAddReplaceRequest(getjVppAclFacade(), writeContext.getMappingContext());
 
         if (isStandardAcl(dataBefore)) {
-            deleteStandardAcl(getjVppAclFacade(), id, dataBefore, standardAclContext, mappingContext);
+            request.deleteStandardAcl(id, dataBefore, standardAclContext);
         } else if (isMacIpAcl(dataBefore)) {
-            deleteMacIpAcl(getjVppAclFacade(), id, dataBefore, macIpAclContext, mappingContext);
+            request.deleteMacIpAcl(id, dataBefore, macIpAclContext);
         } else {
             // double check, first one done by validation
             throw new WriteFailedException.DeleteFailedException(id,

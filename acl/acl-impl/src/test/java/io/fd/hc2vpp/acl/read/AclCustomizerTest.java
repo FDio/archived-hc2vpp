@@ -35,18 +35,15 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AccessLists;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AccessListsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.AclBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.AclKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Deny;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppAcl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppMacipAcl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.VppAce;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.VppAceNodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.acl.ip.protocol.header.fields.ip.protocol.Other;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.Acls;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.AclsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.Drop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.AclKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.L4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l4.Icmp;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
@@ -58,7 +55,7 @@ public class AclCustomizerTest extends InitializingListReaderCustomizerTest<Acl,
     private static final String MACIP_ACL_NAME = "vpp-macip-acl";
     private static final String MACIP_ACE_NAME = "vpp-macip-ace";
     private static final int MACIP_ACL_INDEX = 456;
-    private static final short PROTOCOL = 2;
+    private static final short PROTOCOL = 1;
     @Mock
     private FutureJVppAclFacade aclApi;
     @Mock
@@ -66,13 +63,12 @@ public class AclCustomizerTest extends InitializingListReaderCustomizerTest<Acl,
     @Mock
     private AclContextManager macipAclContext;
     private KeyedInstanceIdentifier<Acl, AclKey> ACL_IID =
-        InstanceIdentifier.create(AccessLists.class).child(Acl.class, new AclKey(
-        ACL_NAME, VppAcl.class));
+            InstanceIdentifier.create(Acls.class).child(Acl.class, new AclKey(ACL_NAME));
     private KeyedInstanceIdentifier<Acl, AclKey> MACIP_ACL_IID =
-        InstanceIdentifier.create(AccessLists.class).child(Acl.class, new AclKey(MACIP_ACL_NAME, VppMacipAcl.class));
+            InstanceIdentifier.create(Acls.class).child(Acl.class, new AclKey(MACIP_ACL_NAME));
 
     public AclCustomizerTest() {
-        super(Acl.class, AccessListsBuilder.class);
+        super(Acl.class, AclsBuilder.class);
     }
 
     @Override
@@ -103,15 +99,18 @@ public class AclCustomizerTest extends InitializingListReaderCustomizerTest<Acl,
         when(standardAclContext.getAclName(ACL_INDEX, mappingContext)).thenReturn(ACL_NAME);
         when(standardAclContext.getAclIndex(ACL_NAME, mappingContext)).thenReturn(ACL_INDEX);
         when(standardAclContext.getAceName(ACL_NAME, 0, mappingContext)).thenReturn(ACE_NAME);
+        when(standardAclContext.containsAcl(ACL_NAME, mappingContext)).thenReturn(true);
 
         when(macipAclContext.getAclName(MACIP_ACL_INDEX, mappingContext)).thenReturn(MACIP_ACL_NAME);
         when(macipAclContext.getAclIndex(MACIP_ACL_NAME, mappingContext)).thenReturn(MACIP_ACL_INDEX);
         when(macipAclContext.getAceName(MACIP_ACL_NAME, 0, mappingContext)).thenReturn(MACIP_ACE_NAME);
+        when(macipAclContext.containsAcl(MACIP_ACL_NAME, mappingContext)).thenReturn(true);
     }
 
     @Test
     public void testGetAllIds() throws ReadFailedException {
-        final List<AclKey> allIds = getCustomizer().getAllIds(InstanceIdentifier.create(AccessLists.class).child(Acl.class), ctx);
+        final List<AclKey> allIds =
+                getCustomizer().getAllIds(InstanceIdentifier.create(Acls.class).child(Acl.class), ctx);
         assertEquals(2, allIds.size());
         assertEquals(ACL_IID.getKey(), allIds.get(0));
         assertEquals(MACIP_ACL_IID.getKey(), allIds.get(1));
@@ -122,14 +121,13 @@ public class AclCustomizerTest extends InitializingListReaderCustomizerTest<Acl,
         final AclBuilder builder = new AclBuilder();
         getCustomizer().readCurrentAttributes(ACL_IID, builder, ctx);
         assertEquals(ACL_IID.getKey(), builder.key());
-        final List<Ace> aces = builder.getAccessListEntries().getAce();
+        final List<Ace> aces = builder.getAces().getAce();
         assertEquals(1, aces.size());
         final Ace ace = aces.get(0);
-        assertEquals(ACE_NAME, ace.key().getRuleName());
-        assertTrue(ace.getActions().getPacketHandling() instanceof Deny);
-        final VppAceNodes nodes = ((VppAce) (ace.getMatches().getAceType())).getVppAceNodes();
-        assertEquals(PROTOCOL, ((Other) nodes.getIpProtocol()).getOtherNodes().getProtocol().shortValue());
-
+        assertEquals(ACE_NAME, ace.key().getName());
+        assertTrue(ace.getActions().getForwarding().equals(Drop.class));
+        final L4 l4 = ((ace.getMatches())).getL4();
+        assertEquals(Icmp.class, l4.getImplementedInterface());
     }
 
     @Test
@@ -137,10 +135,10 @@ public class AclCustomizerTest extends InitializingListReaderCustomizerTest<Acl,
         final AclBuilder builder = new AclBuilder();
         getCustomizer().readCurrentAttributes(MACIP_ACL_IID, builder, ctx);
         assertEquals(MACIP_ACL_IID.getKey(), builder.key());
-        final List<Ace> aces = builder.getAccessListEntries().getAce();
+        final List<Ace> aces = builder.getAces().getAce();
         assertEquals(1, aces.size());
         final Ace ace = aces.get(0);
-        assertEquals(MACIP_ACE_NAME, ace.key().getRuleName());
-        assertTrue(ace.getActions().getPacketHandling() instanceof Deny);
+        assertEquals(MACIP_ACE_NAME, ace.key().getName());
+        assertTrue(ace.getActions().getForwarding().equals(Drop.class));
     }
 }

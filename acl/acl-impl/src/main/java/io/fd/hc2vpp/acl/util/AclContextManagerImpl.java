@@ -29,18 +29,18 @@ import java.util.List;
 import java.util.stream.Collector;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.context.rev170104.VppAclContextAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.VppAclMappings;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.VppAclContext;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.VppAclContextKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.AclMapping;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.AclMappingBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.AclMappingKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.acl.mapping.AceMapping;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.acl.mapping.AceMappingBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.acl.mapping.AceMappingKey;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev170104.VppAclContextAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.VppAclMappings;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.VppAclContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.VppAclContextKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.AclMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.AclMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.AclMappingKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.acl.mapping.AceMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.acl.mapping.AceMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev170104.vpp.acl.context.attributes.vpp.acl.mappings.vpp.acl.context.acl.mapping.AceMappingKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.Ace;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
@@ -77,7 +77,7 @@ public final class AclContextManagerImpl implements AclContextManager {
         final List<AceMapping> mappings = new ArrayList<>(aces.size());
         int aceIndex = 0;
         for (final Ace ace : aces) {
-            mappings.add(new AceMappingBuilder().setName(ace.getRuleName()).setIndex(aceIndex++).build());
+            mappings.add(new AceMappingBuilder().setName(ace.getName()).setIndex(aceIndex++).build());
         }
         aclMapping.setAceMapping(mappings);
         ctx.put(mappingIid, aclMapping.build());

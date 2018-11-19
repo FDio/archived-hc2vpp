@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.acl.util.ace.extractor;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -25,114 +24,56 @@ import io.fd.hc2vpp.common.test.util.CommonTests;
 import io.fd.vpp.jvpp.acl.types.MacipAclRule;
 import java.util.Arrays;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.AceBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.ActionsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.MatchesBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.DenyBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.PermitBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.VppMacipAce;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.VppMacipAceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.VppMacipAceNodesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.AceIpVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.ace.ip.version.AceIpv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.ace.ip.version.AceIpv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.ace.ip.version.AceIpv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.ace.ip.version.AceIpv6Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.Accept;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.Drop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.AceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.ActionsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.L3;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.ace.matches.l3.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv4.header.fields.source.network.SourceIpv4Network;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv4.header.fields.source.network.SourceIpv4NetworkBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv6.header.fields.source.network.SourceIpv6Network;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.acl.ipv6.header.fields.source.network.SourceIpv6NetworkBuilder;
 
 public class MacIpAceDataExtractorTest extends AceDataExtractorTestCase implements MacIpAceDataExtractor, CommonTests {
 
     @Test
-    public void testFromMacIpAce() {
-        verifyExceptionalCase(() -> fromMacIpAce(new AceBuilder().build()), IllegalArgumentException.class);
-        verifyExceptionalCase(() -> fromMacIpAce(new AceBuilder().setMatches(new MatchesBuilder().build()).build()),
-                IllegalArgumentException.class);
-
-        final VppMacipAce macipAce = new VppMacipAceBuilder().build();
-        assertEquals(macipAce, fromMacIpAce(new AceBuilder().setMatches(new MatchesBuilder()
-                .setAceType(macipAce).build()).build()));
-    }
-
-    @Test
-    public void testMacIpIsIpv6() {
-        assertFalse(macIpIsIpv6(new VppMacipAceBuilder().build()));
-        assertFalse(macIpIsIpv6(
-                new VppMacipAceBuilder().setVppMacipAceNodes(new VppMacipAceNodesBuilder().build()).build()));
-        assertFalse(macIpIsIpv6(new VppMacipAceBuilder().setVppMacipAceNodes(
-                new VppMacipAceNodesBuilder().setAceIpVersion(new AceIpv4Builder().build()).build()).build()));
-        assertTrue(macIpIsIpv6(new VppMacipAceBuilder().setVppMacipAceNodes(
-                new VppMacipAceNodesBuilder().setAceIpVersion(new AceIpv6Builder().build()).build()).build()));
-    }
-
-    @Test
     public void testSourceMacAsBytes() {
-        assertTrue(Arrays.equals(DEFAULT_MAC_ADDRESS_BYTES, sourceMacAsBytes(new VppMacipAceBuilder().build())));
-        assertTrue(
-                Arrays.equals(DEFAULT_MAC_ADDRESS_BYTES, sourceMacAsBytes(new VppMacipAceBuilder().setVppMacipAceNodes(
-                        new VppMacipAceNodesBuilder().build()).build())));
-        assertTrue(Arrays.equals(MAC_ADDRESS_BYTES,
-                sourceMacAsBytes(new VppMacipAceBuilder().setVppMacipAceNodes(
-                        new VppMacipAceNodesBuilder().setSourceMacAddress(MAC_ADDRESS).build())
-                        .build())));
+        assertTrue(Arrays.equals(MAC_ADDRESS_BYTES, sourceMacAsBytes(MAC_ADDRESS)));
     }
 
     @Test
     public void sourceMacMaskAsBytes() {
-        assertTrue(Arrays.equals(DEFAULT_MAC_ADDRESS_BYTES, sourceMacMaskAsBytes(new VppMacipAceBuilder().build())));
-        assertTrue(Arrays.equals(DEFAULT_MAC_ADDRESS_BYTES,
-                sourceMacMaskAsBytes(new VppMacipAceBuilder().setVppMacipAceNodes(
-                        new VppMacipAceNodesBuilder().build()).build())));
-        assertTrue(Arrays.equals(MAC_ADDRESS_BYTES,
-                sourceMacMaskAsBytes(new VppMacipAceBuilder().setVppMacipAceNodes(
-                        new VppMacipAceNodesBuilder().setSourceMacAddressMask(MAC_ADDRESS).build())
-                        .build())));
+        assertTrue(Arrays.equals(MAC_ADDRESS_BYTES, sourceMacMaskAsBytes(MAC_ADDRESS)));
     }
 
     @Test
     public void testIpv4Address() {
-        assertTrue(Arrays.equals(DEFAULT_IPV4_ADDRESS_BYTES, ipv4Address(new VppMacipAceBuilder().build())));
-        assertTrue(Arrays.equals(DEFAULT_IPV4_ADDRESS_BYTES, ipv4Address(
-                new VppMacipAceBuilder().setVppMacipAceNodes(new VppMacipAceNodesBuilder().build()).build())));
-        assertTrue(Arrays.equals(DEFAULT_IPV4_ADDRESS_BYTES, ipv4Address(new VppMacipAceBuilder().setVppMacipAceNodes(
-                new VppMacipAceNodesBuilder().setAceIpVersion(new AceIpv4Builder().build()).build()).build())));
-        assertTrue(Arrays.equals(IPV4_PREFIX_BYTES, ipv4Address(new VppMacipAceBuilder().setVppMacipAceNodes(
-                new VppMacipAceNodesBuilder().setAceIpVersion(new AceIpv4Builder()
-                        .setSourceIpv4Network(IPV4_PREFIX).build()).build()).build())));
+        assertTrue(Arrays.equals(DEFAULT_IPV4_ADDRESS_BYTES, ipv4Address(new SourceIpv4NetworkBuilder().build())));
+        assertTrue(Arrays.equals(IPV4_PREFIX_BYTES,
+                ipv4Address(new SourceIpv4NetworkBuilder().setSourceIpv4Network(IPV4_PREFIX).build())));
     }
 
     @Test
     public void testIpv4AddressPrefix() {
-        assertEquals(DEFAULT_IPV4_PREFIX_VALUE, ipv4AddressPrefix(new VppMacipAceBuilder().build()));
-        assertEquals(DEFAULT_IPV4_PREFIX_VALUE, ipv4AddressPrefix(
-                new VppMacipAceBuilder().setVppMacipAceNodes(new VppMacipAceNodesBuilder().build()).build()));
-        assertEquals(DEFAULT_IPV4_PREFIX_VALUE, ipv4AddressPrefix(new VppMacipAceBuilder().setVppMacipAceNodes(
-                new VppMacipAceNodesBuilder().setAceIpVersion(new AceIpv4Builder().build()).build()).build()));
-        assertEquals(IPV4_PREFIX_VALUE, ipv4AddressPrefix(new VppMacipAceBuilder().setVppMacipAceNodes(
-                new VppMacipAceNodesBuilder().setAceIpVersion(new AceIpv4Builder()
-                        .setSourceIpv4Network(IPV4_PREFIX).build()).build()).build()));
+        assertEquals(DEFAULT_IPV4_PREFIX_VALUE, ipv4AddressPrefix(new SourceIpv4NetworkBuilder().build()));
+        assertEquals(IPV4_PREFIX_VALUE,
+                ipv4AddressPrefix(new SourceIpv4NetworkBuilder().setSourceIpv4Network(IPV4_PREFIX).build()));
     }
 
     @Test
     public void testIpv6Address() {
-        assertTrue(Arrays.equals(DEFAULT_IPV6_ADDRESS_BYTES, ipv6Address(new VppMacipAceBuilder().build())));
-        assertTrue(Arrays.equals(DEFAULT_IPV6_ADDRESS_BYTES, ipv6Address(
-                new VppMacipAceBuilder().setVppMacipAceNodes(new VppMacipAceNodesBuilder().build()).build())));
-        assertTrue(Arrays.equals(DEFAULT_IPV6_ADDRESS_BYTES, ipv6Address(new VppMacipAceBuilder().setVppMacipAceNodes(
-                new VppMacipAceNodesBuilder().setAceIpVersion(new AceIpv6Builder().build()).build()).build())));
-        assertTrue(Arrays.equals(IPV6_PREFIX_BYTES, ipv6Address(new VppMacipAceBuilder().setVppMacipAceNodes(
-                new VppMacipAceNodesBuilder().setAceIpVersion(new AceIpv6Builder()
-                        .setSourceIpv6Network(IPV6_PREFIX).build()).build()).build())));
+        assertTrue(Arrays.equals(DEFAULT_IPV6_ADDRESS_BYTES, ipv6Address(new SourceIpv6NetworkBuilder().build())));
+        assertTrue(Arrays.equals(IPV6_PREFIX_BYTES,
+                ipv6Address(new SourceIpv6NetworkBuilder().setSourceIpv6Network(IPV6_PREFIX).build())));
     }
 
     @Test
     public void testIpv6AddressPrefix() {
-        assertEquals(DEFAULT_IPV6_PREFIX_VALUE, ipv6AddressPrefix(new VppMacipAceBuilder().build()));
-        assertEquals(DEFAULT_IPV6_PREFIX_VALUE, ipv6AddressPrefix(
-                new VppMacipAceBuilder().setVppMacipAceNodes(new VppMacipAceNodesBuilder().build()).build()));
-        assertEquals(DEFAULT_IPV6_PREFIX_VALUE, ipv6AddressPrefix(new VppMacipAceBuilder().setVppMacipAceNodes(
-                new VppMacipAceNodesBuilder().setAceIpVersion(new AceIpv6Builder().build()).build()).build()));
-        assertEquals(IPV6_PREFIX_VALUE, ipv6AddressPrefix(new VppMacipAceBuilder().setVppMacipAceNodes(
-                new VppMacipAceNodesBuilder().setAceIpVersion(new AceIpv6Builder()
-                        .setSourceIpv6Network(IPV6_PREFIX).build()).build()).build()));
+        assertEquals(DEFAULT_IPV6_PREFIX_VALUE, ipv6AddressPrefix(new SourceIpv6NetworkBuilder().build()));
+        assertEquals(IPV6_PREFIX_VALUE,
+                ipv6AddressPrefix(new SourceIpv6NetworkBuilder().setSourceIpv6Network(IPV6_PREFIX).build()));
     }
 
     @Test
@@ -141,11 +82,10 @@ public class MacIpAceDataExtractorTest extends AceDataExtractorTestCase implemen
         verifyExceptionalCase(() -> macIpAction(new AceBuilder().setActions(new ActionsBuilder().build()).build()),
                 IllegalArgumentException.class);
         // this one must pass even if deny is not fully set, because of default value definition
-        assertEquals((byte) 0, macIpAction(new AceBuilder().setActions(new ActionsBuilder().setPacketHandling(
-                new DenyBuilder().build()).build()).build()));
-
-        assertEquals((byte) 1, macIpAction(new AceBuilder().setActions(new ActionsBuilder().setPacketHandling(
-                new PermitBuilder().setPermit(true).build()).build()).build()));
+        assertEquals((byte) 0, macIpAction(
+                new AceBuilder().setActions(new ActionsBuilder().setForwarding(Drop.class).build()).build()));
+        assertEquals((byte) 1, macIpAction(
+                new AceBuilder().setActions(new ActionsBuilder().setForwarding(Accept.class).build()).build()));
     }
 
     @Test
@@ -156,9 +96,10 @@ public class MacIpAceDataExtractorTest extends AceDataExtractorTestCase implemen
         rule.srcIpAddr = IPV4_PREFIX_BYTES;
         rule.srcIpPrefixLen = IPV4_PREFIX_VALUE;
 
-        final AceIpVersion result = ipVersion(rule);
-        assertTrue(result instanceof AceIpv4);
-        assertEquals(IPV4_PREFIX, AceIpv4.class.cast(result).getSourceIpv4Network());
+        final L3 result = parseMacIpAceL3(rule);
+        assertEquals(Ipv4.class, result.getImplementedInterface());
+        assertEquals(IPV4_PREFIX,
+                ((SourceIpv4Network) ((Ipv4) result).getIpv4().getSourceNetwork()).getSourceIpv4Network());
     }
 
     @Test
@@ -167,9 +108,9 @@ public class MacIpAceDataExtractorTest extends AceDataExtractorTestCase implemen
 
         rule.isIpv6 = 0;
 
-        final AceIpVersion result = ipVersion(rule);
-        assertTrue(result instanceof AceIpv4);
-        assertNull(AceIpv4.class.cast(result).getSourceIpv4Network());
+        final L3 result = parseMacIpAceL3(rule);
+        assertEquals(Ipv4.class, result.getImplementedInterface());
+        assertNull(((Ipv4) result).getIpv4());
     }
 
     @Test
@@ -180,9 +121,10 @@ public class MacIpAceDataExtractorTest extends AceDataExtractorTestCase implemen
         rule.srcIpAddr = IPV6_PREFIX_BYTES;
         rule.srcIpPrefixLen = IPV6_PREFIX_VALUE;
 
-        final AceIpVersion result = ipVersion(rule);
-        assertTrue(result instanceof AceIpv6);
-        assertEquals(IPV6_PREFIX, AceIpv6.class.cast(result).getSourceIpv6Network());
+        final L3 result = parseMacIpAceL3(rule);
+        assertEquals(Ipv6.class, result.getImplementedInterface());
+        assertEquals(IPV6_PREFIX, ((SourceIpv6Network) ((Ipv6) result).getIpv6().getSourceNetwork())
+                .getSourceIpv6Network());
     }
 
     @Test
@@ -191,9 +133,9 @@ public class MacIpAceDataExtractorTest extends AceDataExtractorTestCase implemen
 
         rule.isIpv6 = 1;
 
-        final AceIpVersion result = ipVersion(rule);
-        assertTrue(result instanceof AceIpv6);
-        assertNull(AceIpv6.class.cast(result).getSourceIpv6Network());
+        final L3 result = parseMacIpAceL3(rule);
+        assertEquals(Ipv6.class, result.getImplementedInterface());
+        assertNull(((Ipv6) result).getIpv6());
     }
 
     @Test

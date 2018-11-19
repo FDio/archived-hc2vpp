@@ -18,31 +18,22 @@ package io.fd.hc2vpp.acl.read.factory;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.fd.hc2vpp.acl.AclIIds;
 import io.fd.hc2vpp.acl.AclModule;
-import io.fd.hc2vpp.acl.read.EgressVppAclCustomizer;
-import io.fd.hc2vpp.acl.read.IngressVppAclCustomizer;
-import io.fd.hc2vpp.acl.read.VppMacIpAclCustomizer;
+import io.fd.hc2vpp.acl.read.InterfaceAclCustomizer;
+import io.fd.hc2vpp.acl.read.EgressAclCustomizer;
+import io.fd.hc2vpp.acl.read.IngressAclCustomizer;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
-import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.VppAclInterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.VppAclInterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.AclBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.Egress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.EgressBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.Ingress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.IngressBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAcls;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAcl;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.AttachmentPointsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.EgressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.IngressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.AclSetsBuilder;
 
 public class InterfaceAclReaderFactory implements ReaderFactory {
 
@@ -61,27 +52,23 @@ public class InterfaceAclReaderFactory implements ReaderFactory {
     @Named("interface-context")
     private NamingContext interfaceContext;
 
-    private static final InstanceIdentifier<Interface>
-        IFC_ID = InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    private static final InstanceIdentifier<VppAclInterfaceStateAugmentation> VPP_ACL_AUG_IID =
-        IFC_ID.augmentation(VppAclInterfaceStateAugmentation.class);
-    static final InstanceIdentifier<Acl> ACL_IID = VPP_ACL_AUG_IID.child(Acl.class);
-    static final InstanceIdentifier<Ingress> ACL_INGRESS_IID = ACL_IID.child(Ingress.class);
-    static final InstanceIdentifier<Egress> ACL_EGRESS_IID = ACL_IID.child(Egress.class);
-
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
-        registry.addStructuralReader(VPP_ACL_AUG_IID, VppAclInterfaceStateAugmentationBuilder.class);
-        registry.addStructuralReader(ACL_IID, AclBuilder.class);
+        registry.addStructuralReader(AclIIds.ACLS_AP, AttachmentPointsBuilder.class);
 
-        registry.addStructuralReader(ACL_INGRESS_IID, IngressBuilder.class);
-        registry.addAfter(new GenericInitListReader<>(ACL_INGRESS_IID.child(VppAcls.class),
-            new IngressVppAclCustomizer(futureAclFacade, interfaceContext, standardAclContext)), IFC_ID);
-        registry.addAfter(new GenericInitReader<>(ACL_INGRESS_IID.child(VppMacipAcl.class),
-            new VppMacIpAclCustomizer(futureAclFacade, interfaceContext, macIpAClContext)), IFC_ID);
+        registry.addAfter(new GenericInitListReader<>(AclIIds.ACLS_AP_INT,
+                        new InterfaceAclCustomizer(futureAclFacade, interfaceContext)),
+                AclIIds.IFC_STATE);
 
-        registry.addStructuralReader(ACL_EGRESS_IID, EgressBuilder.class);
-        registry.addAfter(new GenericInitListReader<>(ACL_EGRESS_IID.child(VppAcls.class),
-            new EgressVppAclCustomizer(futureAclFacade, interfaceContext, standardAclContext)), IFC_ID);
+        registry.addStructuralReader(AclIIds.ACLS_AP_INT_ING, IngressBuilder.class);
+        registry.addStructuralReader(AclIIds.ACLS_AP_INT_EGR, EgressBuilder.class);
+        registry.addStructuralReader(AclIIds.ACLS_AP_INT_ING_ACLS, AclSetsBuilder.class);
+        registry.addStructuralReader(AclIIds.ACLS_AP_INT_EGR_ACLS, AclSetsBuilder.class);
+
+        registry.addAfter(new GenericInitListReader<>(AclIIds.ACLS_AP_INT_ING_ACLS_ACL,
+                        new IngressAclCustomizer(futureAclFacade, interfaceContext, standardAclContext, macIpAClContext)),
+                AclIIds.ACLS_AP_INT);
+        registry.addAfter(new GenericInitListReader<>(AclIIds.ACLS_AP_INT_EGR_ACLS_ACL,
+                new EgressAclCustomizer(futureAclFacade, interfaceContext, standardAclContext)), AclIIds.ACLS_AP_INT);
     }
 }

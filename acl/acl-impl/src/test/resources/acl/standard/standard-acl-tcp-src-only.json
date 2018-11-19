@@ -1,32 +1,34 @@
 {
-  "access-lists": {
+  "acls": {
     "acl": [
       {
-        "acl-name": "standard-acl",
-        "acl-type": "vpp-acl:vpp-acl",
-        "access-list-entries": {
+        "name": "standard-acl",
+        "type": "vpp-acl:vpp-acl",
+        "aces": {
           "ace": [
             {
-              "rule-name": "tcp-rule",
+              "name": "tcp-rule",
               "matches": {
-                "vpp-ace-nodes": {
-                  "source-ipv4-network": "192.168.2.2/32",
-                  "tcp-nodes": {
-                    "source-port-range": {
-                      "lower-port": "1",
-                      "upper-port": "5487"
-                    },
-                    "destination-port-range": {
-                      "lower-port": "87",
-                      "upper-port": "6745"
-                    },
-                    "tcp-flags-mask": "1",
-                    "tcp-flags-value": "7"
+                "ipv4": {
+                  "source-ipv4-network": "192.168.2.2/32"
+                },
+                "tcp": {
+                  "source-port": {
+                    "lower-port": "1",
+                    "upper-port": "5487"
+                  },
+                  "destination-port": {
+                    "lower-port": "87",
+                    "upper-port": "6745"
+                  },
+                  "flags": "cwr ece urg",
+                  "vpp-acl:vpp-tcp-ace": {
+                    "vpp-acl:flags-mask": "cwr"
                   }
                 }
               },
               "actions": {
-                "permit": [null]
+                "forwarding": "ietf-access-control-list:accept"
               }
             }
           ]

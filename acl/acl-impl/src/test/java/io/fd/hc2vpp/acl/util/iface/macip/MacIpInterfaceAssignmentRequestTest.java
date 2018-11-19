@@ -16,8 +16,8 @@
 
 package io.fd.hc2vpp.acl.util.iface.macip;
 
-import static io.fd.hc2vpp.acl.util.iface.macip.MacIpInterfaceAssignmentRequest.addNew;
-import static io.fd.hc2vpp.acl.util.iface.macip.MacIpInterfaceAssignmentRequest.deleteExisting;
+import static io.fd.hc2vpp.acl.write.request.MacIpInterfaceAssignmentRequest.addNew;
+import static io.fd.hc2vpp.acl.write.request.MacIpInterfaceAssignmentRequest.deleteExisting;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -27,7 +27,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import io.fd.hc2vpp.acl.AclIIds;
 import io.fd.hc2vpp.acl.util.AclContextManager;
+import io.fd.hc2vpp.acl.write.request.MacIpInterfaceAssignmentRequest;
 import io.fd.hc2vpp.common.test.util.FutureProducer;
 import io.fd.hc2vpp.common.test.util.NamingContextHelper;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -41,13 +43,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.VppAclInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.Ingress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAcl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MacIpInterfaceAssignmentRequestTest implements NamingContextHelper,FutureProducer {
@@ -66,7 +63,7 @@ public class MacIpInterfaceAssignmentRequestTest implements NamingContextHelper,
     @Mock
     private MappingContext mappingContext;
 
-    private InstanceIdentifier<VppMacipAcl> validIdentifier;
+    private InstanceIdentifier<Interface> validIdentifier;
     private NamingContext interfaceContext;
     @Mock
     private AclContextManager macIpAclContext;
@@ -75,12 +72,7 @@ public class MacIpInterfaceAssignmentRequestTest implements NamingContextHelper,
     public void setUp() throws Exception {
         initMocks(this);
 
-        validIdentifier = InstanceIdentifier.create(Interfaces.class).
-                child(Interface.class, new InterfaceKey(INTERFACE_NAME))
-                .augmentation(VppAclInterfaceAugmentation.class)
-                .child(Acl.class)
-                .child(Ingress.class)
-                .child(VppMacipAcl.class);
+        validIdentifier = AclIIds.ACLS_AP.child(Interface.class, new InterfaceKey(INTERFACE_NAME));
 
         interfaceContext = new NamingContext("iface", "interface-context");
 

@@ -19,7 +19,7 @@ package io.fd.hc2vpp.acl.util;
 import io.fd.honeycomb.translate.MappingContext;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.acl.aces.Ace;
 
 /**
  * Manages metadata for acl plugin

@@ -20,23 +20,24 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.acl.AclIIds;
 import io.fd.hc2vpp.acl.AclTestSchemaContext;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.vpp.jvpp.acl.dto.AclInterfaceSetAclListReply;
 import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceAddDel;
 import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceAddDelReply;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
+import java.util.Collections;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.VppAclInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.Ingress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAcl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAclBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.IngressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.AclSetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.acl.acl.sets.AclSetBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfaceAclMacipCustomizerTest extends WriterCustomizerTest implements AclTestSchemaContext {
@@ -51,27 +52,31 @@ public class InterfaceAclMacipCustomizerTest extends WriterCustomizerTest implem
     private FutureJVppAclFacade aclApi;
     @Mock
     private AclContextManager macipAclContext;
+    @Mock
+    private AclContextManager standardAclContext;
 
-    private InterfaceAclMacIpCustomizer customizer;
+    private InterfaceAclCustomizer customizer;
     private NamingContext interfaceContext;
-    private InstanceIdentifier<VppMacipAcl> ACL_IID = InstanceIdentifier.create(Interfaces.class)
-        .child(Interface.class, new InterfaceKey(IFACE_NAME)).augmentation(VppAclInterfaceAugmentation.class)
-        .child(Acl.class).child(Ingress.class).child(VppMacipAcl.class);
-    private VppMacipAcl acl;
+    private InstanceIdentifier<Interface> IFC_IID =
+            AclIIds.ACLS_AP.child(Interface.class, new InterfaceKey(IFACE_NAME));
+    private Interface ifcAcl;
 
     @Override
     protected void setUpTest() throws Exception {
         defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
-        customizer = new InterfaceAclMacIpCustomizer(aclApi, macipAclContext, interfaceContext);
-        acl = new VppMacipAclBuilder().setName(ACL_NAME).build();
+        customizer = new InterfaceAclCustomizer(aclApi, interfaceContext, standardAclContext, macipAclContext);
+        ifcAcl = new InterfaceBuilder().setIngress(new IngressBuilder().setAclSets(new AclSetsBuilder().setAclSet(
+                Collections.singletonList(new AclSetBuilder().setName(ACL_NAME).build())).build()).build()).build();
         when(macipAclContext.getAclIndex(ACL_NAME, mappingContext)).thenReturn(ACL_ID);
+        when(macipAclContext.containsAcl(ACL_NAME, mappingContext)).thenReturn(true);
         when(aclApi.macipAclInterfaceAddDel(any())).thenReturn(future(new MacipAclInterfaceAddDelReply()));
+        when(aclApi.aclInterfaceSetAclList(any())).thenReturn(future(new AclInterfaceSetAclListReply()));
     }
 
     @Test
     public void testWrite() throws Exception {
-        customizer.writeCurrentAttributes(ACL_IID, acl, writeContext);
+        customizer.writeCurrentAttributes(IFC_IID, ifcAcl, writeContext);
         final MacipAclInterfaceAddDel request = new MacipAclInterfaceAddDel();
         request.swIfIndex = IFACE_ID;
         request.isAdd = 1;
@@ -79,19 +84,19 @@ public class InterfaceAclMacipCustomizerTest extends WriterCustomizerTest implem
         verify(aclApi).macipAclInterfaceAddDel(request);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testUpdate() throws Exception {
-        customizer.updateCurrentAttributes(ACL_IID, acl, acl, writeContext);
+        customizer.updateCurrentAttributes(IFC_IID, ifcAcl, ifcAcl, writeContext);
+        verify(aclApi).aclInterfaceSetAclList(any());
     }
 
     @Test
     public void testDelete() throws Exception {
-        customizer.deleteCurrentAttributes(ACL_IID, acl, writeContext);
+        customizer.deleteCurrentAttributes(IFC_IID, ifcAcl, writeContext);
         final MacipAclInterfaceAddDel request = new MacipAclInterfaceAddDel();
         request.swIfIndex = IFACE_ID;
         request.isAdd = 0;
         request.aclIndex = ACL_ID;
         verify(aclApi).macipAclInterfaceAddDel(request);
     }
-
 }

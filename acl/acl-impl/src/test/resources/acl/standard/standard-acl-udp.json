@@ -1,32 +1,32 @@
 {
-  "access-lists": {
+  "acls": {
     "acl": [
       {
-        "acl-name": "standard-acl",
-        "acl-type": "vpp-acl:vpp-acl",
+        "name": "standard-acl",
+        "type": "vpp-acl:vpp-acl",
         "tag": "udp-tag-value",
-        "access-list-entries": {
+        "aces": {
           "ace": [
             {
-              "rule-name": "udp-rule",
+              "name": "udp-rule",
               "matches": {
-                "vpp-ace-nodes": {
+                "ipv4": {
                   "destination-ipv4-network": "192.168.2.1/24",
-                  "source-ipv4-network": "192.168.2.2/32",
-                  "udp-nodes": {
-                    "source-port-range": {
-                      "lower-port": "1",
-                      "upper-port": "5487"
-                    },
-                    "destination-port-range": {
-                      "lower-port": "87",
-                      "upper-port": "6745"
-                    }
+                  "source-ipv4-network": "192.168.2.2/32"
+                },
+                "udp": {
+                  "source-port": {
+                    "lower-port": "1",
+                    "upper-port": "5487"
+                  },
+                  "destination-port": {
+                    "lower-port": "87",
+                    "upper-port": "6745"
                   }
                 }
               },
               "actions": {
-                "permit": [null]
+                "forwarding": "ietf-access-control-list:accept"
               }
             }
           ]
