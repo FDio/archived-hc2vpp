@@ -48,6 +48,14 @@ module v3po {
      See the License for the specific language governing permissions and
      limitations under the License.";
 
+  revision "2018-11-28" {
+    description
+      "Revision changes:
+       - adds notification for interface statistics
+       - adds capture-time to vpp-interface-statistics-augmentation
+       - adds boolean flag statistics-enabled to interface";
+  }
+
   revision "2018-10-08" {
     description
       "Revision changes:
@@ -823,6 +831,24 @@ module v3po {
     }
   }
 
+  augment /if:interfaces/if:interface {
+      ext:augment-identifier "vpp-interface-stats-collection-augmentation";
+    container statistics-collection {
+      leaf statistics-enabled {
+        type boolean;
+      }
+    }
+  }
+
+  augment /if:interfaces-state/if:interface {
+        ext:augment-identifier "vpp-interface-state-stats-collection-augmentation";
+      container statistics-collection {
+        leaf statistics-enabled {
+          type boolean;
+        }
+      }
+    }
+
   augment /if:interfaces-state/if:interface {
     ext:augment-identifier "vpp-interface-state-augmentation";
 
@@ -901,6 +927,9 @@ module v3po {
     leaf out-discards-fifo-full {
       type yang:counter64;
     }
+    leaf capture-time {
+      type yang:date-and-time;
+    }
   }
 
   container bridge-domains-state {
@@ -938,6 +967,65 @@ module v3po {
     type union {
       type string;
       type uint32;
+    }
+  }
+
+  notification interface-statistics-change {
+    leaf discontinuity-time {
+      type yang:date-and-time;
+      mandatory true;
+    }
+
+    leaf in-octets {
+      type yang:counter64;
+    }
+
+    leaf in-unicast-pkts {
+      type yang:counter64;
+    }
+
+    leaf in-broadcast-pkts {
+      type yang:counter64;
+    }
+
+    leaf in-multicast-pkts {
+      type yang:counter64;
+    }
+
+    leaf in-discards {
+      type yang:counter32;
+    }
+
+    leaf in-errors {
+      type yang:counter32;
+    }
+
+    leaf in-unknown-protos {
+      type yang:counter32;
+    }
+
+    leaf out-octets {
+      type yang:counter64;
+    }
+
+    leaf out-unicast-pkts {
+      type yang:counter64;
+    }
+
+    leaf out-broadcast-pkts {
+      type yang:counter64;
+    }
+
+    leaf out-multicast-pkts {
+      type yang:counter64;
+    }
+
+    leaf out-discards {
+      type yang:counter32;
+    }
+
+    leaf out-errors {
+      type yang:counter32;
     }
   }
 
