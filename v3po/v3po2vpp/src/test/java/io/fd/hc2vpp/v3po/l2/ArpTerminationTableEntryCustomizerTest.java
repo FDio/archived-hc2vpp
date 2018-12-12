@@ -112,7 +112,7 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         Address address = new Address();
         address.af = AddressFamily.ADDRESS_IP4;
         Ip4Address ip4Address = new Ip4Address();
-        ip4Address.address = ipAddress;
+        ip4Address.ip4Address = ipAddress;
         address.un = new AddressUnion(ip4Address);
         request.ip = address;
         MacAddress macAddr = new MacAddress();
@@ -137,7 +137,7 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         verify(api).bdIpMacAddDel(argumentCaptor.capture());
         final BdIpMacAddDel actual = argumentCaptor.getValue();
         assertArrayEquals(expected.mac.bytes, actual.mac.bytes);
-        assertArrayEquals(expected.ip.un.getIp4().address, actual.ip.un.getIp4().address);
+        assertArrayEquals(expected.ip.un.getIp4().ip4Address, actual.ip.un.getIp4().ip4Address);
         assertEquals(expected.bdId, actual.bdId);
         assertEquals(expected.isAdd, actual.isAdd);
     }

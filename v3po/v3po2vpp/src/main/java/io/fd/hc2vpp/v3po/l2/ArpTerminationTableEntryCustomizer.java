@@ -104,7 +104,7 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
         request.mac = macAddress;
         final IpAddressNoZone ipAddress = entry.getIpAddress();
         Ip4Address ip4Address = new Ip4Address();
-        ip4Address.address = ipAddressToArray(ipAddress);
+        ip4Address.ip4Address = ipAddressToArray(ipAddress);
         Address address = new Address();
         address.af = AddressFamily.ADDRESS_IP4;
         address.un = new AddressUnion(ip4Address);
