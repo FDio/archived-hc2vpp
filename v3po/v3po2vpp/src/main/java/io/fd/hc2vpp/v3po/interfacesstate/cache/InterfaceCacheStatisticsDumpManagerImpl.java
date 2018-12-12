@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 public class InterfaceCacheStatisticsDumpManagerImpl implements InterfaceCacheStatisticsDumpManager {
 
-    private HashMap<Integer, InterfaceCacheStatisticsSample> statistics;
+    private final HashMap<Integer, InterfaceCacheStatisticsSample> statistics;
 
     public InterfaceCacheStatisticsDumpManagerImpl() {
         statistics = new HashMap<>();
@@ -35,7 +35,6 @@ public class InterfaceCacheStatisticsDumpManagerImpl implements InterfaceCacheSt
         return statistics.getOrDefault(ifcSwIndex, null);
     }
 
-    @Nullable
     @Override
     public void setStatisticsData(final VnetPerInterfaceCombinedCounters data, LocalDateTime captureTime,
                                   final int ifcSwIndex) {
@@ -48,19 +47,16 @@ public class InterfaceCacheStatisticsDumpManagerImpl implements InterfaceCacheSt
         return statistics.keySet().stream().mapToInt(i -> i).toArray();
     }
 
-    @Nullable
     @Override
     public void disableInterface(final int ifcSwIndex) {
         statistics.remove(ifcSwIndex);
     }
 
-    @Nullable
     @Override
     public void disableAll() {
         statistics.clear();
     }
 
-    @Nullable
     @Override
     public void enableInterface(final int index) {
         statistics.put(index,
