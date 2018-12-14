@@ -42,7 +42,7 @@ public class CliInbandServiceTest implements FutureProducer {
 
         final CliInbandService service = new CliInbandService(api);
         final CliInbandReply reply = new CliInbandReply();
-        reply.reply = replyString.getBytes();
+        reply.reply = replyString;
         when(api.cliInband(any())).thenReturn(future(reply));
 
         final CliInbandInput request = new CliInbandInputBuilder().setCmd("cmd").build();

@@ -98,10 +98,10 @@ public class VppStateTest implements FutureProducer {
 
     private void whenShowVersionThenReturn(final Version version) {
         final ShowVersionReply reply = new ShowVersionReply();
-        reply.buildDate = version.getBuildDate().getBytes();
-        reply.program = version.getName().getBytes();
-        reply.version = version.getBranch().getBytes();
-        reply.buildDirectory = version.getBuildDirectory().getBytes();
+        reply.buildDate = version.getBuildDate();
+        reply.program = version.getName();
+        reply.version = version.getBranch();
+        reply.buildDirectory = version.getBuildDirectory();
         when(api.showVersion(ArgumentMatchers.any(ShowVersion.class))).thenReturn(future(reply));
         // Version Customizer uses ControlPing to obtain PID
         when(api.send(ArgumentMatchers.any(ControlPing.class))).thenReturn(future(new ControlPingReply()));

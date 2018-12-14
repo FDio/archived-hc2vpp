@@ -46,12 +46,9 @@ public class CliInbandService implements RpcService<CliInbandInput, CliInbandOut
     @Nonnull
     public CompletionStage<CliInbandOutput> invoke(@Nonnull final CliInbandInput input) {
         final CliInband request = new CliInband();
-        request.cmd = input.getCmd().getBytes(StandardCharsets.UTF_8);
-        request.length = request.cmd.length;
+        request.cmd = input.getCmd();
         return jvpp.cliInband(request)
-            .thenApply(
-                reply -> new CliInbandOutputBuilder().setReply(new String(reply.reply)).build()
-            );
+            .thenApply(reply -> new CliInbandOutputBuilder().setReply(reply.reply).build());
     }
 
     @Nonnull

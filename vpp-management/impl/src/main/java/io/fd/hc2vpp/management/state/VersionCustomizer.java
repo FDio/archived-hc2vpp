@@ -65,10 +65,10 @@ public final class VersionCustomizer
         final CompletionStage<ShowVersionReply> showVersionFuture = getFutureJVpp().showVersion(new ShowVersion());
         final ShowVersionReply reply = getReplyForRead(showVersionFuture.toCompletableFuture(), id);
 
-        builder.setBranch(toString(reply.version));
-        builder.setName(toString(reply.program));
-        builder.setBuildDate(toString(reply.buildDate));
-        builder.setBuildDirectory(toString(reply.buildDirectory));
+        builder.setBranch(reply.version);
+        builder.setName(reply.program);
+        builder.setBuildDate(reply.buildDate);
+        builder.setBuildDirectory(reply.buildDirectory);
         builder.setPid(getPid(id));
     }
 
