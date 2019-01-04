@@ -116,7 +116,7 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         address.un = new AddressUnion(ip4Address);
         request.ip = address;
         MacAddress macAddr = new MacAddress();
-        macAddr.bytes = macAddress;
+        macAddr.macaddress = macAddress;
         request.mac = macAddr;
         request.bdId = BD_ID;
         request.isAdd = isAdd;
@@ -136,7 +136,7 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         ArgumentCaptor<BdIpMacAddDel> argumentCaptor = ArgumentCaptor.forClass(BdIpMacAddDel.class);
         verify(api).bdIpMacAddDel(argumentCaptor.capture());
         final BdIpMacAddDel actual = argumentCaptor.getValue();
-        assertArrayEquals(expected.mac.bytes, actual.mac.bytes);
+        assertArrayEquals(expected.mac.macaddress, actual.mac.macaddress);
         assertArrayEquals(expected.ip.un.getIp4().ip4Address, actual.ip.un.getIp4().ip4Address);
         assertEquals(expected.bdId, actual.bdId);
         assertEquals(expected.isAdd, actual.isAdd);

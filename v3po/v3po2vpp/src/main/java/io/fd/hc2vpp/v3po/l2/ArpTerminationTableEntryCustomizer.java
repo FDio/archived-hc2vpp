@@ -100,7 +100,7 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
         request.bdId = bdId;
         request.isAdd = booleanToByte(isAdd);
         MacAddress macAddress = new MacAddress();
-        macAddress.bytes = parseMac(entry.getPhysAddress().getValue());
+        macAddress.macaddress = parseMac(entry.getPhysAddress().getValue());
         request.mac = macAddress;
         final IpAddressNoZone ipAddress = entry.getIpAddress();
         Ip4Address ip4Address = new Ip4Address();
