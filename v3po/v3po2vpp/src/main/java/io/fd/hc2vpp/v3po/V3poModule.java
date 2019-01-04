@@ -29,10 +29,7 @@ import io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceStateAugmentationReaderFactory;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManagerProvider;
-import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheStatisticsDumpManager;
-import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheStatisticsDumpManagerProvider;
 import io.fd.hc2vpp.v3po.notification.InterfaceChangeNotificationProducerProvider;
-import io.fd.hc2vpp.v3po.notification.StatisticsChangeNotificationProducerProvider;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -57,8 +54,6 @@ public class V3poModule extends AbstractModule {
                 .toInstance(new NamingContext("bridge-domain-", "bridge-domain-context"));
 
         bind(InterfaceCacheDumpManager.class).toProvider(InterfaceCacheDumpManagerProvider.class).in(Singleton.class);
-        bind(InterfaceCacheStatisticsDumpManager.class).toProvider(InterfaceCacheStatisticsDumpManagerProvider.class)
-                .in(Singleton.class);
 
         // Context utility for deleted interfaces
         bind(DisabledInterfacesManager.class).toInstance(new DisabledInterfacesManager());
@@ -82,7 +77,6 @@ public class V3poModule extends AbstractModule {
         final Multibinder<ManagedNotificationProducer> notifiersBinder =
                 Multibinder.newSetBinder(binder(), ManagedNotificationProducer.class);
         notifiersBinder.addBinding().toProvider(InterfaceChangeNotificationProducerProvider.class);
-        notifiersBinder.addBinding().toProvider(StatisticsChangeNotificationProducerProvider.class);
 
         LOG.info("Module V3PO successfully configured");
     }
