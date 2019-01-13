@@ -28,12 +28,12 @@ import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
 import io.fd.vpp.jvpp.core.types.ProxyArp;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.proxy.arp.rev180703.ProxyRanges;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.proxy.arp.rev180703.proxy.ranges.ProxyRange;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.proxy.arp.rev180703.proxy.ranges.ProxyRangeBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.proxy.arp.rev180703.proxy.ranges.ProxyRangeKey;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180703.ProxyRanges;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180703.proxy.ranges.ProxyRange;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180703.proxy.ranges.ProxyRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180703.proxy.ranges.ProxyRangeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 

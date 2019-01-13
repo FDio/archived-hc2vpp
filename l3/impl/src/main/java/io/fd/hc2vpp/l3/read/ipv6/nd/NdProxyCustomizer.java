@@ -38,15 +38,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.NdProxyIp6Augmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces.state._interface.ipv6.NdProxiesBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces.state._interface.ipv6.nd.proxies.NdProxy;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces.state._interface.ipv6.nd.proxies.NdProxyBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces.state._interface.ipv6.nd.proxies.NdProxyKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.NdProxyIp6Augmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces.state._interface.ipv6.NdProxiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces.state._interface.ipv6.nd.proxies.NdProxy;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces.state._interface.ipv6.nd.proxies.NdProxyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces.state._interface.ipv6.nd.proxies.NdProxyKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -118,22 +118,22 @@ public final class NdProxyCustomizer extends FutureJVppCustomizer
                                                   @Nonnull final NdProxy ndProxy,
                                                   @Nonnull final ReadContext readContext) {
         return Initialized.create(getCfgId(id),
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxyBuilder()
+            new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxyBuilder()
                 .setAddress(ndProxy.getAddress())
                 .build());
     }
 
     @VisibleForTesting
-    protected static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxy> getCfgId(
+    protected static InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxy> getCfgId(
         final InstanceIdentifier<NdProxy> id) {
         final Ipv6AddressNoZone address = id.firstKeyOf(NdProxy.class).getAddress();
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
             .augmentation(Interface1.class).child(Ipv6.class).augmentation(NdProxyIp6Augmentation.class)
             .child(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces._interface.ipv6.NdProxies.class)
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.NdProxies.class)
             .child(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxy.class,
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxyKey(
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxy.class,
+                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxyKey(
                     address));
     }
 }

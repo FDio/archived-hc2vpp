@@ -1,6 +1,6 @@
 module proxy-arp {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp:proxy:arp";
+  namespace "http://fd.io/hc2vpp/yang/proxy-arp";
   prefix "proxy-arp";
 
   import ietf-inet-types {

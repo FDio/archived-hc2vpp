@@ -1,6 +1,6 @@
 module nd-proxy {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:vpp:nd:proxy";
+    namespace "http://fd.io/hc2vpp/yang/nd-proxy";
     prefix "nd-proxy";
 
     import ietf-inet-types {
