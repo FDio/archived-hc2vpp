@@ -17,12 +17,12 @@
 package io.fd.hc2vpp.management.state;
 
 import com.google.common.primitives.UnsignedInts;
-import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.ShowVersion;
 import io.fd.vpp.jvpp.core.dto.ShowVersionReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -31,9 +31,9 @@ import io.fd.vpp.jvpp.dto.ControlPingReply;
 import io.fd.vpp.jvpp.dto.JVppReply;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.management.rev170315.VppStateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.management.rev170315.vpp.state.Version;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.management.rev170315.vpp.state.VersionBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.management.rev170315.VppStateBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.management.rev170315.vpp.state.Version;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.management.rev170315.vpp.state.VersionBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;

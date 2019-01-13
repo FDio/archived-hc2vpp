@@ -26,9 +26,9 @@ import io.fd.vpp.jvpp.core.dto.CliInbandReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.management.rev170315.CliInbandInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.management.rev170315.CliInbandInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.management.rev170315.CliInbandOutput;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.management.rev170315.CliInbandInput;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.management.rev170315.CliInbandInputBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.management.rev170315.CliInbandOutput;
 
 public class CliInbandServiceTest implements FutureProducer {
 

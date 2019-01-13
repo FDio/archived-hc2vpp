@@ -1,6 +1,6 @@
 module vpp-management {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp:management";
+  namespace "http://fd.io/hc2vpp/yang/vpp-management";
   prefix "vpp-m";
 
   organization
