@@ -42,16 +42,16 @@ public interface SchemaContextTestHelper extends InjectablesProcessor {
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.$YangModuleInfoImpl
                     .getInstance(),
                 // Vpp routing
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev180319.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.routing.rev180319.$YangModuleInfoImpl
                     .getInstance(),
                 // Vpp IPv4 augmentations
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv4.unicast.routing.rev180319.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipv4.unicast.routing.rev180319.$YangModuleInfoImpl
                     .getInstance(),
                 // Vpp IPv6 augmentations
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipv6.unicast.routing.rev180319.$YangModuleInfoImpl
                     .getInstance(),
                 // Vpp routing RA
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.ra.rev180319.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.routing.ra.rev180319.$YangModuleInfoImpl
                     .getInstance()
                 ));
     }

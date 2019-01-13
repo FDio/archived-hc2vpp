@@ -1,6 +1,6 @@
 module vpp-ipv4-unicast-routing {
 
-    namespace "urn:ietf:params:xml:ns:yang:vpp-ipv4-unicast-routing";
+    namespace "http://fd.io/hc2vpp/yang/vpp-ipv4-unicast-routing";
     prefix "vpp-v4ur";
 
     import yang-ext {

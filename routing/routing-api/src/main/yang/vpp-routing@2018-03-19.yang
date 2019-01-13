@@ -1,6 +1,6 @@
 module vpp-routing {
 
-    namespace "urn:ietf:params:xml:ns:yang:vpp-routing";
+    namespace "http://fd.io/hc2vpp/yang/vpp-routing";
     prefix "vpp-routing";
 
     import yang-ext {

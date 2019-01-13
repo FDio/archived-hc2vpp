@@ -1,6 +1,6 @@
 module vpp-routing-types {
 
-    namespace "urn:ietf:params:xml:ns:yang:vpp-routing-types";
+    namespace "http://fd.io/hc2vpp/yang/vpp-routing-types";
     prefix "vpp-routing-types";
 
     organization
