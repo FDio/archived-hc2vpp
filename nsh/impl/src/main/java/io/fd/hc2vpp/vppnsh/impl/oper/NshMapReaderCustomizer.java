@@ -20,13 +20,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.vppnsh.impl.util.FutureJVppNshCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.vppnsh.impl.util.FutureJVppNshCustomizer;
 import io.fd.vpp.jvpp.nsh.dto.NshMapDetails;
 import io.fd.vpp.jvpp.nsh.dto.NshMapDetailsReplyDump;
 import io.fd.vpp.jvpp.nsh.dto.NshMapDump;
@@ -36,18 +36,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Pop;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Push;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Swap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.VppNsh;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.VxlanGpe;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Vxlan4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Vxlan6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.None;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.NshMapsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.maps.NshMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.maps.NshMapBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.maps.NshMapKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.None;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.Pop;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.Push;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.Swap;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.VppNsh;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.Vxlan4;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.Vxlan6;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.VxlanGpe;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.state.NshMapsBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.maps.NshMap;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.maps.NshMapBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.maps.NshMapKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -205,15 +205,15 @@ implements InitializingListReaderCustomizer<NshMap, NshMapKey, NshMapBuilder>, J
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.maps.NshMap> init(
+    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.nsh.maps.NshMap> init(
             @Nonnull final InstanceIdentifier<NshMap> id,
             @Nonnull final NshMap readValue,
             @Nonnull final ReadContext ctx) {
         return Initialized.create(
                 InstanceIdentifier.create(VppNsh.class).child(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.NshMaps.class).child(
-                                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.maps.NshMap.class,
-                                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.maps.NshMapKey(id.firstKeyOf(NshMap.class).getName())),
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.maps.NshMapBuilder(readValue).setName(readValue.getName()).build());
+                        org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.NshMaps.class).child(
+                                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.nsh.maps.NshMap.class,
+                                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.nsh.maps.NshMapKey(id.firstKeyOf(NshMap.class).getName())),
+                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.nsh.maps.NshMapBuilder(readValue).setName(readValue.getName()).build());
     }
 }

@@ -18,20 +18,20 @@ package io.fd.hc2vpp.vppnsh.impl.oper;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.VppNshState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.VppNshStateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.NshEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.NshEntriesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.NshMaps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.NshMapsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.entries.NshEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.maps.NshMap;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.VppNshState;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.VppNshStateBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.state.NshEntries;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.state.NshEntriesBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.state.NshMaps;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.state.NshMapsBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.entries.NshEntry;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.maps.NshMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class VppNshReaderFactory implements ReaderFactory {

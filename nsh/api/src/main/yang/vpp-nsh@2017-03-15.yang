@@ -1,6 +1,6 @@
 module vpp-nsh {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp:nsh";
+  namespace "http://fd.io/hc2vpp/yang/vpp-nsh";
   prefix "vpp-nsh";
 
   import yang-ext {
