@@ -34,7 +34,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.MappingTableBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.MappingTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.mapping.table.MappingEntry;
@@ -179,7 +179,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
         final long natId = 7;
         final long entryId = 99;
         final MappingEntry entry = getEntry(natId, "192.168.1.5/32", "17.14.4.6/32");
-        final org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.mapping.table.MappingEntry
+        final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.mapping.table.MappingEntry
                 data = MappingEntryContext.toCtxMapEntry(entry, entryId);
         when(mappingCtx.read(any(InstanceIdentifier.class))).thenReturn(Optional.of(data));
 

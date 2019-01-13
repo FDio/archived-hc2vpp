@@ -23,8 +23,8 @@ import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.NatPoolType.Nat44;
-import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.NatPoolType.Nat64;
+import static org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nat.rev180510.NatPoolType.Nat44;
+import static org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nat.rev180510.NatPoolType.Nat64;
 
 import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.stream.LongStream;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nat.rev180510.ExternalIpAddressPoolAugmentation;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.Instance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.InstanceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.Policy;
@@ -46,7 +47,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev1806
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.policy.ExternalIpAddressPool;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.policy.ExternalIpAddressPoolBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.policy.ExternalIpAddressPoolKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.ExternalIpAddressPoolAugmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ExternalIpPoolCustomizerTest

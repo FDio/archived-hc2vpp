@@ -19,7 +19,7 @@ package io.fd.hc2vpp.nat.write.ifc;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170816._interface.nat.attributes.nat.Inbound;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.nat.Inbound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,6 @@
 module interface-nat {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:interface:nat";
+  namespace "http://fd.io/hc2vpp/yang/interface-nat";
   prefix "ifc-nat";
 
   import ietf-interfaces {

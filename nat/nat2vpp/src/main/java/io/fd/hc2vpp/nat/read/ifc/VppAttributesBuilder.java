@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.nat.read.ifc;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170816.InterfaceNatVppFeatureAttributes;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816.InterfaceNatVppFeatureAttributes;
 import org.opendaylight.yangtools.concepts.Builder;
 
 interface VppAttributesBuilder<B extends Builder<? extends InterfaceNatVppFeatureAttributes>> {

@@ -1,6 +1,6 @@
 module vpp-nat {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp:nat";
+  namespace "http://fd.io/hc2vpp/yang/vpp-nat";
   prefix "vpp-nat";
 
   import ietf-nat {

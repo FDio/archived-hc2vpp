@@ -1,6 +1,6 @@
 module nat-context {
     yang-version 1;
-    namespace "urn:honeycomb:params:xml:ns:yang:nat:context";
+    namespace "http://fd.io/hc2vpp/yang/nat-context";
     prefix "nat-ctx";
 
     import ietf-inet-types {
