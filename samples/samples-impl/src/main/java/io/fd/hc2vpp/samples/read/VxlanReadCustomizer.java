@@ -30,18 +30,17 @@ import io.fd.vpp.jvpp.core.dto.VxlanTunnelDetails;
 import io.fd.vpp.jvpp.core.dto.VxlanTunnelDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.VxlanTunnelDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev161214.sample.plugin.params.VxlansBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev161214.sample.plugin.params.vxlans.VxlanTunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev161214.sample.plugin.params.vxlans.VxlanTunnelBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev161214.sample.plugin.params.vxlans.VxlanTunnelKey;
-import org.opendaylight.yangtools.concepts.Builder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.sample.plugin.rev161214.sample.plugin.params.VxlansBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.sample.plugin.rev161214.sample.plugin.params.vxlans.VxlanTunnel;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.sample.plugin.rev161214.sample.plugin.params.vxlans.VxlanTunnelBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.sample.plugin.rev161214.sample.plugin.params.vxlans.VxlanTunnelKey;
+import org.opendaylight.yangtools.concepts.Builder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 /**
