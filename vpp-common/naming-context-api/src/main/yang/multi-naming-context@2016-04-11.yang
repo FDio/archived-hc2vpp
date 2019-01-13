@@ -1,6 +1,6 @@
 module multi-naming-context {
     yang-version 1;
-    namespace "urn:honeycomb:params:xml:ns:yang:multi:naming:context";
+    namespace "http://fd.io/hc2vpp/yang/multi-naming-context";
     prefix "mnc";
 
     import naming-context {

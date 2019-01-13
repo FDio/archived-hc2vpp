@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.naming.context.rev160513.Contexts;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nat.context.rev161214.NatMappingEntryCtxAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nat.context.rev161214.mapping.entry.context.attributes.NatMappingEntryContext;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.NatInstance;
@@ -38,7 +39,6 @@ import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nat.context.rev161214
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.mapping.table.MappingEntry;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.mapping.table.MappingEntryBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.mapping.table.MappingEntryKey;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;

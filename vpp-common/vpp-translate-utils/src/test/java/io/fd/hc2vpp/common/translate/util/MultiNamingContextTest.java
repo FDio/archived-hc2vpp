@@ -17,7 +17,7 @@
 package io.fd.hc2vpp.common.translate.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
@@ -42,18 +42,18 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.$YangModuleInfoImpl;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.MultiMappingCtxAugmentation;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.MultiNamingContexts;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.MultiNaming;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.MultiNamingKey;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.Mappings;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.Mapping;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.MappingKey;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.mapping.Value;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.mapping.ValueBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.mapping.ValueKey;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.multi.naming.context.rev160411.$YangModuleInfoImpl;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.multi.naming.context.rev160411.MultiMappingCtxAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.MultiNamingContexts;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.MultiNaming;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.MultiNamingKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.Mappings;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.Mapping;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.MappingKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.mapping.Value;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.mapping.ValueBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.mapping.ValueKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.naming.context.rev160513.Contexts;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
@@ -183,7 +183,7 @@ public class MultiNamingContextTest implements InjectablesProcessor {
 
         assertEquals(PARENT_1, mapping.getName());
         assertThat(values, hasSize(2));
-        assertThat(values, contains(valueFor(CHILD_2, 2), valueFor(CHILD_3, 3)));
+        assertThat(values, containsInAnyOrder(valueFor(CHILD_2, 2), valueFor(CHILD_3, 3)));
     }
 
     @Test

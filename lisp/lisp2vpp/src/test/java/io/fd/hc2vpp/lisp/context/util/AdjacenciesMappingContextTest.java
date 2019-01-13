@@ -47,7 +47,7 @@ import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.adjacencies.identific
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.adjacencies.identification.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.adjacencies.identification.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.adjacencies.identification.mappings.mapping.EidIdentificatorPair;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.naming.context.rev160513.Contexts;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
@@ -83,7 +83,7 @@ public class AdjacenciesMappingContextTest implements InjectablesProcessor {
     @SchemaContextProvider
     public ModuleInfoBackedContext schemaContext() {
         return provideSchemaContextFor(ImmutableSet.of($YangModuleInfoImpl.getInstance(),
-                org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.naming.context.rev160513.$YangModuleInfoImpl
                         .getInstance()));
     }
 

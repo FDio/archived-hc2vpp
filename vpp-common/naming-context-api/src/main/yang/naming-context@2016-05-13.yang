@@ -1,6 +1,6 @@
 module naming-context {
     yang-version 1;
-    namespace "urn:honeycomb:params:xml:ns:yang:naming:context";
+    namespace "http://fd.io/hc2vpp/yang/naming-context";
     prefix "nc";
 
     organization
