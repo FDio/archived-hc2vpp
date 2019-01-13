@@ -1,6 +1,6 @@
 module vpp-mpls {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp:mpls";
+  namespace "http://fd.io/hc2vpp/yang/vpp-mpls";
   prefix "vpp-mpls";
 
   import hc2vpp-ietf-mpls {
