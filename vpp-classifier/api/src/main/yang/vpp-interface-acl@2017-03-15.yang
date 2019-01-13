@@ -1,6 +1,6 @@
 module vpp-interface-acl {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:vpp:interface:acl";
+    namespace "http://fd.io/hc2vpp/yang/vpp-interface-acl";
     prefix "vpp-ifc-acl";
 
     import ietf-interfaces {

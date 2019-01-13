@@ -1,6 +1,6 @@
 module vpp-classifier {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp:classifier";
+  namespace "http://fd.io/hc2vpp/yang/vpp-classifier";
   prefix "vpp-classifier";
 
   import ietf-yang-types {

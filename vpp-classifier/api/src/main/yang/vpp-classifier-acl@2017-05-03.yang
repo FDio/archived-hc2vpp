@@ -1,6 +1,6 @@
 module vpp-classifier-acl {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp:classifier:acl";
+  namespace "http://fd.io/hc2vpp/yang/vpp-classifier-acl";
   prefix "vpp-classifier-acl";
 
   import vpp-classifier {

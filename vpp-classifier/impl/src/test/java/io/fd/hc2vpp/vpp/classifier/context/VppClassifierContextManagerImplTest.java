@@ -29,15 +29,15 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.context.rev170502.VppClassifierContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.context.rev170502.VppClassifierContextBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.context.rev170502.vpp.classifier.context.ClassifyTableContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.context.rev170502.vpp.classifier.context.ClassifyTableContextBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.context.rev170502.vpp.classifier.context.ClassifyTableContextKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.context.rev170502.vpp.classifier.context.classify.table.context.NodeContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.context.rev170502.vpp.classifier.context.classify.table.context.NodeContextBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.context.rev170502.vpp.classifier.context.classify.table.context.NodeContextKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev170327.VppNodeName;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.context.rev170502.VppClassifierContext;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.context.rev170502.VppClassifierContextBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.context.rev170502.vpp.classifier.context.ClassifyTableContext;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.context.rev170502.vpp.classifier.context.ClassifyTableContextBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.context.rev170502.vpp.classifier.context.ClassifyTableContextKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.context.rev170502.vpp.classifier.context.classify.table.context.NodeContext;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.context.rev170502.vpp.classifier.context.classify.table.context.NodeContextBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.context.rev170502.vpp.classifier.context.classify.table.context.NodeContextKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.rev170327.VppNodeName;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public class VppClassifierContextManagerImplTest {

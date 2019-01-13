@@ -23,12 +23,12 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.PolicersState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.PolicersStateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policer.base.attributes.ConformAction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policer.base.attributes.ExceedAction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policer.base.attributes.ViolateAction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policers.state.Policer;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.PolicersState;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.PolicersStateBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policer.base.attributes.ConformAction;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policer.base.attributes.ExceedAction;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policer.base.attributes.ViolateAction;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policers.state.Policer;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class PolicerReaderFactory implements ReaderFactory {

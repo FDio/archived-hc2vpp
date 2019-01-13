@@ -36,27 +36,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.DscpType;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.MeterActionDrop;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.MeterActionMarkDscp;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.MeterActionTransmit;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.MeterActionType;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.MeterType;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.PolicerRateType;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.PolicerRoundType;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.Policers;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.PolicersStateBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.VppDscpType;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policer.base.attributes.ConformAction;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policer.base.attributes.ConformActionBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policer.base.attributes.ExceedAction;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policer.base.attributes.ExceedActionBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policer.base.attributes.ViolateAction;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policer.base.attributes.ViolateActionBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policers.state.Policer;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policers.state.PolicerBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policers.state.PolicerKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.DscpType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.MeterActionDrop;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.MeterActionMarkDscp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.MeterActionTransmit;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.MeterActionType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.MeterType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.PolicerRateType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.PolicerRoundType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.Policers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.PolicersStateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.VppDscpType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policer.base.attributes.ConformAction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policer.base.attributes.ConformActionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policer.base.attributes.ExceedAction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policer.base.attributes.ExceedActionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policer.base.attributes.ViolateAction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policer.base.attributes.ViolateActionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policers.state.Policer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policers.state.PolicerBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policers.state.PolicerKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -198,18 +198,18 @@ final class PolicerCustomizer extends FutureJVppCustomizer
                                                   @Nonnull final Policer policer,
                                                   @Nonnull final ReadContext readContext) {
         return Initialized.create(getCfgId(id),
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policers.PolicerBuilder(
+            new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policers.PolicerBuilder(
                 policer)
                 .setName(policer.getName())
                 .build());
     }
 
-    private static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policers.Policer> getCfgId(
+    private static InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policers.Policer> getCfgId(
         final InstanceIdentifier<Policer> id) {
         final PolicerKey key = id.firstKeyOf(Policer.class);
         return InstanceIdentifier.create(Policers.class).child(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policers.Policer.class,
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.policer.rev170315.policers.PolicerKey(
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policers.Policer.class,
+            new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.policers.PolicerKey(
                 key.getName()));
     }
 }

@@ -1,6 +1,6 @@
 module vpp-classifier-context {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp:classifier:context";
+  namespace "http://fd.io/hc2vpp/yang/vpp-classifier-context";
   prefix "vpp-classifier-context";
 
   organization
