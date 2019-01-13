@@ -41,8 +41,8 @@ import org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170
 import org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170918.policies.PoliciesBuilder;
 import org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170918.prefixes.properties.PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170918.segment.routing.TrafficEngineeringBuilder;
-import org.opendaylight.yang.gen.v1.urn.hc2vpp.params.xml.ns.yang.vpp.oc.srte.policy.rev180514.VppL2AutorouteIncludeAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.hc2vpp.params.xml.ns.yang.vpp.oc.srte.policy.rev180514.segment.routing.traffic.engineering.policies.policy.autoroute.include.InterfacesBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.oc.srte.policy.rev180514.VppL2AutorouteIncludeAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.oc.srte.policy.rev180514.segment.routing.traffic.engineering.policies.policy.autoroute.include.InterfacesBuilder;
 
 public class Srv6PolicyReaderFactory implements ReaderFactory {
 

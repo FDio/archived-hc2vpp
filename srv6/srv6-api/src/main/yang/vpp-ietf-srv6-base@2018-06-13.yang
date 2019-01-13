@@ -1,6 +1,6 @@
 module vpp-ietf-srv6-base {
 
-    namespace "urn:hc2vpp:params:xml:ns:yang:vpp-ietf-srv6-base";
+    namespace "http://fd.io/hc2vpp/yang/vpp-ietf-srv6-base";
     prefix vpp-ietf-srv6-base;
 
     import hc2vpp-ietf-srv6-base {

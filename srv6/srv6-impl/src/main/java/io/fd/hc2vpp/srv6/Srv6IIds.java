@@ -17,8 +17,8 @@
 
 package io.fd.hc2vpp.srv6;
 
-import org.opendaylight.yang.gen.v1.urn.hc2vpp.params.xml.ns.yang.vpp.ietf.srv6.base.rev180613.VppSrv6FibLocatorAugment;
-import org.opendaylight.yang.gen.v1.urn.hc2vpp.params.xml.ns.yang.vpp.ietf.srv6.base.rev180613.vpp.srv6.fib.FibTable;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ietf.srv6.base.rev180613.VppSrv6FibLocatorAugment;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ietf.srv6.base.rev180613.vpp.srv6.fib.FibTable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Routing;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.Locator1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.multi.paths.v6.Paths;

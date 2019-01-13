@@ -31,8 +31,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.locator.context.rev180605.srv6.locator.context.attributes.srv6.locator.mappings.Srv6LocatorMapping;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.locator.context.rev180605.srv6.locator.context.attributes.srv6.locator.mappings.Srv6LocatorMappingBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.locator.context.rev180605.srv6.locator.context.attributes.srv6.locator.mappings.Srv6LocatorMapping;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.locator.context.rev180605.srv6.locator.context.attributes.srv6.locator.mappings.Srv6LocatorMappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 

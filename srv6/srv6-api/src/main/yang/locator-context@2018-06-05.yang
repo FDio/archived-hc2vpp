@@ -1,6 +1,6 @@
 module locator-context {
     yang-version 1;
-    namespace "urn:honeycomb:params:xml:ns:yang:locator:context";
+    namespace "http://fd.io/hc2vpp/yang/locator-context";
     prefix "locator-ctx";
 
     import ietf-inet-types {

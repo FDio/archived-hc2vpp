@@ -18,7 +18,7 @@ package io.fd.hc2vpp.srv6.util;
 
 import io.fd.honeycomb.translate.MappingContext;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.policy.context.rev180607.srv6.policy.context.attributes.srv6.policy.mappings.Srv6PolicyMapping;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policy.context.rev180607.srv6.policy.context.attributes.srv6.policy.mappings.Srv6PolicyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 
 /**

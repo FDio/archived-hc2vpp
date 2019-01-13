@@ -1,6 +1,6 @@
 module vpp-oc-srte-policy {
 
-    namespace "urn:hc2vpp:params:xml:ns:yang:vpp-oc-srte-policy";
+    namespace "http://fd.io/hc2vpp/yang/vpp-oc-srte-policy";
     prefix vpp-oc-srte-policy;
 
     import hc2vpp-oc-srte-policy {

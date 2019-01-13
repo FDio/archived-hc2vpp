@@ -38,8 +38,8 @@ import org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170
 import org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170918.policies.policies.Policy;
 import org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170918.policies.policies.PolicyBuilder;
 import org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170918.policies.policies.PolicyKey;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.policy.context.rev180607.srv6.candidate.path.context.attributes.srv6.candidate.path.mappings.Srv6CandidatePathMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.policy.context.rev180607.srv6.policy.context.attributes.srv6.policy.mappings.Srv6PolicyMappingBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policy.context.rev180607.srv6.candidate.path.context.attributes.srv6.candidate.path.mappings.Srv6CandidatePathMappingBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policy.context.rev180607.srv6.policy.context.attributes.srv6.policy.mappings.Srv6PolicyMappingBuilder;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public class PolicyCustomizerTest extends PoliciesTest {

@@ -1,6 +1,6 @@
 module policy-context {
     yang-version 1;
-    namespace "urn:honeycomb:params:xml:ns:yang:policy:context";
+    namespace "http://fd.io/hc2vpp/yang/policy-context";
     prefix "policy-ctx";
 
     import hc2vpp-oc-srte-policy {
