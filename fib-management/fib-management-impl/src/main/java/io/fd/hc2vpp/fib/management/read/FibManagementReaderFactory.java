@@ -29,8 +29,8 @@ import io.fd.vpp.jvpp.core.dto.IpFibDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpFibDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.FibTableManagementBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.FibTablesBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.FibTableManagementBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.FibTablesBuilder;
 
 /**
  * Factory producing readers for FIB management plugin's data.

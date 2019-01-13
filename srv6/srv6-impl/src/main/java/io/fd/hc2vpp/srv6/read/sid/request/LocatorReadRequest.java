@@ -34,6 +34,8 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.Ipv6;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yang.gen.v1.urn.hc2vpp.params.xml.ns.yang.vpp.ietf.srv6.base.rev180613.VppSrv6FibLocatorAugment;
 import org.opendaylight.yang.gen.v1.urn.hc2vpp.params.xml.ns.yang.vpp.ietf.srv6.base.rev180613.VppSrv6FibLocatorAugmentBuilder;
 import org.opendaylight.yang.gen.v1.urn.hc2vpp.params.xml.ns.yang.vpp.ietf.srv6.base.rev180613.vpp.srv6.fib.FibTableBuilder;
@@ -44,8 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.base.r
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.base.rev180301.srv6.locators.locators.LocatorKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.base.rev180301.srv6.locators.locators.locator.PrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.Srv6LocatorLen;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class LocatorReadRequest extends JVppRequest implements ReadRequest<Locator, LocatorKey, LocatorBuilder> {

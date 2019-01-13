@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
 import io.fd.honeycomb.test.tools.annotations.SchemaContextProvider;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.$YangModuleInfoImpl;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.$YangModuleInfoImpl;
 
 public interface SchemaContextTestHelper extends InjectablesProcessor {
 

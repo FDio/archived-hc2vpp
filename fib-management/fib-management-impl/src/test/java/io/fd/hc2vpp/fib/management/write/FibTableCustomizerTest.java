@@ -33,11 +33,12 @@ import io.fd.vpp.jvpp.core.dto.IpTableAddDelReply;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.FibTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.fib.tables.Table;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.fib.tables.TableKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.Ipv4;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.Ipv6;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.VniReference;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.FibTables;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.fib.tables.Table;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.fib.tables.TableKey;
 
 @RunWith(HoneycombTestRunner.class)
 public class FibTableCustomizerTest extends WriterCustomizerTest implements SchemaContextTestHelper,
@@ -60,9 +61,10 @@ public class FibTableCustomizerTest extends WriterCustomizerTest implements Sche
     @Test
     public void testWriteSimple(@InjectTestData(resourcePath = "/fib.json", id = FIB_PATH) FibTables tables)
             throws WriteFailedException {
-        final Table data = tables.getTable().get(0);
+        TableKey key = new TableKey(Ipv4.class, new VniReference(0L));
+        Table data = tables.getTable().stream().filter(table -> table.key().equals(key)).findAny().get();
         customizer.writeCurrentAttributes(FibManagementIIds.FM_FIB_TABLES
-                .child(Table.class, new TableKey(Ipv6.class, new VniReference(0L))), data, writeContext);
+                .child(Table.class, key), data, writeContext);
         final IpTableAddDel request = new IpTableAddDel();
         request.isAdd = 1;
         request.isIpv6 = 0;
@@ -75,9 +77,10 @@ public class FibTableCustomizerTest extends WriterCustomizerTest implements Sche
     @Test
     public void testDelete(@InjectTestData(resourcePath = "/fib.json", id = FIB_PATH) FibTables tables)
             throws WriteFailedException {
-        final Table data = tables.getTable().get(3);
+        TableKey key = new TableKey(Ipv6.class, new VniReference(0L));
+        Table data = tables.getTable().stream().filter(table -> table.key().equals(key)).findAny().get();
         customizer.deleteCurrentAttributes(FibManagementIIds.FM_FIB_TABLES
-                .child(Table.class, new TableKey(Ipv6.class, new VniReference(0L))), data, writeContext);
+                .child(Table.class, key), data, writeContext);
         final IpTableAddDel request = new IpTableAddDel();
         request.isAdd = 0;
         request.isIpv6 = 1;

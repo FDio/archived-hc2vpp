@@ -1,6 +1,6 @@
 module vpp-fib-table-management {
     yang-version "1.1";
-    namespace "urn:opendaylight:params:xml:ns:yang:vpp-fib-table-management";
+    namespace "http://fd.io/hc2vpp/yang/vpp-fib-table-management";
     prefix "vpp-fib-table-management";
 
     organization
