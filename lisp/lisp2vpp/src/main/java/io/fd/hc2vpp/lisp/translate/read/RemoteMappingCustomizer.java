@@ -55,27 +55,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.MapReplyAction;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.MappingId;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.RemoteMappingsBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.RemoteMapping;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.RemoteMappingBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.RemoteMappingKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.NegativeMappingBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.PositiveMappingBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.negative.mapping.MapReplyBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.RlocsBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.Locator;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.LocatorBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.LocatorKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.eid.table.grouping.eid.table.VniTable;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.locator.sets.grouping.LocatorSets;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.locator.sets.grouping.locator.sets.LocatorSet;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.locator.sets.grouping.locator.sets.LocatorSetKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.locator.sets.grouping.locator.sets.locator.set.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.MapReplyAction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.MappingId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.RemoteMappingsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.RemoteMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.RemoteMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.RemoteMappingKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.NegativeMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.PositiveMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.negative.mapping.MapReplyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.RlocsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.Locator;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.LocatorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.LocatorKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.eid.table.grouping.eid.table.VniTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.locator.sets.grouping.LocatorSets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.locator.sets.grouping.locator.sets.LocatorSet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.locator.sets.grouping.locator.sets.LocatorSetKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.locator.sets.grouping.locator.sets.locator.set.Interface;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -131,7 +131,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
     }
 
     private Eid copyEid(
-            org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid eid) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid eid) {
         return new EidBuilder().setAddress(eid.getAddress()).setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId()).build();
     }

@@ -26,14 +26,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.MappingId;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.EidBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4PrefixBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.MappingId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.EidBuilder;
 
 public class EidMappingContextTest implements EidMappingContextHelper {
 
@@ -46,15 +46,15 @@ public class EidMappingContextTest implements EidMappingContextHelper {
     private Eid localEid;
     private Eid localPrefixBasedEid;
     private Eid localPrefixBasedEidNormalized;
-    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid
+    private org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid
             remoteEid;
-    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid
+    private org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid
             remoteEidPrefixBased;
-    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid
+    private org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid
             remoteEidPrefixBasedNormalized;
-    private org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid
+    private org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid
             mappingEid;
-    private org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid
+    private org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid
             mappingEidPrefixBased;
     private MappingId mappingId;
     private MappingId mappingIdPrefixBased;
@@ -89,7 +89,7 @@ public class EidMappingContextTest implements EidMappingContextHelper {
     @Test
     public void testContainsEid() {
         assertTrue(eidMappingContext.containsEid(mappingId, mappingContext));
-        org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid
+        org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid
                 loadedEid = eidMappingContext.getEid(mappingId, mappingContext);
 
         assertEquals("192.168.2.1", ((Ipv4) (loadedEid.getAddress())).getIpv4().getValue());
@@ -98,7 +98,7 @@ public class EidMappingContextTest implements EidMappingContextHelper {
     @Test
     public void testContainsEidPrefixBased() {
         assertTrue(eidMappingContext.containsEid(mappingIdPrefixBased, mappingContext));
-        org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid
+        org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid
                 loadedEid = eidMappingContext.getEid(mappingIdPrefixBased, mappingContext);
 
         assertEquals("192.168.2.0/24", ((Ipv4Prefix) (loadedEid.getAddress())).getIpv4Prefix().getValue());
@@ -131,7 +131,7 @@ public class EidMappingContextTest implements EidMappingContextHelper {
     @Test
     public void testAddEidLocal() {
         eidMappingContext.addEid(mappingId, localEid, mappingContext);
-        final org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid eid = eidMappingContext.getEid(mappingId, mappingContext);
+        final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid eid = eidMappingContext.getEid(mappingId, mappingContext);
         assertEquals(localEid.getAddress(), eid.getAddress());
         assertEquals(localEid.getAddressType(), eid.getAddressType());
         assertEquals(localEid.getVirtualNetworkId(), eid.getVirtualNetworkId());
@@ -140,7 +140,7 @@ public class EidMappingContextTest implements EidMappingContextHelper {
     @Test
     public void testAddEidLocalPrefixBased() {
         eidMappingContext.addEid(mappingIdPrefixBased, localPrefixBasedEid, mappingContext);
-        final org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid eid = eidMappingContext.getEid(mappingIdPrefixBased, mappingContext);
+        final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid eid = eidMappingContext.getEid(mappingIdPrefixBased, mappingContext);
 
         // verify if normalized
         assertEquals(localPrefixBasedEidNormalized.getAddress(), eid.getAddress());
@@ -151,7 +151,7 @@ public class EidMappingContextTest implements EidMappingContextHelper {
     @Test
     public void testAddEidRemote() {
         eidMappingContext.addEid(mappingId, remoteEid, mappingContext);
-        final org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid eid = eidMappingContext.getEid(mappingId, mappingContext);
+        final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid eid = eidMappingContext.getEid(mappingId, mappingContext);
         assertEquals(remoteEid.getAddress(), eid.getAddress());
         assertEquals(remoteEid.getAddressType(), eid.getAddressType());
         assertEquals(remoteEid.getVirtualNetworkId(), eid.getVirtualNetworkId());
@@ -160,7 +160,7 @@ public class EidMappingContextTest implements EidMappingContextHelper {
     @Test
     public void testAddEidRemotePrefixBased() {
         eidMappingContext.addEid(mappingIdPrefixBased, remoteEidPrefixBased, mappingContext);
-        final org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid eid = eidMappingContext.getEid(mappingIdPrefixBased, mappingContext);
+        final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid eid = eidMappingContext.getEid(mappingIdPrefixBased, mappingContext);
 
         // verify if normalized
         assertEquals(remoteEidPrefixBasedNormalized.getAddress(), eid.getAddress());
@@ -168,18 +168,18 @@ public class EidMappingContextTest implements EidMappingContextHelper {
         assertEquals(remoteEid.getVirtualNetworkId(), eid.getVirtualNetworkId());
     }
 
-    private org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid fromLocalToMappingEid(
+    private org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid fromLocalToMappingEid(
             Eid eid) {
-        return new org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.EidBuilder()
+        return new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.EidBuilder()
                 .setAddress(eid.getAddress())
                 .setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId())
                 .build();
     }
 
-    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid fromLocalToRemoteEid(
+    private org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid fromLocalToRemoteEid(
             Eid eid) {
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder()
+        return new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder()
                 .setAddress(eid.getAddress())
                 .setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId())

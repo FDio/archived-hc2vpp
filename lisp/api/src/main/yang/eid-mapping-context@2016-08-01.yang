@@ -1,6 +1,6 @@
 module eid-mapping-context {
     yang-version 1;
-    namespace "urn:honeycomb:params:xml:ns:yang:eid:mapping:context";
+    namespace "http://fd.io/hc2vpp/yang/eid-mapping-context";
     prefix "eid-mapping-context";
 
     import lisp {prefix "lisp";}

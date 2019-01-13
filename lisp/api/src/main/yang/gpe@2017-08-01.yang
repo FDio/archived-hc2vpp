@@ -1,6 +1,6 @@
 module gpe {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:gpe";
+  namespace "http://fd.io/hc2vpp/yang/gpe";
   prefix "gpe";
 
   import lisp {

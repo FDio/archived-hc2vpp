@@ -1,6 +1,6 @@
 module adjacencies-identification-context {
     yang-version 1;
-    namespace "urn:honeycomb:params:xml:ns:yang:adjacencies:identification:context";
+    namespace "http://fd.io/hc2vpp/yang/adjacencies-identification-context";
     prefix "adjacencies-identification-context";
 
     import lisp {prefix "lisp";}

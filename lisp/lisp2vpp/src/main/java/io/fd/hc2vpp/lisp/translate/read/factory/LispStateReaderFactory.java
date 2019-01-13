@@ -28,15 +28,15 @@ import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.LispState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.lisp.feature.data.grouping.LispFeatureData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.lisp.feature.data.grouping.LispFeatureDataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.map.register.grouping.MapRegister;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.map.request.mode.grouping.MapRequestMode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.pitr.cfg.grouping.PitrCfg;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.rloc.probing.grouping.RlocProbe;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.use.petr.cfg.grouping.PetrCfg;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.LispState;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.lisp.feature.data.grouping.LispFeatureData;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.lisp.feature.data.grouping.LispFeatureDataBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.map.request.mode.grouping.MapRequestMode;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.pitr.cfg.grouping.PitrCfg;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.rloc.probing.grouping.RlocProbe;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.use.petr.cfg.grouping.PetrCfg;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 

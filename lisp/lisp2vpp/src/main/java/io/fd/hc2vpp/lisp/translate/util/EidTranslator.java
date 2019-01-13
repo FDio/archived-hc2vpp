@@ -31,6 +31,9 @@ import inet.ipaddr.IPAddress;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import java.util.Arrays;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.adjacencies.grouping.adjacencies.adjacency.LocalEid;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.adjacencies.grouping.adjacencies.adjacency.RemoteEid;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.Ipv4Afi;
@@ -51,9 +54,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.addres
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Mac;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.MacBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.adjacencies.grouping.adjacencies.adjacency.LocalEid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.adjacencies.grouping.adjacencies.adjacency.RemoteEid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid;
 import org.slf4j.Logger;
 
 
@@ -77,25 +77,25 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
     }
 
     default byte getPrefixLength(
-            org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid address) {
         return resolverPrefixLength(address.getAddress());
     }
 
     default byte getPrefixLength(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid address) {
         return resolverPrefixLength(address.getAddress());
     }
 
     default byte getPrefixLength(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid address) {
         return resolverPrefixLength(address.getAddress());
     }
 
-    default byte getPrefixLength(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocalEid address){
+    default byte getPrefixLength(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocalEid address){
         return resolverPrefixLength(address.getAddress());
     }
 
-    default byte getPrefixLength(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.RemoteEid address){
+    default byte getPrefixLength(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.RemoteEid address){
         return resolverPrefixLength(address.getAddress());
     }
 
@@ -121,22 +121,22 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
         return Byte.valueOf(data.substring(data.indexOf('/') + 1));
     }
 
-    default org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocalEid getArrayAsGpeLocalEid(
+    default org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocalEid getArrayAsGpeLocalEid(
             @Nonnull final EidType type, final byte[] address, final byte prefix, final int vni) {
         final Eid eid = getArrayAsEidLocal(type, address, prefix, vni);
 
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocalEidBuilder()
+        return new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocalEidBuilder()
                 .setAddress(eid.getAddress())
                 .setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId())
                 .build();
     }
 
-    default org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.RemoteEid getArrayAsGpeRemoteEid(
+    default org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.RemoteEid getArrayAsGpeRemoteEid(
             @Nonnull final EidType type, final byte[] address, final byte prefix, final int vni) {
         final Eid eid = getArrayAsEidLocal(type, address, prefix, vni);
 
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.RemoteEidBuilder()
+        return new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.RemoteEidBuilder()
                 .setAddress(eid.getAddress())
                 .setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId())
@@ -203,7 +203,7 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
         return normalizedForm.toCompressedString();
     }
 
-    default org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid getArrayAsEidRemote(
+    default org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid getArrayAsEidRemote(
             @Nonnull final EidType type, final byte[] address, final byte prefix, final int vni) {
 
         switch (type) {
@@ -356,28 +356,28 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
     }
 
     default EidType getEidType(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.RemoteEid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.RemoteEid address) {
         checkNotNull(address, "Address cannot be null");
 
         return resolveType(address.getAddress());
     }
 
     default EidType getEidType(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocalEid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocalEid address) {
         checkNotNull(address, "Address cannot be null");
 
         return resolveType(address.getAddress());
     }
 
     default EidType getEidType(
-            org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid address) {
         checkNotNull(address, "SimpleAddress cannot be null");
 
         return resolveType(address.getAddress());
     }
 
     default EidType getEidType(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid address) {
         checkNotNull(address, "SimpleAddress cannot be null");
 
         return resolveType(address.getAddress());
@@ -385,7 +385,7 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
 
 
     default EidType getEidType(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid address) {
         checkNotNull(address, "Address cannot be null");
 
         return resolveType(address.getAddress());
@@ -423,35 +423,35 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
     }
 
     default byte[] getEidAsByteArray(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.RemoteEid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.RemoteEid address) {
         checkNotNull(address, "Eid cannot be null");
 
         return resolveByteArray(getEidType(address), address.getAddress());
     }
 
     default byte[] getEidAsByteArray(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocalEid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocalEid address) {
         checkNotNull(address, "Eid cannot be null");
 
         return resolveByteArray(getEidType(address), address.getAddress());
     }
 
     default byte[] getEidAsByteArray(
-            org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid address) {
         checkNotNull(address, "Eid cannot be null");
 
         return resolveByteArray(getEidType(address), address.getAddress());
     }
 
     default byte[] getEidAsByteArray(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid address) {
         checkNotNull(address, "Eid cannot be null");
 
         return resolveByteArray(getEidType(address), address.getAddress());
     }
 
     default byte[] getEidAsByteArray(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid address) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid address) {
         checkNotNull(address, "Eid cannot be null");
 
         return resolveByteArray(getEidType(address), address.getAddress());

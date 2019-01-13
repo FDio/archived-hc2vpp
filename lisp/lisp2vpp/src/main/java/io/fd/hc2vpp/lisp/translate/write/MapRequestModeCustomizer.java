@@ -16,6 +16,9 @@
 
 package io.fd.hc2vpp.lisp.translate.write;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.MapRequestMode.DestinationOnly;
+
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
 import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
@@ -25,17 +28,13 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.OneMapRequestMode;
 import io.fd.vpp.jvpp.core.dto.OneMapRequestModeReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.map.request.mode.grouping.MapRequestMode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.map.request.mode.grouping.MapRequestModeBuilder;
+import java.util.concurrent.CompletableFuture;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.map.request.mode.grouping.MapRequestMode;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.map.request.mode.grouping.MapRequestModeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.util.concurrent.CompletableFuture;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.MapRequestMode.DestinationOnly;
 
 public class MapRequestModeCustomizer extends CheckedLispCustomizer
         implements WriterCustomizer<MapRequestMode>, JvppReplyConsumer {

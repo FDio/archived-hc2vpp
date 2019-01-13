@@ -24,9 +24,9 @@ import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.ShowOneRlocProbeStateReply;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.lisp.feature.data.grouping.LispFeatureDataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.rloc.probing.grouping.RlocProbe;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.rloc.probing.grouping.RlocProbeBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.lisp.feature.data.grouping.LispFeatureDataBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.rloc.probing.grouping.RlocProbe;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.rloc.probing.grouping.RlocProbeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class RlocProbeCustomizerTest extends LispInitializingReaderCustomizerTest implements LispInitTest {

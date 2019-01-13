@@ -1,6 +1,6 @@
 module gpe-entry-identification-context {
     yang-version 1;
-    namespace "urn:honeycomb:params:xml:ns:yang:gpe:entry:identification:context";
+    namespace "http://fd.io/hc2vpp/yang/gpe-entry-identification-context";
     prefix "gpe-entry-identification-context";
 
     import ietf-lisp-address-types {prefix "lisp-types";}

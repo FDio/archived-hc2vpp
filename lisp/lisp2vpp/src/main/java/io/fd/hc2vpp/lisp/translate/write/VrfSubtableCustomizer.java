@@ -16,21 +16,21 @@
 
 package io.fd.hc2vpp.lisp.translate.write;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.lisp.translate.write.trait.SubtableWriter;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.eid.table.grouping.eid.table.vni.table.VrfSubtable;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.concurrent.TimeoutException;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.eid.table.grouping.eid.table.vni.table.VrfSubtable;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class VrfSubtableCustomizer extends FutureJVppCustomizer
         implements WriterCustomizer<VrfSubtable>, SubtableWriter {

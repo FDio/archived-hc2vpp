@@ -22,19 +22,17 @@ import com.google.common.base.Optional;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.util.RWUtils;
-
 import java.util.stream.Collector;
 import javax.annotation.Nonnull;
-
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.Contexts;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.EidMappingContextKey;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.Mappings;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.Mapping;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.MappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.MappingKey;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.EidBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.MappingId;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.Contexts;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.EidMappingContextKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.Mappings;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.Mapping;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.MappingBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.MappingKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.EidBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.MappingId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
@@ -45,7 +43,7 @@ public class EidMappingContext implements EidTranslator {
 
     private static final Collector<Mapping, ?, Mapping> SINGLE_ITEM_COLLECTOR = RWUtils.singleItemCollector();
 
-    private final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.EidMappingContext, EidMappingContextKey>
+    private final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.EidMappingContext, EidMappingContextKey>
             namingContextIid;
     private final String artificialPrefix;
 
@@ -56,7 +54,7 @@ public class EidMappingContext implements EidTranslator {
      */
     public EidMappingContext(@Nonnull final String instanceName, @Nonnull final String artificialPrefix) {
         namingContextIid = InstanceIdentifier.create(Contexts.class).child(
-                org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.EidMappingContext.class,
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.eid.mapping.context.rev160801.contexts.EidMappingContext.class,
                 new EidMappingContextKey(instanceName));
         this.artificialPrefix = artificialPrefix;
     }
@@ -70,7 +68,7 @@ public class EidMappingContext implements EidTranslator {
      */
     @Nonnull
     public synchronized MappingId getId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid remoteEid,
+            @Nonnull final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid remoteEid,
             @Nonnull final MappingContext mappingContext) {
 
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
@@ -106,7 +104,7 @@ public class EidMappingContext implements EidTranslator {
      */
     @Nonnull
     public synchronized MappingId getId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
             @Nonnull final MappingContext mappingContext) {
 
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
@@ -135,7 +133,7 @@ public class EidMappingContext implements EidTranslator {
      * @return true if present, false otherwise
      */
     public synchronized boolean containsId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
             @Nonnull final MappingContext mappingContext) {
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
 
@@ -153,7 +151,7 @@ public class EidMappingContext implements EidTranslator {
      * @return true if present, false otherwise
      */
     public synchronized boolean containsId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid,
             @Nonnull final MappingContext mappingContext) {
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
 
@@ -173,7 +171,7 @@ public class EidMappingContext implements EidTranslator {
      */
     public synchronized void addEid(
             @Nonnull final MappingId index,
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
             final MappingContext mappingContext) {
 
         final KeyedInstanceIdentifier<Mapping, MappingKey> mappingIid = getMappingIid(index);
@@ -189,7 +187,7 @@ public class EidMappingContext implements EidTranslator {
      */
     public synchronized void addEid(
             @Nonnull final MappingId index,
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid,
             final MappingContext mappingContext) {
 
         final KeyedInstanceIdentifier<Mapping, MappingKey> mappingIid = getMappingIid(index);
@@ -201,13 +199,13 @@ public class EidMappingContext implements EidTranslator {
     }
 
     private Eid copyEid(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid eid) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.local.mapping.Eid eid) {
         return new EidBuilder().setAddress(normalizeIfPrefixBased(eid.getAddress())).setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId()).build();
     }
 
     private Eid copyEid(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid) {
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid) {
         return new EidBuilder().setAddress(normalizeIfPrefixBased(eid.getAddress())).setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId()).build();
     }

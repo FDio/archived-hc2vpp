@@ -1,7 +1,7 @@
 //TODO mandatory statements
 module lisp {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:lisp";
+  namespace "http://fd.io/hc2vpp/yang/lisp";
   prefix "lisp";
   import ietf-interfaces {
     prefix "if";
