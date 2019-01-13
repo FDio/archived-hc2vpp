@@ -27,7 +27,7 @@ public interface SchemaContextTestHelper extends InjectablesProcessor {
     default ModuleInfoBackedContext getSchemaContext() {
         return provideSchemaContextFor(ImmutableSet.of(
             // dhcp
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.$YangModuleInfoImpl
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.dhcp.rev180629.$YangModuleInfoImpl
                 .getInstance()
         ));
     }

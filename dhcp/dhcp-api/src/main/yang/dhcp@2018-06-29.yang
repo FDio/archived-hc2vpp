@@ -1,6 +1,6 @@
 module dhcp {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:vpp:dhcp";
+    namespace "http://fd.io/hc2vpp/yang/dhcp";
     prefix "dhcp";
 
     import ietf-inet-types {

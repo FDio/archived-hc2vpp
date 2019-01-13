@@ -29,14 +29,14 @@ import io.fd.vpp.jvpp.core.dto.DhcpProxyConfig;
 import io.fd.vpp.jvpp.core.dto.DhcpProxyConfigReply;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.dhcp.rev180629.Dhcp;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.dhcp.rev180629.dhcp.attributes.Relays;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.dhcp.rev180629.dhcp.attributes.relays.Relay;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.dhcp.rev180629.dhcp.attributes.relays.RelayKey;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.AddressFamilyIdentity;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.Ipv4;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.Ipv6;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.VniReference;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.Dhcp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.Relays;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.Relay;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.RelayKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @RunWith(HoneycombTestRunner.class)
