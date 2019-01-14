@@ -36,14 +36,14 @@ import io.fd.vpp.jvpp.core.dto.GreAddDelTunnel;
 import io.fd.vpp.jvpp.core.dto.GreAddDelTunnelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Gre;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.GreBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Gre;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.GreBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class GreCustomizerTest extends WriterCustomizerTest implements AddressTranslator {
@@ -68,7 +68,7 @@ public class GreCustomizerTest extends WriterCustomizerTest implements AddressTr
     @Override
     public void setUpTest() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.GreTunnel.class);
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.GreTunnel.class);
         customizer = new GreCustomizer(api, new NamingContext("generateInterfaceNAme", IFC_TEST_INSTANCE));
     }
 

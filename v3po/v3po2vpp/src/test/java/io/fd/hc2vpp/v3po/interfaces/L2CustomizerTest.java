@@ -33,17 +33,17 @@ import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
 import io.fd.vpp.jvpp.core.types.L2PortType;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.L2;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.L2Builder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.config.attributes.Interconnection;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.config.attributes.interconnection.BridgeBased;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.config.attributes.interconnection.BridgeBasedBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.config.attributes.interconnection.XconnectBased;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.config.attributes.interconnection.XconnectBasedBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.L2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.L2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.l2.config.attributes.Interconnection;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.l2.config.attributes.interconnection.BridgeBased;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.l2.config.attributes.interconnection.BridgeBasedBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.l2.config.attributes.interconnection.XconnectBased;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.l2.config.attributes.interconnection.XconnectBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class L2CustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {

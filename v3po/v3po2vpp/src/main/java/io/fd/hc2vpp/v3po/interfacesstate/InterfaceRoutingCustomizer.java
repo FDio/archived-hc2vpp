@@ -24,11 +24,11 @@ import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VppInterfaceStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces.state._interface.Routing;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces.state._interface.RoutingBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VppInterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces.state._interface.Routing;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces.state._interface.RoutingBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -67,22 +67,22 @@ public class InterfaceRoutingCustomizer extends RoutingCustomizer implements
 
     @Nonnull
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Routing> init(
+    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Routing> init(
             @Nonnull final InstanceIdentifier<Routing> id,
             @Nonnull final Routing readValue,
             @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.RoutingBuilder()
+                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.RoutingBuilder()
                         .setIpv4VrfId(readValue.getIpv4VrfId())
                         .setIpv6VrfId(readValue.getIpv6VrfId())
                         .build());
     }
 
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Routing> getCfgId(
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Routing> getCfgId(
             final InstanceIdentifier<Routing> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(VppInterfaceAugmentation.class)
                 .child(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Routing.class);
+                        org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Routing.class);
     }
 }

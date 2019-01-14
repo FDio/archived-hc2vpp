@@ -23,8 +23,8 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.util.read.cache.CacheKeyFactory;
 import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface;
 
 /**
  * Utility class providing Ipv4/6 read support.

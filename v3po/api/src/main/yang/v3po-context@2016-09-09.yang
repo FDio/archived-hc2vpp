@@ -1,6 +1,6 @@
 module v3po-context {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:v3po:context";
+  namespace "http://fd.io/hc2vpp/yang/v3po-context";
   prefix "v3po-ctx";
 
   organization

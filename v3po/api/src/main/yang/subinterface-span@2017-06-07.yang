@@ -1,6 +1,6 @@
 module subinterface-span {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:subinterface-span";
+  namespace "http://fd.io/hc2vpp/yang/subinterface-span";
   prefix "subif-span";
 
   import ietf-interfaces {

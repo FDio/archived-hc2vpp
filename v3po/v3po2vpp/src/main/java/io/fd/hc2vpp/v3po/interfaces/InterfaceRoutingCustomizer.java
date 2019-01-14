@@ -27,11 +27,11 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Routing;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfaceRoutingCustomizer extends RoutingCustomizer

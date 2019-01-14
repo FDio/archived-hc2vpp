@@ -1,6 +1,6 @@
 module unnumbered-interfaces {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:unnumbered:interfaces";
+  namespace "http://fd.io/hc2vpp/yang/unnumbered-interfaces";
   prefix "uni";
 
   import ietf-interfaces {

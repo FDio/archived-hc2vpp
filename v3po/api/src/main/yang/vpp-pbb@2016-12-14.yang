@@ -1,6 +1,6 @@
 module vpp-pbb {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp-pbb";
+  namespace "http://fd.io/hc2vpp/yang/vpp-pbb";
   prefix "vpp-pbb";
 
   import ietf-interfaces {

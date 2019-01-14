@@ -1,6 +1,6 @@
 module v3po {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:v3po";
+  namespace "http://fd.io/hc2vpp/yang/v3po";
   prefix "v3po";
 
   import iana-if-type {

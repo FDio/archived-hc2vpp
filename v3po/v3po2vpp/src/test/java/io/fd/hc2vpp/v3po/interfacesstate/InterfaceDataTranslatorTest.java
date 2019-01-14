@@ -28,16 +28,16 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.AfPacket;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.Tap;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.TapV2;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VhostUser;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VxlanGpeTunnel;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VxlanTunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.AfPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.Tap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.TapV2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VhostUser;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VxlanGpeTunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VxlanTunnel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {

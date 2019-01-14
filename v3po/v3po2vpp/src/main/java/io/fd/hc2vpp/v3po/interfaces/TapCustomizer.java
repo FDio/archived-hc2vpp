@@ -32,10 +32,10 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Tap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> implemen
 
     @Override
     protected Class<? extends InterfaceType> getExpectedInterfaceType() {
-        return org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.Tap.class;
+        return org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.Tap.class;
     }
 
     @Override

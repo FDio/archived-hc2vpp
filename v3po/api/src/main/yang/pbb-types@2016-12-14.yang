@@ -1,6 +1,6 @@
 module pbb-types {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:pbb-types";
+  namespace "http://fd.io/hc2vpp/yang/pbb-types";
   prefix "pbb-types";
 
   import ietf-yang-types {

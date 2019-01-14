@@ -39,17 +39,17 @@ import io.fd.vpp.jvpp.core.types.Ip4Address;
 import io.fd.vpp.jvpp.core.types.MacAddress;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.BridgeDomains;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domain.attributes.ArpTerminationTable;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntry;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntryBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntryKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.BridgeDomain;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.BridgeDomains;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.bridge.domain.attributes.ArpTerminationTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.bridge.domains.BridgeDomain;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest {

@@ -35,11 +35,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.context.rev160909.DisabledInterfaces;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.context.rev160909.DisabledInterfacesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.context.rev160909.disabled.interfaces.DisabledInterfaceIndex;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.context.rev160909.disabled.interfaces.DisabledInterfaceIndexBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.context.rev160909.disabled.interfaces.DisabledInterfaceIndexKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.context.rev160909.DisabledInterfaces;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.context.rev160909.DisabledInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.context.rev160909.disabled.interfaces.DisabledInterfaceIndex;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.context.rev160909.disabled.interfaces.DisabledInterfaceIndexBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.context.rev160909.disabled.interfaces.DisabledInterfaceIndexKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 

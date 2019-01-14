@@ -31,13 +31,13 @@ import io.fd.vpp.jvpp.core.dto.AfPacketDelete;
 import io.fd.vpp.jvpp.core.dto.AfPacketDeleteReply;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.AfPacket;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.AfPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.AfPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.AfPacketBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AfPacketCustomizerTest extends WriterCustomizerTest implements Ipv4Translator {
@@ -53,7 +53,7 @@ public class AfPacketCustomizerTest extends WriterCustomizerTest implements Ipv4
     @Override
     public void setUpTest() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.AfPacket.class);
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.AfPacket.class);
         customizer = new AfPacketCustomizer(api, new NamingContext("generatedInterfaceName", IFC_TEST_INSTANCE));
 
         final AfPacketCreateReply createReply = new AfPacketCreateReply();

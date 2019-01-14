@@ -37,13 +37,13 @@ import io.fd.vpp.jvpp.core.dto.SwInterfaceTapDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Optional;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VppInterfaceStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces.state._interface.Tap;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces.state._interface.TapBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VppInterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces.state._interface.Tap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces.state._interface.TapBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -94,7 +94,7 @@ public class TapCustomizer extends FutureJVppCustomizer
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
         if (!isInterfaceOfType(dumpManager, id, ctx,
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.Tap.class)) {
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.Tap.class)) {
             return;
         }
 
@@ -121,7 +121,7 @@ public class TapCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Tap> init(
+    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Tap> init(
             @Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap readValue, @Nonnull final ReadContext ctx) {
         // The MAC address & tag is set from interface details, those details are retrieved from cache
         final InterfaceKey key = id.firstKeyOf(Interface.class);
@@ -134,7 +134,7 @@ public class TapCustomizer extends FutureJVppCustomizer
         }
 
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.TapBuilder()
+                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.TapBuilder()
                         .setMac(new PhysAddress(vppPhysAddrToYang(ifcDetails.l2Address)))
                         .setTapName(readValue.getTapName())
                         .setTag(ifcDetails.tag[0] == 0
@@ -144,10 +144,10 @@ public class TapCustomizer extends FutureJVppCustomizer
                         .build());
     }
 
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Tap> getCfgId(
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Tap> getCfgId(
             final InstanceIdentifier<Tap> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(VppInterfaceAugmentation.class)
-                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Tap.class);
+                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Tap.class);
     }
 }

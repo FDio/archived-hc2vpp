@@ -1,6 +1,6 @@
 module vpp-vlan {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp:vlan";
+  namespace "http://fd.io/hc2vpp/yang/vpp-vlan";
   prefix "vpp-vlan";
 
   import ietf-interfaces {

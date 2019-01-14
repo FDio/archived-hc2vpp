@@ -33,16 +33,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.BridgeDomainsState;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.L2FibForward;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.state.BridgeDomain;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.state.BridgeDomainKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.fib.attributes.L2FibTable;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.fib.attributes.L2FibTableBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.fib.attributes.l2.fib.table.L2FibEntry;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.fib.attributes.l2.fib.table.L2FibEntryBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.BridgeDomainsState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.L2FibForward;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.bridge.domains.state.BridgeDomain;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.bridge.domains.state.BridgeDomainKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.l2.fib.attributes.L2FibTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.l2.fib.attributes.L2FibTableBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.l2.fib.attributes.l2.fib.table.L2FibEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.l2.fib.attributes.l2.fib.table.L2FibEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder> {

@@ -34,13 +34,13 @@ import io.fd.vpp.jvpp.core.dto.TapModifyReply;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Tap;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.TapBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Tap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.TapBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class TapCustomizerTest extends WriterCustomizerTest {
@@ -51,7 +51,7 @@ public class TapCustomizerTest extends WriterCustomizerTest {
     @Override
     public void setUpTest() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.Tap.class);
+            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.Tap.class);
         tapCustomizer = new TapCustomizer(api, new NamingContext("ifcintest", IFC_TEST_INSTANCE));
     }
 
