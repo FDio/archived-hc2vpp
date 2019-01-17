@@ -74,7 +74,7 @@ collection]
 ** {project-git-web}/interface-role/interface_role_postman_collection.json?h={project-branch}[Interface role postman collection]
 * Routing plugin
 ** {project-git-web}/routing/routing_postman_collection.json?h={project-branch}[Routing postman collection]
-** {project-git-web}/routing/routing_adv_postman_collection.json?h={project-branch}[Routing advertisements postman collection]
+** {project-git-web}/routing/routing_advertisements_postman_collection.json?h={project-branch}[Routing advertisements postman collection]
 * ACL plugin
 ** {project-git-web}/acl/acl_postman_collection.json?h={project-branch}[ACL postman collection]
 * VPP management plugin
