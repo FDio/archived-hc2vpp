@@ -53,6 +53,8 @@ Honeycomb's configuration files present within its distribution:
 ** {project-git-web}/vpp-classifier/api/src/main/yang?h={project-branch}[VPP classifier YANG models]
 * MPLS plugin
 ** {project-git-web}/mpls/api/src/main/yang?h={project-branch}[MPLS YANG models]
+* SRv6 plugin
+** {project-git-web}/srv6/srv6-api/src/main/yang?h={project-branch}[SRv6 YANG models]
 
 === POSTMAN collections
 
@@ -92,3 +94,6 @@ collection]
 ** {project-git-web}/bgp/inet/bgp_inet_postman_collection.json?h={project-branch}[BGP Inet postman collection].
 * BGP Prefix SID plugin
 ** {project-git-web}/bgp/bgp-prefix-sid/bgp_prefix_sid_postman_collection.json?h={project-branch}[BGP Prefix SID postman collection].
+* SRv6 plugin
+** {project-git-web}/srv6/srv6_localsid_postman_collection.json?h={project-branch}[SRv6 local SID postman collection].
+** {project-git-web}/srv6/srv6_policy_postman_collection.json?h={project-branch}[SRv6 policy SID postman collection].
