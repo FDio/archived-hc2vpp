@@ -25,6 +25,7 @@ import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
+import io.fd.hc2vpp.ipsec.dto.AuthMethod;
 import io.fd.hc2vpp.ipsec.helpers.SchemaContextTestHelper;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
@@ -149,16 +150,18 @@ public class Ikev2PolicyCustomizerTest extends WriterCustomizerTest implements S
         if (auth != null) {
             request.name = policy.getName().getBytes();
             if (auth.isPresharedKey() != null && policy.getPreSharedKey() != null) {
-                request.authMethod = ByteDataTranslator.BYTE_FALSE;
+                request.authMethod = AuthMethod.SHARED_KEY_MIC.getValue();
                 if (policy.getPreSharedKey().getHexString() != null) {
                     request.isHex = ByteDataTranslator.BYTE_TRUE;
                 }
                 request.data = policy.getPreSharedKey().stringValue().getBytes();
+                request.dataLen = request.data.length;
             } else if (auth.isRsaSignature() != null) {
                 IpsecIkev2PolicyAugmentation aug = policy.augmentation(IpsecIkev2PolicyAugmentation.class);
                 if (aug != null && aug.getCertificate() != null) {
                     request.data = aug.getCertificate().getBytes();
-                    request.authMethod = ByteDataTranslator.BYTE_TRUE;
+                    request.dataLen = request.data.length;
+                    request.authMethod = AuthMethod.RSA_SIG.getValue();
                 }
             }
         }

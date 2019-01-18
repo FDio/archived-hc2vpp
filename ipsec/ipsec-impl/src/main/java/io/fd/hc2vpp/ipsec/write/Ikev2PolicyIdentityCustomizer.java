@@ -93,6 +93,7 @@ public class Ikev2PolicyIdentityCustomizer extends FutureJVppCustomizer
             request.idType = 5;
             request.data = ipv6AddressNoZoneToArray(((Ipv6Address) identityData).getIpv6Address());
         }
+        request.dataLen = request.data.length;
     }
 
     @Override

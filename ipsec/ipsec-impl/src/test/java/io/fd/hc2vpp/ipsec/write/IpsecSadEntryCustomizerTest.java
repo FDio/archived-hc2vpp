@@ -94,7 +94,9 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         request.isTunnel = BYTE_TRUE;
         request.isTunnelIpv6 = BYTE_FALSE;
         request.integrityKey = INTEG_KEY.getBytes();
+        request.integrityKeyLength = (byte) request.integrityKey.length;
         request.cryptoKey = CRYPTO_KEY.getBytes();
+        request.cryptoKeyLength = (byte) request.cryptoKey.length;
         request.useAntiReplay = 0;
         request.tunnelSrcAddress = ipv4AddressNoZoneToArray(TNL_SRC_ADDR);
         request.tunnelDstAddress = ipv4AddressNoZoneToArray(TNL_DST_ADDR);
@@ -158,6 +160,7 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         request.isTunnelIpv6 = BYTE_TRUE;
         request.integrityAlgorithm = 1;
         request.integrityKey = INTEG_KEY.getBytes();
+        request.integrityKeyLength = (byte) request.integrityKey.length;
         request.useAntiReplay = BYTE_TRUE;
         request.tunnelSrcAddress = ipv6AddressNoZoneToArray(Ipv6Address.getDefaultInstance("2001::11"));
         request.tunnelDstAddress = ipv6AddressNoZoneToArray(Ipv6Address.getDefaultInstance("2001::12"));

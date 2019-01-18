@@ -153,6 +153,7 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
                 return;
             }
             targetEntry.integrityKey = integKey.getBytes();
+            targetEntry.integrityKeyLength = (byte) integKey.getBytes().length;
         }
     }
 
@@ -174,6 +175,7 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
                 return;
             }
             targetEntry.integrityKey = integKey.getBytes();
+            targetEntry.integrityKeyLength = (byte) integKey.getBytes().length;
         }
     }
 
@@ -199,6 +201,7 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
                 return;
             }
             targetEntry.cryptoKey = cryptoKey.getBytes();
+            targetEntry.cryptoKeyLength = (byte) cryptoKey.getBytes().length;
         }
     }
 

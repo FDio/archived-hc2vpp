@@ -20,6 +20,7 @@ import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.ipsec.dto.AuthMethod;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -137,7 +138,9 @@ public class Ikev2PolicyCustomizer extends FutureJVppCustomizer
         Ikev2ProfileSetAuth request = new Ikev2ProfileSetAuth();
         request.name = name.getBytes();
         request.data = fileName.getBytes();
-        request.authMethod = BYTE_TRUE;
+        request.dataLen = request.data.length;
+        request.isHex = BYTE_FALSE;
+        request.authMethod = AuthMethod.RSA_SIG.getValue();
         getReplyForWrite(getFutureJVpp().ikev2ProfileSetAuth(request).toCompletableFuture(), id);
     }
 
@@ -145,11 +148,12 @@ public class Ikev2PolicyCustomizer extends FutureJVppCustomizer
                                             final IkeGeneralPolicyProfileGrouping.PreSharedKey preSharedKey,
                                             final InstanceIdentifier<Policy> id) throws WriteFailedException {
         final Ikev2ProfileSetAuth request = new Ikev2ProfileSetAuth();
-        request.authMethod = BYTE_FALSE;
+        request.authMethod = AuthMethod.SHARED_KEY_MIC.getValue();
         if (preSharedKey.getHexString() != null) {
             request.isHex = BYTE_TRUE;
         }
         request.data = preSharedKey.stringValue().getBytes();
+        request.dataLen = request.data.length;
         request.name = name.getBytes();
         getReplyForWrite(getFutureJVpp().ikev2ProfileSetAuth(request).toCompletableFuture(), id);
     }

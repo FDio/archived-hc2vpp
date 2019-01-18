@@ -69,6 +69,7 @@ public class Ikev2PolicyIdentityCustomizerTest extends WriterCustomizerTest impl
         request.idType = (byte) 1;
         request.isLocal = BYTE_TRUE;
         request.data = ipv4AddressNoZoneToArray(IPV4_TYPE_DATA);
+        request.dataLen = request.data.length;
         verify(api).ikev2ProfileSetId(request);
     }
 
@@ -82,6 +83,7 @@ public class Ikev2PolicyIdentityCustomizerTest extends WriterCustomizerTest impl
         request.idType = (byte) 2;
         request.isLocal = BYTE_FALSE;
         request.data = FQDN_TYPE_DATA.getBytes();
+        request.dataLen = request.data.length;
         verify(api).ikev2ProfileSetId(request);
     }
 
@@ -95,6 +97,7 @@ public class Ikev2PolicyIdentityCustomizerTest extends WriterCustomizerTest impl
         request.idType = (byte) 5;
         request.isLocal = BYTE_FALSE;
         request.data = ipv6AddressNoZoneToArray(new Ipv6Address(IPV6_TYPE_DATA));
+        request.dataLen = request.data.length;
         verify(api).ikev2ProfileSetId(request);
     }
 
@@ -109,6 +112,7 @@ public class Ikev2PolicyIdentityCustomizerTest extends WriterCustomizerTest impl
         request.idType = (byte) 3;
         request.isLocal = BYTE_TRUE;
         request.data = RFC822_TYPE_DATA.getBytes();
+        request.dataLen = request.data.length;
         verify(api).ikev2ProfileSetId(request);
     }
 
