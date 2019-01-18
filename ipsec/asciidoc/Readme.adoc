@@ -1,3 +1,9 @@
 = ipsec-aggregator
 
-Overview of ipsec-aggregator
+This is a Honeycomb plugin providing mapping code between HC and IpSec Plugin APIs.
+
+== Usage
+
+Refer to Ipsec_postman_collection.json for sample requests and the wiki page for additional info:
+
+    https://wiki.fd.io/view/VPP/IPSec_and_IKEv2

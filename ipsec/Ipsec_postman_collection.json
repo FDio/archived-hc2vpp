@@ -156,6 +156,41 @@
 			"response": []
 		},
 		{
+			"name": "Add Ikev2 Local Key",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"ike-global-configuration\": {\n\t\t\"local-key-file\":\"/home/localadmin/certs/client-key.pem\"\n\t}\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ikev2/ike-global-configuration",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ikev2",
+						"ike-global-configuration"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Add Ikev2 profile SHARED-KEY",
 			"request": {
 				"method": "PUT",

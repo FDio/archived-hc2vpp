@@ -55,6 +55,8 @@ Honeycomb's configuration files present within its distribution:
 ** {project-git-web}/mpls/api/src/main/yang?h={project-branch}[MPLS YANG models]
 * SRv6 plugin
 ** {project-git-web}/srv6/srv6-api/src/main/yang?h={project-branch}[SRv6 YANG models]
+* IpSec plugin
+** {project-git-web}/ipsec/ipsec-api/src/main/yang?h={project-branch}[IpSec YANG models]
 
 === POSTMAN collections
 
@@ -97,3 +99,5 @@ collection]
 * SRv6 plugin
 ** {project-git-web}/srv6/srv6_localsid_postman_collection.json?h={project-branch}[SRv6 local SID postman collection].
 ** {project-git-web}/srv6/srv6_policy_postman_collection.json?h={project-branch}[SRv6 policy SID postman collection].
+* IpSec plugin
+** {project-git-web}/ipsec/Ipsec_postman_collection.json?h={project-branch}[IpSec postman collection].
