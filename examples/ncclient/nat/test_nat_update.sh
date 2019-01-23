@@ -15,6 +15,6 @@
 
 DIR_NAME=$(dirname $0)
 
-${DIR_NAME}/../test_copy_config.sh ${DIR_NAME}/config_nat.xml ${DIR_NAME}/expected_config_nat.xml
+${DIR_NAME}/../test_copy_config.sh ${DIR_NAME}/config_nat.xml ${DIR_NAME}/expected_config_nat.xml *
 
-${DIR_NAME}/../test_copy_config.sh ${DIR_NAME}/config_nat_update.xml ${DIR_NAME}/expected_config_nat_update.xml
+${DIR_NAME}/../test_copy_config.sh ${DIR_NAME}/config_nat_update.xml ${DIR_NAME}/expected_config_nat_update.xml *

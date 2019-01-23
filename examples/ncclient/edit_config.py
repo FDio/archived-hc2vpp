@@ -40,6 +40,7 @@ if __name__ == '__main__':
     argparser.add_argument('-c', '--commit', help="commits candidate configuration",
                            action="store_true")
     argparser.add_argument('--verbose', help="increase output verbosity", action="store_true")
+    argparser.add_argument('--host', default="localhost", help="host/node for which to write <config> element")
     args = argparser.parse_args()
 
     logger = logging.getLogger("hc2vpp.examples.edit_config")
@@ -48,4 +49,4 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO)
 
-    _edit_config(args.config_filename, validate=args.validate, commit=args.commit)
+    _edit_config(args.config_filename, validate=args.validate, commit=args.commit, host=args.host)

@@ -15,6 +15,7 @@
 #
 # $1 config element for <copy-config> RPC
 # $2 expected running config
+# $3 xPath to verify config against
 
 DIR_NAME=$(dirname $0)
 
@@ -23,10 +24,10 @@ ${DIR_NAME}/get_config.py --reply_filename _actual_config.xml
 
 # fixme: find better xml comparison tool
 # xmldiffs does not work well when difference occurs on deep level
-${DIR_NAME}/xmldiffs.py $2 _actual_config.xml
+${DIR_NAME}/xmldiffs.py $2 _actual_config.xml $3
 ret_code=$?
 
-if [ $ret_code == 0 ]; then
+if [[ ${ret_code} == 0 ]]; then
     echo "<copy-config> successful"
     rm _actual_config.xml
     exit 0

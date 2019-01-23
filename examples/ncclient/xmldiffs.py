@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 """
-Usage: {prog} [OPTION] FILE1 FILE2
+Usage: {prog} [OPTION] FILE1 FILE2 xPath
 
 Compare two XML files, ignoring element and attribute order.
+
+xPath a valid path should be defined or wildcard "*" should be used.
+example:
+    ./{{urn:ietf:params:xml:ns:yang:ietf-interfaces}}interfaces/
+    {{urn:ietf:params:xml:ns:yang:ietf-interfaces}}interface[
+    {{urn:ietf:params:xml:ns:yang:ietf-interfaces}}name='loop0']
 
 Any extra options are passed to the `diff' command.
 
@@ -10,31 +16,38 @@ Copyright (c) 2017, Johannes H. Jensen.
 License: BSD, see LICENSE for more details.
 """
 from __future__ import print_function, unicode_literals
-import sys
+
 import os
-import io
+import subprocess
+import sys
 import xml.etree.ElementTree as ET
 from tempfile import NamedTemporaryFile
-import subprocess
+
 
 def attr_str(k, v):
-    return "{}=\"{}\"".format(k,v)
+    return "{}=\"{}\"".format(k, v)
+
 
 def node_str(n):
     attrs = sorted(n.attrib.items())
-    astr = " ".join(attr_str(k,v) for k,v in attrs)
+    astr = " ".join(attr_str(k, v) for k, v in attrs)
     s = n.tag
     if astr:
         s += " " + astr
     return s
 
+
 def node_key(n):
     return node_str(n)
+
 
 def indent(s, level):
     return "  " * level + s
 
+
 def write_sorted(stream, node, level=0):
+    if node is None:
+        return
     children = node.getchildren()
     text = (node.text or "").strip()
     tail = (node.tail or "").strip()
@@ -57,9 +70,11 @@ def write_sorted(stream, node, level=0):
     if tail:
         stream.write(indent(tail + "\n", level))
 
+
 if sys.version_info < (3, 0):
     # Python 2
     import codecs
+
     def unicode_writer(fp):
         return codecs.getwriter('utf-8')(fp)
 else:
@@ -67,26 +82,36 @@ else:
     def unicode_writer(fp):
         return fp
 
-def xmldiffs(file1, file2, diffargs=["-u"]):
+
+def xmldiffs(file1, file2, xpath="*", diffargs=["-u"]):
     tree = ET.parse(file1)
     tmp1 = unicode_writer(NamedTemporaryFile('w'))
-    write_sorted(tmp1, tree.getroot())
+    if xpath == "*":
+        write_sorted(tmp1, tree.getroot())
+    else:
+        write_sorted(tmp1, tree.getroot().find(xpath))
+
     tmp1.flush()
 
     tree = ET.parse(file2)
     tmp2 = unicode_writer(NamedTemporaryFile('w'))
-    write_sorted(tmp2, tree.getroot())
+    if xpath == "*":
+        write_sorted(tmp2, tree.getroot())
+    else:
+        write_sorted(tmp2, tree.getroot().find(xpath))
     tmp2.flush()
 
-    args = [ "diff" ]
+    args = ["diff"]
     args += diffargs
-    args += [ "--label", file1, "--label", file2 ]
-    args += [ tmp1.name, tmp2.name ]
+    args += ["--label", file1, "--label", file2]
+    args += [tmp1.name, tmp2.name]
 
     return subprocess.call(args)
 
+
 def print_usage(prog):
     print(__doc__.format(prog=prog).strip())
+
 
 if __name__ == '__main__':
     args = sys.argv
@@ -96,12 +121,16 @@ if __name__ == '__main__':
         print_usage(prog)
         exit(0)
 
-    if len(args) < 2:
+    if len(args) < 3:
         print_usage(prog)
         exit(1)
 
+    xPath = args.pop(-1)
     file2 = args.pop(-1)
     file1 = args.pop(-1)
-    diffargs = args if args else ["-u"]
 
-    exit(xmldiffs(file1, file2, diffargs))
+    xPath = xPath if xPath else "*"
+
+    diffargs = args if args else ["-u", "-s"]
+
+    exit(xmldiffs(file1, file2, xPath, diffargs))

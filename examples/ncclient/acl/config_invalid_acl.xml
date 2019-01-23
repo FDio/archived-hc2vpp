@@ -1,8 +1,8 @@
 <config xmlns:xc="urn:ietf:params:xml:ns:netconf:base:1.0">
-    <access-lists xmlns="urn:ietf:params:xml:ns:yang:ietf-access-control-list" xc:operation="create">
+    <acls xmlns="urn:ietf:params:xml:ns:yang:ietf-access-control-list" xc:operation="create">
         <acl>
             <acl-name>acl0</acl-name>
-            <acl-type>ipv4-acl</acl-type>
+            <type xmlns:x="http://fd.io/hc2vpp/yang/vpp/acl">x:ipv4-acl</type>
         </acl>
-    </access-lists>
+    </acls>
 </config>

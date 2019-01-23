@@ -15,6 +15,7 @@
 
 import argparse
 import logging
+
 from ncclient import manager
 
 _SOURCE_TEMPLATE = """<source xmlns:xc="urn:ietf:params:xml:ns:netconf:base:1.0">%s</source>"""
@@ -34,6 +35,7 @@ if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description="Configures VPP using <copy-config> RPC")
     argparser.add_argument('config_filename', help="name of XML file with <config> element")
     argparser.add_argument('--verbose', help="increase output verbosity", action="store_true")
+    argparser.add_argument('--host', default="localhost", help="host/node for which to write <config> element")
     args = argparser.parse_args()
 
     logger = logging.getLogger("hc2vpp.examples.copy_config")
@@ -42,4 +44,4 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO)
 
-    _copy_config(args.config_filename)
+    _copy_config(args.config_filename, host=args.host)

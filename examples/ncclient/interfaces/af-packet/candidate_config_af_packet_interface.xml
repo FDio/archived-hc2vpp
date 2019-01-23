@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2019 Cisco and/or its affiliates.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at:
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <nat xmlns="urn:ietf:params:xml:ns:yang:ietf-nat">
+        <instances>
+            <instance>
+                <id>0</id>
+                <policy>
+                    <id>0</id>
+                </policy>
+            </instance>
+        </instances>
+    </nat>
+    <fib-table-management xmlns="http://fd.io/hc2vpp/yang/vpp-fib-table-management">
+        <fib-tables>
+            <table>
+                <table-id>0</table-id>
+                <address-family>ipv4</address-family>
+                <name>ipv4-VRF:0</name>
+            </table>
+            <table>
+                <table-id>0</table-id>
+                <address-family>ipv6</address-family>
+                <name>ipv6-VRF:0</name>
+            </table>
+        </fib-tables>
+    </fib-table-management>
+    <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+        <interface>
+            <name>local0</name>
+            <type xmlns:x="urn:ietf:params:xml:ns:yang:iana-if-type">x:ethernetCsmacd</type>
+            <enabled>false</enabled>
+        </interface>
+        <interface>
+            <name>GigabitEthernet0/9/0</name>
+            <type xmlns:x="urn:ietf:params:xml:ns:yang:iana-if-type">x:ethernetCsmacd</type>
+            <enabled>false</enabled>
+            <ethernet xmlns="http://fd.io/hc2vpp/yang/v3po">
+                <mtu>9206</mtu>
+            </ethernet>
+        </interface>
+        <interface>
+            <name>host-vethAF</name>
+            <description>VethAF host interface</description>
+            <af-packet xmlns="http://fd.io/hc2vpp/yang/v3po">
+                <host-interface-name>vethAF</host-interface-name>
+            </af-packet>
+            <ipv4 xmlns="urn:ietf:params:xml:ns:yang:ietf-ip">
+                <address>
+                    <ip>10.2.0.2</ip>
+                    <prefix-length>24</prefix-length>
+                </address>
+            </ipv4>
+            <type xmlns:x="http://fd.io/hc2vpp/yang/v3po">x:af-packet</type>
+        </interface>
+    </interfaces>
+    <gpe xmlns="http://fd.io/hc2vpp/yang/gpe">
+        <gpe-feature-data>
+            <enable>false</enable>
+        </gpe-feature-data>
+    </gpe>
+    <native-forward-paths-tables xmlns="http://fd.io/hc2vpp/yang/gpe">
+        <native-forward-paths-table>
+            <table-id>0</table-id>
+        </native-forward-paths-table>
+    </native-forward-paths-tables>
+    <lisp xmlns="http://fd.io/hc2vpp/yang/lisp">
+        <enable>false</enable>
+    </lisp>
+</data>
+

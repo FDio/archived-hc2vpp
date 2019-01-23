@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <fib-table-management xmlns="http://fd.io/hc2vpp/yang/vpp-fib-table-management">
+        <fib-tables>
+            <table>
+                <table-id>0</table-id>
+                <address-family>ipv4</address-family>
+                <name>ipv4-VRF:0</name>
+            </table>
+            <table>
+                <table-id>0</table-id>
+                <address-family>ipv6</address-family>
+                <name>ipv6-VRF:0</name>
+            </table>
+        </fib-tables>
+    </fib-table-management>
+    <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+        <interface>
+            <name>local0</name>
+            <type xmlns:x="urn:ietf:params:xml:ns:yang:iana-if-type">x:ethernetCsmacd</type>
+            <enabled>false</enabled>
+        </interface>
+        <interface>
+            <name>loop0</name>
+            <type xmlns:x="http://fd.io/hc2vpp/yang/v3po">x:loopback</type>
+            <enabled>true</enabled>
+            <ipv4 xmlns="urn:ietf:params:xml:ns:yang:ietf-ip">
+                <address>
+                    <ip>10.0.0.1</ip>
+                    <prefix-length>24</prefix-length>
+                </address>
+            </ipv4>
+            <loopback xmlns="http://fd.io/hc2vpp/yang/v3po">
+            </loopback>
+        </interface>
+    </interfaces>
+    <nat xmlns="urn:ietf:params:xml:ns:yang:ietf-nat">
+        <instances>
+            <instance>
+                <id>0</id>
+                <policy>
+                    <id>0</id>
+                </policy>
+            </instance>
+        </instances>
+    </nat>
+    <gpe xmlns="http://fd.io/hc2vpp/yang/gpe">
+        <gpe-feature-data>
+            <enable>false</enable>
+        </gpe-feature-data>
+    </gpe>
+    <native-forward-paths-tables xmlns="http://fd.io/hc2vpp/yang/gpe">
+        <native-forward-paths-table>
+            <table-id>0</table-id>
+        </native-forward-paths-table>
+    </native-forward-paths-tables>
+    <lisp xmlns="http://fd.io/hc2vpp/yang/lisp">
+        <enable>false</enable>
+    </lisp>
+</data>
+

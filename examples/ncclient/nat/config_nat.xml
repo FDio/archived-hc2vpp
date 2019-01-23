@@ -8,11 +8,11 @@
         <interface>
             <name>loop1</name>
             <description>for testing purposes</description>
-            <type xmlns:x="urn:opendaylight:params:xml:ns:yang:v3po">x:loopback</type>
-            <loopback xmlns="urn:opendaylight:params:xml:ns:yang:v3po">
+            <type xmlns:x="http://fd.io/hc2vpp/yang/v3po">x:loopback</type>
+            <loopback xmlns="http://fd.io/hc2vpp/yang/v3po">
                 <mac>01:ff:ff:ff:ff:ff</mac>
             </loopback>
-            <nat xmlns="urn:opendaylight:params:xml:ns:yang:interface:nat">
+            <nat xmlns="http://fd.io/hc2vpp/yang/interface-nat">
                 <outbound>
                     <post-routing>true</post-routing>
                 </outbound>
@@ -21,11 +21,11 @@
         <interface>
             <name>loop0</name>
             <description>for testing purposes</description>
-            <type xmlns:x="urn:opendaylight:params:xml:ns:yang:v3po">x:loopback</type>
-            <loopback xmlns="urn:opendaylight:params:xml:ns:yang:v3po">
+            <type xmlns:x="http://fd.io/hc2vpp/yang/v3po">x:loopback</type>
+            <loopback xmlns="http://fd.io/hc2vpp/yang/v3po">
                 <mac>00:ff:ff:ff:ff:ff</mac>
             </loopback>
-            <nat xmlns="urn:opendaylight:params:xml:ns:yang:interface:nat">
+            <nat xmlns="http://fd.io/hc2vpp/yang/interface-nat">
                 <inbound>
                     <nat64-support>true</nat64-support>
                     <nat44-support>false</nat44-support>
@@ -45,7 +45,7 @@
                     <external-ip-address-pool>
                         <pool-id>3</pool-id>
                         <external-ip-pool>10.10.10.1/30</external-ip-pool>
-                        <pool-type xmlns="urn:opendaylight:params:xml:ns:yang:vpp:nat">nat64</pool-type>
+                        <pool-type xmlns="http://fd.io/hc2vpp/yang/vpp-nat">nat64</pool-type>
                     </external-ip-address-pool>
                     <external-ip-address-pool>
                         <pool-id>2</pool-id>

@@ -17,16 +17,16 @@
         </interface>
         <interface>
             <name>loop1</name>
-            <type xmlns:x="urn:opendaylight:params:xml:ns:yang:v3po">x:loopback</type>
-            <loopback xmlns="urn:opendaylight:params:xml:ns:yang:v3po">
+            <type xmlns:x="http://fd.io/hc2vpp/yang/v3po">x:loopback</type>
+            <loopback xmlns="http://fd.io/hc2vpp/yang/v3po">
                 <mac>00:ff:ff:ff:ff:ff</mac>
             </loopback>
-            <l2 xmlns="urn:opendaylight:params:xml:ns:yang:v3po">
+            <l2 xmlns="http://fd.io/hc2vpp/yang/v3po">
                 <bridge-domain>test_bd</bridge-domain>
             </l2>
         </interface>
     </interfaces>
-    <bridge-domains xmlns="urn:opendaylight:params:xml:ns:yang:v3po">
+    <bridge-domains xmlns="http://fd.io/hc2vpp/yang/v3po">
         <bridge-domain>
             <name>test_bd</name>
         </bridge-domain>

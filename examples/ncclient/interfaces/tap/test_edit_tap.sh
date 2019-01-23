@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2018 Cisco and/or its affiliates.
+# Copyright (c) 2019 Cisco and/or its affiliates.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at:
@@ -14,5 +14,7 @@
 # limitations under the License.
 
 DIR_NAME=$(dirname $0)
+xPath="./{urn:ietf:params:xml:ns:yang:ietf-interfaces}interfaces/\
+{urn:ietf:params:xml:ns:yang:ietf-interfaces}interface[{urn:ietf:params:xml:ns:yang:ietf-interfaces}name='tap1']"
 
-${DIR_NAME}/../test_copy_config.sh ${DIR_NAME}/config_bd.xml ${DIR_NAME}/expected_config_bd.xml *
+${DIR_NAME}/../../test_edit_config.sh ${DIR_NAME}/edit_config_tap_interface.xml ${DIR_NAME}/edit_config_tap_interface.xml ${xPath}
