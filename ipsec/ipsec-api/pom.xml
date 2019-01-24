@@ -19,7 +19,7 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>api-parent</artifactId>
-    <version>1.19.01-SNAPSHOT</version>
+    <version>1.19.01-RC1</version>
     <relativePath>../../common/api-parent</relativePath>
   </parent>
 
@@ -27,11 +27,11 @@
   <groupId>io.fd.hc2vpp.ipsec</groupId>
   <artifactId>ipsec-api</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.19.01-SNAPSHOT</version>
+  <version>1.19.01-RC1</version>
   <packaging>bundle</packaging>
 
   <properties>
-    <naming.context.version>1.19.01-SNAPSHOT</naming.context.version>
+    <naming.context.version>1.19.01-RC1</naming.context.version>
   </properties>
 
   <dependencies>
