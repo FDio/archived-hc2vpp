@@ -33,7 +33,7 @@
 
     <properties>
         <jmh.version>1.21</jmh.version>
-        <jvpp.version>19.01-SNAPSHOT</jvpp.version>
+        <jvpp.version>19.04-SNAPSHOT</jvpp.version>
     </properties>
 
     <dependencies>

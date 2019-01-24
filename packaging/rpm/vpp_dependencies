@@ -1,6 +1,6 @@
 #!/bin/bash
 # defines vpp and vpp-plugins dependencies for rpm packages
 # using range
-echo "vpp >= 19.01, vpp < 19.02, vpp-plugins >= 19.01, vpp-plugins < 19.02"
+echo "vpp >= 19.04, vpp < 19.05, vpp-plugins >= 19.04, vpp-plugins < 19.05"
 # or specific vpp version
-#echo "vpp = 19.01-rc1, vpp-plugins = 19.01-rc1"
+#echo "vpp = 19.04-rc1, vpp-plugins = 19.04-rc1"

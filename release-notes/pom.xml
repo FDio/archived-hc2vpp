@@ -111,14 +111,14 @@
                 <project-version-in-jira>11701</project-version-in-jira>
                 <project-branch>master</project-branch>
                 <project-odl-version>oxygen</project-odl-version>
-                <project-vpp-version>19.01</project-vpp-version>
+                <project-vpp-version>19.04</project-vpp-version>
                 <!-- TODO set snapshot version to project-vpp-version after VPP is released-->
-                <!--<project-vpp-snapshot-version>19.01</project-vpp-snapshot-version>-->
-                <project-vpp-snapshot-version>19.01-SNAPSHOT</project-vpp-snapshot-version>
-                <project-nat-version>19.01</project-nat-version>
+                <!--<project-vpp-snapshot-version>19.04</project-vpp-snapshot-version>-->
+                <project-vpp-snapshot-version>19.04-SNAPSHOT</project-vpp-snapshot-version>
+                <project-nat-version>19.04</project-nat-version>
                 <!-- TODO set snapshot version to project-nat-version after VPP is released-->
                 <!--<project-nat-snapshot-version>19.01</project-nat-snapshot-version>-->
-                <project-nat-snapshot-version>19.01-SNAPSHOT</project-nat-snapshot-version>
+                <project-nat-snapshot-version>19.04-SNAPSHOT</project-nat-snapshot-version>
                 <project-git-web>https://git.fd.io/cgit/hc2vpp/tree</project-git-web>
                 <project-infra-git-web>https://git.fd.io/cgit/honeycomb/tree</project-infra-git-web>
               </attributes>
