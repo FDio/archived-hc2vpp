@@ -5,7 +5,7 @@
     <parent>
         <artifactId>hc2vpp-parent</artifactId>
         <groupId>io.fd.hc2vpp.common</groupId>
-        <version>1.19.01-RC1</version>
+        <version>1.19.01-SNAPSHOT</version>
         <relativePath>../common/hc2vpp-parent</relativePath>
     </parent>
 
@@ -14,7 +14,7 @@
     <groupId>io.fd.hc2vpp.iface.role</groupId>
     <artifactId>interface-role-aggregator</artifactId>
     <packaging>pom</packaging>
-    <version>1.19.01-RC1</version>
+    <version>1.19.01-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <modules>

@@ -11,8 +11,8 @@
 # Stable versions
 #
 # echo RC1~$BUILD_NUMBER
-echo RC1
-# echo RC2~$BUILD_NUMBER
+# echo RC1
+echo RC2~$BUILD_NUMBER
 # echo RC2
 #
 # Release snapshot (1.19.01~XXX, 1.19.01.1~XXX, ...)
