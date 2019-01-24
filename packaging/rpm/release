@@ -6,11 +6,11 @@
 # by a certain margin. Necessary due to honeycomb - hc2vpp split.
 # Build_number counter was reset rewriting older packages
 #
-echo $(expr $BUILD_NUMBER + 2000)
+# echo $(expr $BUILD_NUMBER + 2000)
 #
 # Stable versions
 #
-# echo RC1~$BUILD_NUMBER
+echo RC1~$BUILD_NUMBER
 # echo RC1
 # echo RC2~$BUILD_NUMBER
 # echo RC2
