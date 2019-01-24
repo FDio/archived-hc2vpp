@@ -21,14 +21,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>api-parent</artifactId>
-        <version>1.19.01-SNAPSHOT</version>
+        <version>1.19.04-SNAPSHOT</version>
         <relativePath>../../common/api-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.srv6</groupId>
     <artifactId>srv6-api</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.19.01-SNAPSHOT</version>
+    <version>1.19.04-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <dependencies>

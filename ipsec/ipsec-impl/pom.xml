@@ -20,14 +20,14 @@
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
-        <version>1.19.01-SNAPSHOT</version>
+        <version>1.19.04-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.hc2vpp.ipsec</groupId>
     <artifactId>ipsec-impl</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.19.01-SNAPSHOT</version>
+    <version>1.19.04-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <dependencies>
