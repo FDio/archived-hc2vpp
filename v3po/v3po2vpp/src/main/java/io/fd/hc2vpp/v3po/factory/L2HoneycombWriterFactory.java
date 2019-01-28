@@ -27,12 +27,12 @@ import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.BridgeDomains;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domain.attributes.ArpTerminationTable;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntry;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.BridgeDomain;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.fib.attributes.L2FibTable;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.l2.fib.attributes.l2.fib.table.L2FibEntry;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.BridgeDomains;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.bridge.domain.attributes.ArpTerminationTable;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntry;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.bridge.domains.BridgeDomain;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.l2.fib.attributes.L2FibTable;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.l2.fib.attributes.l2.fib.table.L2FibEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class L2HoneycombWriterFactory implements WriterFactory {

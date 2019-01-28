@@ -28,12 +28,11 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.AfPacket;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.Tap;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.TapV2;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VhostUser;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VxlanGpeTunnel;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VxlanTunnel;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.AfPacket;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.TapV2;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VhostUser;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VxlanGpeTunnel;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VxlanTunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -62,7 +61,6 @@ public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
 
     @Test
     public void testGetInterfaceType() {
-        assertEquals(Tap.class, getInterfaceType("tapcli-0"));
         assertEquals(TapV2.class, getInterfaceType("tap0"));
         assertEquals(VxlanTunnel.class, getInterfaceType("vxlan0"));
         assertEquals(VxlanGpeTunnel.class, getInterfaceType("vxlan_gpe0"));
@@ -74,7 +72,6 @@ public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
 
     @Test
     public void testIsInterfaceOfType() {
-        assertTrue(isInterfaceOfType(Tap.class, interfaceDetails("tapcli-0")));
         assertTrue(isInterfaceOfType(TapV2.class, interfaceDetails("tap0")));
         assertTrue(isInterfaceOfType(VxlanTunnel.class, interfaceDetails("vxlan0")));
         assertTrue(isInterfaceOfType(VxlanGpeTunnel.class, interfaceDetails("vxlan_gpe0")));
@@ -94,7 +91,7 @@ public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
 
         when(dumpManager.getInterfaceDetail(id, ctx, ifcName)).thenReturn(null);
 
-        assertFalse(isInterfaceOfType(dumpManager, id, ctx, Tap.class));
+        assertFalse(isInterfaceOfType(dumpManager, id, ctx, TapV2.class));
     }
 
     private SwInterfaceDetails interfaceDetails(final String interfaceName) {

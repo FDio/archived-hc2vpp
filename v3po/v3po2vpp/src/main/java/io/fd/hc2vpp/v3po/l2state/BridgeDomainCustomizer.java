@@ -33,11 +33,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.BridgeDomains;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.BridgeDomainsStateBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.state.BridgeDomain;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.state.BridgeDomainBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.state.BridgeDomainKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.BridgeDomains;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.BridgeDomainsStateBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.bridge.domains.state.BridgeDomain;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.bridge.domains.state.BridgeDomainBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.bridge.domains.state.BridgeDomainKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -153,12 +153,12 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.BridgeDomain> init(
+    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.bridge.domains.BridgeDomain> init(
             @Nonnull final InstanceIdentifier<BridgeDomain> id,
             @Nonnull final BridgeDomain readValue,
             @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.BridgeDomainBuilder()
+                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.bridge.domains.BridgeDomainBuilder()
                         .setName(readValue.getName())
                         .setLearn(readValue.isLearn())
                         .setUnknownUnicastFlood(readValue.isUnknownUnicastFlood())
@@ -168,11 +168,11 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
                         .build());
     }
 
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.BridgeDomain> getCfgId(
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.bridge.domains.BridgeDomain> getCfgId(
             final InstanceIdentifier<BridgeDomain> id) {
         return InstanceIdentifier.create(BridgeDomains.class).child(
-                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.BridgeDomain.class,
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.bridge.domains.BridgeDomainKey(
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.bridge.domains.BridgeDomain.class,
+                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.bridge.domains.BridgeDomainKey(
                         id.firstKeyOf(BridgeDomain.class).getName()));
     }
 }

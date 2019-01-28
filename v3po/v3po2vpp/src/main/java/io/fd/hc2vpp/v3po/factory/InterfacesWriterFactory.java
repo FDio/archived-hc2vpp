@@ -29,7 +29,6 @@ import io.fd.hc2vpp.v3po.interfaces.InterfaceRoutingCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.InterfaceUnnumberedCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.L2Customizer;
 import io.fd.hc2vpp.v3po.interfaces.LoopbackCustomizer;
-import io.fd.hc2vpp.v3po.interfaces.TapCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.TapV2Customizer;
 import io.fd.hc2vpp.v3po.interfaces.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VxlanCustomizer;
@@ -44,21 +43,20 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Set;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.unnumbered.interfaces.rev180103.InterfaceUnnumberedAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.unnumbered.interfaces.rev180103.unnumbered.config.attributes.Unnumbered;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.AfPacket;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Ethernet;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Gre;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.L2;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Loopback;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Routing;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Span;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Tap;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.TapV2;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.VhostUser;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.Vxlan;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.interfaces._interface.VxlanGpe;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.span.attributes.MirroredInterfaces;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev181008.span.attributes.mirrored.interfaces.MirroredInterface;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.AfPacket;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Ethernet;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Gre;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.L2;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Loopback;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Routing;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Span;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.TapV2;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.VhostUser;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Vxlan;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.VxlanGpe;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.span.attributes.MirroredInterfaces;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.span.attributes.mirrored.interfaces.MirroredInterface;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.PbbRewriteInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.interfaces._interface.PbbRewrite;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -118,10 +116,6 @@ public final class InterfacesWriterFactory implements WriterFactory {
         final InstanceIdentifier<VxlanGpe> vxlanGpeId = VPP_IFC_AUG_ID.child(VxlanGpe.class);
         registry.addBefore(new GenericWriter<>(vxlanGpeId,
                 new VxlanGpeCustomizer(jvpp, ifcNamingContext, ifcDisableContext)), ifcId);
-        // Tap(Needs to be executed before Interface customizer) =
-        final InstanceIdentifier<Tap> tapId = VPP_IFC_AUG_ID.child(Tap.class);
-        registry.addBefore(new GenericWriter<>(tapId, new TapCustomizer(jvpp, ifcNamingContext)),
-                ifcId);
         // TapV2(Needs to be executed before Interface customizer) =
         final InstanceIdentifier<TapV2> tapV2Id = VPP_IFC_AUG_ID.child(TapV2.class);
         registry.addBefore(new GenericWriter<>(tapV2Id, new TapV2Customizer(jvpp, ifcNamingContext)),
@@ -137,7 +131,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
                 ifcId);
 
         final Set<InstanceIdentifier<?>> specificIfcTypes =
-            Sets.newHashSet(vhostId, afpacketId, vxlanId, vxlanGpeId, tapId, tapV2Id, loopbackId);
+            Sets.newHashSet(vhostId, afpacketId, vxlanId, vxlanGpeId, tapV2Id, loopbackId);
 
         // Ethernet =
         registry.add(new GenericWriter<>(VPP_IFC_AUG_ID.child(Ethernet.class),
