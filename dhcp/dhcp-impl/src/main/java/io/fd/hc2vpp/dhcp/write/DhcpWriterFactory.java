@@ -44,7 +44,7 @@ public final class DhcpWriterFactory implements WriterFactory {
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         registry.subtreeAdd(
             ImmutableSet.of(InstanceIdentifier.create(Relay.class).child(Server.class)),
-            new GenericListWriter<>(RELAY_ID, new DhcpRelayCustomizer(vppApi))
+            new GenericListWriter<>(RELAY_ID, new DhcpRelayCustomizer(vppApi), new DhcpRelayValidator())
         );
     }
 }

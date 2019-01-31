@@ -42,8 +42,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 @RunWith(HoneycombTestRunner.class)
 public class DhcpRelayCustomizerTest extends WriterCustomizerTest implements SchemaContextTestHelper {
 
-    private static final String RELAYS_PATH = "/dhcp:dhcp/dhcp:relays";
-    private static final InstanceIdentifier<Relays> RELAYS_IID =
+    static final String RELAYS_PATH = "/dhcp:dhcp/dhcp:relays";
+    static final InstanceIdentifier<Relays> RELAYS_IID =
         InstanceIdentifier.create(Dhcp.class).child(Relays.class);
 
     private DhcpRelayCustomizer customizer;
@@ -107,7 +107,7 @@ public class DhcpRelayCustomizerTest extends WriterCustomizerTest implements Sch
         verify(api).dhcpProxyConfig(request);
     }
 
-    private InstanceIdentifier<Relay> getId(final long rxVrfId, final Class<? extends AddressFamilyIdentity> addressType) {
+    static InstanceIdentifier<Relay> getId(final long rxVrfId, final Class<? extends AddressFamilyIdentity> addressType) {
         return RELAYS_IID.child(Relay.class, new RelayKey(addressType, new VniReference(rxVrfId)));
     }
 }

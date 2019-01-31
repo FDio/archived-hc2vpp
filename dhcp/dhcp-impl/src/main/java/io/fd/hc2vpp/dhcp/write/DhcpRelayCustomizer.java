@@ -51,7 +51,6 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer implements ListWrit
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Relay> id, @Nonnull final Relay dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
         LOG.debug("Writing Relay {} dataAfter={}", id, dataAfter);
-        checkArgument(dataAfter.getServer() != null && !dataAfter.getServer().isEmpty(), "At least one DHCP server needs to be configured");
         for (final Server server : dataAfter.getServer()) {
             setRelay(id, dataAfter, server, true);
         }
@@ -63,11 +62,7 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer implements ListWrit
         throws WriteFailedException {
         LOG.debug("Updating Relay {} before={} after={}", id, dataBefore, dataAfter);
         final List<Server> serversBefore = dataBefore.getServer();
-        checkArgument(serversBefore != null && !serversBefore.isEmpty(),
-            "At least one DHCP server needs to be configured before update operation");
         final List<Server> serversAfter = dataAfter.getServer();
-        checkArgument(serversAfter != null && !serversAfter.isEmpty(),
-            "At least one DHCP server needs to be configured after update operation");
 
         // remove old servers (we do not expect many, so no need for efficient search):
         for (final Server server : serversBefore) {
@@ -87,8 +82,6 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer implements ListWrit
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Relay> id, @Nonnull final Relay dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
         LOG.debug("Removing Relay {} dataBefore={}", id, dataBefore);
-        checkArgument(dataBefore.getServer() != null && !dataBefore.getServer().isEmpty(),
-            "At least one DHCP server needs to be configured");
         for (final Server server : dataBefore.getServer()) {
             setRelay(id, dataBefore, server, false);
         }
