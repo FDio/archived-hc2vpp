@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7053d779-442a-4ec9-bee0-70784789f19c",
+		"_postman_id": "5c30810f-5b77-41f5-8684-85bc45f9be7e",
 		"name": "DHCP",
 		"description": "Provides DHCP configuration examples for hc2vpp.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -142,7 +142,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/0/server/0/1.2.3.4",
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/vpp-fib-table-management:ipv4/0/server/0/1.2.3.4",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -154,7 +154,7 @@
 						"dhcp:dhcp",
 						"relays",
 						"relay",
-						"dhcp:ipv4",
+						"vpp-fib-table-management:ipv4",
 						"0",
 						"server",
 						"0",
@@ -184,7 +184,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/0",
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/vpp-fib-table-management:ipv4/0",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -196,7 +196,7 @@
 						"dhcp:dhcp",
 						"relays",
 						"relay",
-						"dhcp:ipv4",
+						"vpp-fib-table-management:ipv4",
 						"0"
 					]
 				},
@@ -223,7 +223,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/1",
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/vpp-fib-table-management:ipv4/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -235,7 +235,7 @@
 						"dhcp:dhcp",
 						"relays",
 						"relay",
-						"dhcp:ipv4",
+						"vpp-fib-table-management:ipv4",
 						"1"
 					]
 				},
