@@ -16,9 +16,6 @@
 
 package io.fd.hc2vpp.policer.write;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -33,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.DscpType;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.MeterActionDrop;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.MeterActionMarkDscp;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.MeterActionParams;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.MeterActionTransmit;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.MeterActionType;
@@ -47,13 +43,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PolicerCustomizer extends FutureJVppCustomizer implements ListWriterCustomizer<Policer, PolicerKey>,
-    JvppReplyConsumer, ByteDataTranslator {
+        JvppReplyConsumer, ByteDataTranslator {
     private static final Logger LOG = LoggerFactory.getLogger(PolicerCustomizer.class);
     private final NamingContext policerContext;
 
-    public PolicerCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext policerContext) {
+    public PolicerCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                             @Nonnull final NamingContext policerContext) {
         super(futureJVppCore);
-        this.policerContext = checkNotNull(policerContext, "policerContext should not be null");
+        this.policerContext = policerContext;
     }
 
     @Override
@@ -68,7 +65,7 @@ public class PolicerCustomizer extends FutureJVppCustomizer implements ListWrite
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Policer> id,
                                         @Nonnull final Policer dataBefore,
                                         @Nonnull final Policer dataAfter, @Nonnull final WriteContext ctx)
-        throws WriteFailedException {
+            throws WriteFailedException {
         LOG.debug("Updating Policer {} dataBefore={} dataAfter={}", id, dataBefore, dataAfter);
         policerAddDel(id, dataAfter, true);
     }
@@ -77,14 +74,14 @@ public class PolicerCustomizer extends FutureJVppCustomizer implements ListWrite
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Policer> id,
                                         @Nonnull final Policer dataBefore,
                                         @Nonnull final WriteContext ctx)
-        throws WriteFailedException {
+            throws WriteFailedException {
         LOG.debug("Removing Policer {} dataBefore={}", id, dataBefore);
         policerAddDel(id, dataBefore, false);
         policerContext.removeName(dataBefore.getName(), ctx.getMappingContext());
     }
 
     private int policerAddDel(final InstanceIdentifier<Policer> id, final Policer policer, final boolean isAdd)
-        throws WriteFailedException {
+            throws WriteFailedException {
         final PolicerAddDel request = new PolicerAddDel();
         request.isAdd = booleanToByte(isAdd);
         request.name = policer.getName().getBytes(StandardCharsets.US_ASCII);
@@ -128,7 +125,7 @@ public class PolicerCustomizer extends FutureJVppCustomizer implements ListWrite
         }
         LOG.debug("Policer config change id={} request={}", id, request);
         final PolicerAddDelReply reply =
-            getReplyForWrite(getFutureJVpp().policerAddDel(request).toCompletableFuture(), id);
+                getReplyForWrite(getFutureJVpp().policerAddDel(request).toCompletableFuture(), id);
         return reply.policerIndex;
     }
 
@@ -137,9 +134,6 @@ public class PolicerCustomizer extends FutureJVppCustomizer implements ListWrite
         if (dscp == null) {
             return 0;
         }
-        final Class<? extends MeterActionType> meterActionType = actionParams.getMeterActionType();
-        checkArgument(MeterActionMarkDscp.class == meterActionType,
-            "dcsp is supported only for meter-action-mark-dscp, but %s defined", meterActionType);
         if (dscp.getVppDscpType() != null) {
             return (byte) dscp.getVppDscpType().getIntValue();
         }
@@ -154,10 +148,8 @@ public class PolicerCustomizer extends FutureJVppCustomizer implements ListWrite
             return 0;
         } else if (MeterActionTransmit.class == meterActionType) {
             return 1;
-        } else if (MeterActionMarkDscp.class == meterActionType) {
-            return 2;
         } else {
-            throw new IllegalArgumentException("Unsupported meter action type " + meterActionType);
+            return 2;
         }
     }
 }

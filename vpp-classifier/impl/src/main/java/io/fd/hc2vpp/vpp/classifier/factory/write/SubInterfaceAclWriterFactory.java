@@ -22,6 +22,7 @@ import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
+import io.fd.hc2vpp.vpp.classifier.write.acl.ingress.AclValidator;
 import io.fd.hc2vpp.vpp.classifier.write.acl.ingress.SubInterfaceAclCustomizer;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -71,7 +72,8 @@ public class SubInterfaceAclWriterFactory implements WriterFactory {
                 .subtreeAddAfter(
                         Sets.newHashSet(aclId.child(L2Acl.class), aclId.child(Ip4Acl.class), aclId.child(Ip6Acl.class)),
                         new GenericWriter<>(SUBIF_INGRESS_ACL_ID,
-                                new SubInterfaceAclCustomizer(jvpp, ifcNamingContext, classifyTableContext)),
+                                new SubInterfaceAclCustomizer(jvpp, ifcNamingContext, classifyTableContext),
+                                new AclValidator(ifcNamingContext, classifyTableContext)),
                         Sets.newHashSet(VppClassifierHoneycombWriterFactory.CLASSIFY_TABLE_ID,
                                 VppClassifierHoneycombWriterFactory.CLASSIFY_SESSION_ID));
     }

@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.policer.write;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -46,8 +44,8 @@ final class InterfacePolicerCustomizer extends FutureJVppCustomizer implements W
     InterfacePolicerCustomizer(@Nonnull final FutureJVppCore vppApi, @Nonnull final NamingContext interfaceContext,
                                @Nonnull final VppClassifierContextManager classifyTableContext) {
         super(vppApi);
-        this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
-        this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");;
+        this.interfaceContext = interfaceContext;
+        this.classifyTableContext = classifyTableContext;
     }
 
     @Override

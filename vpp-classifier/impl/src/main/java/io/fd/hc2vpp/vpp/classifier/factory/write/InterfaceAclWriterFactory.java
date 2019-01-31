@@ -25,6 +25,7 @@ import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.hc2vpp.vpp.classifier.write.acl.ingress.AclCustomizer;
+import io.fd.hc2vpp.vpp.classifier.write.acl.ingress.AclValidator;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
@@ -71,7 +72,8 @@ public class InterfaceAclWriterFactory implements WriterFactory {
                         Sets.newHashSet(ingressId.child(L2Acl.class), ingressId.child(Ip4Acl.class),
                                 ingressId.child(Ip6Acl.class)),
                         new GenericWriter<>(INGRESS_ACL_ID,
-                                new AclCustomizer(jvpp, ifcNamingContext, classifyTableContext)),
+                                new AclCustomizer(jvpp, ifcNamingContext, classifyTableContext),
+                                new AclValidator(ifcNamingContext, classifyTableContext)),
                         Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
     }
 }

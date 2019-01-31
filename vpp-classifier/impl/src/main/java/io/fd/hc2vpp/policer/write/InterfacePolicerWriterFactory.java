@@ -37,9 +37,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfacePolicerWriterFactory implements WriterFactory {
     private static final InstanceIdentifier<Interface> IFC_ID =
-        InstanceIdentifier.create(Interfaces.class).child(Interface.class);
+            InstanceIdentifier.create(Interfaces.class).child(Interface.class);
     private static final InstanceIdentifier<PolicerInterfaceAugmentation> POLICER_IFC_ID =
-        IFC_ID.augmentation(PolicerInterfaceAugmentation.class);
+            IFC_ID.augmentation(PolicerInterfaceAugmentation.class);
     static final InstanceIdentifier<Policer> POLICER_ID = POLICER_IFC_ID.child(Policer.class);
 
     @Inject
@@ -54,7 +54,9 @@ public class InterfacePolicerWriterFactory implements WriterFactory {
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         registry.addAfter(
-            new GenericWriter<>(POLICER_ID, new InterfacePolicerCustomizer(vppApi, ifcContext, classifyTableContext)),
-            Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
+                new GenericWriter<>(POLICER_ID,
+                        new InterfacePolicerCustomizer(vppApi, ifcContext, classifyTableContext),
+                        new InterfacePolicerValidator(ifcContext, classifyTableContext)),
+                Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
     }
 }

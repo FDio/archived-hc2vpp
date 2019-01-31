@@ -66,7 +66,7 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
         return builder.build();
     }
 
-    private static InstanceIdentifier<ClassifyTable> getClassifyTableId(final String name) {
+    static InstanceIdentifier<ClassifyTable> getClassifyTableId(final String name) {
         return InstanceIdentifier.create(VppClassifier.class)
                 .child(ClassifyTable.class, new ClassifyTableKey(name));
     }

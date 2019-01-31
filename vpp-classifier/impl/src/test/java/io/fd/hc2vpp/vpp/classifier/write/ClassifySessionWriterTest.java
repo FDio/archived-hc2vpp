@@ -69,7 +69,7 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
         return builder.build();
     }
 
-    private static InstanceIdentifier<ClassifySession> getClassifySessionId(final String tableName,
+    static InstanceIdentifier<ClassifySession> getClassifySessionId(final String tableName,
                                                                             final String match) {
         return InstanceIdentifier.create(VppClassifier.class)
                 .child(ClassifyTable.class, new ClassifyTableKey(tableName))

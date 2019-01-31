@@ -33,7 +33,8 @@ import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.pol
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class PolicerWriterFactory implements WriterFactory {
-    private static final InstanceIdentifier<Policer> POLICER_IID = InstanceIdentifier.create(Policers.class).child(Policer.class);
+    private static final InstanceIdentifier<Policer> POLICER_IID =
+            InstanceIdentifier.create(Policers.class).child(Policer.class);
 
     @Inject
     private FutureJVppCore vppApi;
@@ -45,8 +46,9 @@ public class PolicerWriterFactory implements WriterFactory {
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         InstanceIdentifier<Policer> IID = InstanceIdentifier.create(Policer.class);
         registry.subtreeAdd(
-            Sets.newHashSet(IID.child(ConformAction.class), IID.child(ExceedAction.class),
-                IID.child(ViolateAction.class)),
-            new GenericListWriter<>(POLICER_IID, new PolicerCustomizer(vppApi, policerContext)));
+                Sets.newHashSet(IID.child(ConformAction.class), IID.child(ExceedAction.class),
+                        IID.child(ViolateAction.class)),
+                new GenericListWriter<>(POLICER_IID, new PolicerCustomizer(vppApi, policerContext),
+                        new PolicerValidator(policerContext)));
     }
 }

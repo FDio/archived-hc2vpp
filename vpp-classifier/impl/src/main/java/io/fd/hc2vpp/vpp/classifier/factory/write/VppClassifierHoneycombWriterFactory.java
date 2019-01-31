@@ -20,7 +20,9 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
+import io.fd.hc2vpp.vpp.classifier.write.ClassifySessionValidator;
 import io.fd.hc2vpp.vpp.classifier.write.ClassifySessionWriter;
+import io.fd.hc2vpp.vpp.classifier.write.ClassifyTableValidator;
 import io.fd.hc2vpp.vpp.classifier.write.ClassifyTableWriter;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -58,11 +60,14 @@ public final class VppClassifierHoneycombWriterFactory implements WriterFactory 
         // Ordering here is: First create table, then create sessions and then assign as ACL
         // ClassifyTable
         registry.addBefore(
-                new GenericListWriter<>(CLASSIFY_TABLE_ID, new ClassifyTableWriter(jvpp, classifyTableContext)),
+                new GenericListWriter<>(CLASSIFY_TABLE_ID, new ClassifyTableWriter(jvpp, classifyTableContext),
+                        new ClassifyTableValidator()),
                 CLASSIFY_SESSION_ID);
         //  ClassifyTableSession
         registry.addBefore(
-                new GenericListWriter<>(CLASSIFY_SESSION_ID, new ClassifySessionWriter(jvpp, classifyTableContext, policerContext)),
+                new GenericListWriter<>(CLASSIFY_SESSION_ID,
+                        new ClassifySessionWriter(jvpp, classifyTableContext, policerContext),
+                        new ClassifySessionValidator(classifyTableContext, policerContext)),
                 InterfaceAclWriterFactory.ACL_ID);
     }
 }

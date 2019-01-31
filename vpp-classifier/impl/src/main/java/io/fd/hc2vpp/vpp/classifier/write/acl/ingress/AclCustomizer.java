@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.vpp.classifier.write.acl.ingress;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
@@ -44,8 +42,8 @@ public class AclCustomizer extends FutureJVppCustomizer implements WriterCustomi
     public AclCustomizer(@Nonnull final FutureJVppCore vppApi, @Nonnull final NamingContext interfaceContext,
                          @Nonnull final VppClassifierContextManager classifyTableContext) {
         super(vppApi);
-        this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
-        this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
+        this.interfaceContext = interfaceContext;
+        this.classifyTableContext = classifyTableContext;
     }
 
     @Override

@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.vpp.classifier.write.acl.ingress;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
@@ -51,17 +49,17 @@ interface AclWriter extends ByteDataTranslator, JvppReplyConsumer {
 
         final L2Acl l2Acl = acl.getL2Acl();
         if (l2Acl != null) {
-            final String tableName = checkNotNull(l2Acl.getClassifyTable(), "L2 classify table is null");
+            final String tableName = l2Acl.getClassifyTable();
             request.l2TableIndex = classifyTableContext.getTableIndex(tableName, mappingContext);
         }
         final Ip4Acl ip4Acl = acl.getIp4Acl();
         if (ip4Acl != null) {
-            final String tableName = checkNotNull(ip4Acl.getClassifyTable(), "IPv4 classify table is null");
+            final String tableName = ip4Acl.getClassifyTable();
             request.ip4TableIndex = classifyTableContext.getTableIndex(tableName, mappingContext);
         }
         final Ip6Acl ip6Acl = acl.getIp6Acl();
         if (ip6Acl != null) {
-            final String tableName = checkNotNull(ip6Acl.getClassifyTable(), "IPv6 classify table is null");
+            final String tableName = ip6Acl.getClassifyTable();
             request.ip6TableIndex = classifyTableContext.getTableIndex(tableName, mappingContext);
         }
 

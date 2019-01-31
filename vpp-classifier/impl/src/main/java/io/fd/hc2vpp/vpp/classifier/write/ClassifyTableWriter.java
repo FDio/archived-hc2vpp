@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.vpp.classifier.write;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
@@ -146,7 +145,6 @@ public class ClassifyTableWriter extends VppNodeWriter
         }
         request.mask = getBinaryVector(table.getMask());
         request.maskLen = request.mask.length;
-        checkArgument(request.mask.length % 16 == 0, "Number of mask bytes must be multiple of 16.");
         request.matchNVectors = request.mask.length / 16;
 
         return request;
