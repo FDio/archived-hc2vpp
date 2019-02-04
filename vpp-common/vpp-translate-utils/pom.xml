@@ -19,14 +19,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.19.01-SNAPSHOT</version>
+        <version>1.19.01</version>
         <relativePath>../vpp-impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>vpp-translate-utils</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.19.01-SNAPSHOT</version>
+    <version>1.19.01</version>
     <packaging>bundle</packaging>
 
     <properties>

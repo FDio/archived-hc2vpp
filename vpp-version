@@ -1,5 +1,5 @@
 #!/bin/sh
-echo 'RELEASE'
+echo '19.01-release'
 
 # Determines which VPP version to use in hc2vpp-integration job.
 # 'RELEASE' will use the latest VPP in the respective branch.
