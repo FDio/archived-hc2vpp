@@ -21,14 +21,14 @@
     <parent>
         <artifactId>hc2vpp-parent</artifactId>
         <groupId>io.fd.hc2vpp.common</groupId>
-        <version>1.19.01</version>
+        <version>1.19.01.1-SNAPSHOT</version>
         <relativePath>../../../common/hc2vpp-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.hc2vpp.docs</groupId>
     <artifactId>docs-core</artifactId>
-    <version>1.19.01</version>
+    <version>1.19.01.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
     <properties>
         <mockito-core.version>2.2.9</mockito-core.version>

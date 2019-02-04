@@ -7,17 +7,17 @@
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>honeycomb-parent</artifactId>
-        <version>1.19.01</version>
+        <version>1.19.01.1-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>hc2vpp-parent</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.19.01</version>
+    <version>1.19.01.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
-        <honeycomb.version>1.19.01</honeycomb.version>
+        <honeycomb.version>1.19.01.1-SNAPSHOT</honeycomb.version>
     </properties>
 </project>
