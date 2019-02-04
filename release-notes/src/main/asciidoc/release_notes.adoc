@@ -11,6 +11,14 @@ Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.18.10/hc2vp
 
 === New features
 
+* https://jira.fd.io/browse/HC2VPP-394[JAVA API move from VPP]
+* https://jira.fd.io/browse/HC2VPP-291[Bump ietf-access-control-list model version]
+* https://jira.fd.io/browse/HC2VPP-300[Unify namespaces of hc2vpp yang models]
+* https://jira.fd.io/browse/HC2VPP-87[Expose IPSEC management]
+* https://jira.fd.io/browse/HC2VPP-398[Footprint analysis for Honeycomb/HC2VPP]
+* https://jira.fd.io/browse/HC2VPP-397[Prepare migration to JAVA 11]
+* https://jira.fd.io/browse/HC2VPP-402[Support diff between candidate and running config]
+
 === Removed features
 
 * https://jira.fd.io/browse/HC2VPP-341[Postman collections in v1.0/v2.0 format]
