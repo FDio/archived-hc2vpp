@@ -31,6 +31,13 @@ import io.fd.vpp.jvpp.core.dto.IpNeighborDetails;
 import io.fd.vpp.jvpp.core.dto.IpNeighborDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpNeighborDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.Address;
+import io.fd.vpp.jvpp.core.types.AddressFamily;
+import io.fd.vpp.jvpp.core.types.AddressUnion;
+import io.fd.vpp.jvpp.core.types.Ip4Address;
+import io.fd.vpp.jvpp.core.types.Ip6Address;
+import io.fd.vpp.jvpp.core.types.IpNeighbor;
+import io.fd.vpp.jvpp.core.types.MacAddress;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -185,9 +192,23 @@ public interface InterfaceChildNodeTest extends NamingContextHelper, FutureProdu
 
     static IpNeighborDetails neighborDump(byte[] address, int isIpv6, byte[] mac) {
         IpNeighborDetails detail = new IpNeighborDetails();
-        detail.ipAddress = address;
-        detail.isIpv6 = (byte) isIpv6;
-        detail.macAddress = mac;
+        detail.neighbor = new IpNeighbor();
+        detail.neighbor.ipAddress = new Address();
+        AddressUnion addressUnion;
+        if (isIpv6 == 1) {
+            Ip6Address ip6Address = new Ip6Address();
+            ip6Address.ip6Address = address;
+            addressUnion =new AddressUnion(ip6Address);
+            detail.neighbor.ipAddress.af = AddressFamily.ADDRESS_IP6;
+        } else {
+            Ip4Address ip4Address = new Ip4Address();
+            ip4Address.ip4Address = address;
+            addressUnion =new AddressUnion(ip4Address);
+            detail.neighbor.ipAddress.af = AddressFamily.ADDRESS_IP4;
+        }
+        detail.neighbor.ipAddress.un = addressUnion;
+        detail.neighbor.macAddress = new MacAddress();
+        detail.neighbor.macAddress.macaddress = mac;
         return detail;
     }
 

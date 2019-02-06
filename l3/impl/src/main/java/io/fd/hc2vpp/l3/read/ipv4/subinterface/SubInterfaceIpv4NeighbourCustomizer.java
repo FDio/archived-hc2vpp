@@ -67,11 +67,13 @@ public class SubInterfaceIpv4NeighbourCustomizer extends IpNeighbourReader
         if (dumpOpt.isPresent()) {
             dumpOpt.get().ipNeighborDetails
                     .stream()
-                    .filter(ipNeighborDetails -> ip.equals(arrayToIpv4AddressNoZone(ipNeighborDetails.ipAddress)))
+                    .filter(ipNeighborDetails -> ip.equals(arrayToIpv4AddressNoZone(
+                            ipNeighborDetails.neighbor.ipAddress.un.getIp4().ip4Address)))
                     .findFirst()
-                    .ifPresent(ipNeighborDetails -> builder.setIp(arrayToIpv4AddressNoZone(ipNeighborDetails.ipAddress))
+                    .ifPresent(ipNeighborDetails -> builder.setIp(arrayToIpv4AddressNoZone(
+                            ipNeighborDetails.neighbor.ipAddress.un.getIp4().ip4Address))
                             .withKey(keyMapper().apply(ipNeighborDetails))
-                            .setLinkLayerAddress(toPhysAddress(ipNeighborDetails.macAddress)));
+                            .setLinkLayerAddress(toPhysAddress(ipNeighborDetails.neighbor.macAddress.macaddress)));
         }
     }
 
@@ -87,6 +89,7 @@ public class SubInterfaceIpv4NeighbourCustomizer extends IpNeighbourReader
     }
 
     private Function<IpNeighborDetails, NeighborKey> keyMapper() {
-        return ipNeighborDetails -> new NeighborKey(arrayToIpv4AddressNoZone(ipNeighborDetails.ipAddress));
+        return ipNeighborDetails -> new NeighborKey(
+                arrayToIpv4AddressNoZone(ipNeighborDetails.neighbor.ipAddress.un.getIp4().ip4Address));
     }
 }

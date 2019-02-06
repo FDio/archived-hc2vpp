@@ -26,6 +26,7 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.Ip6NdProxyAddDel;
 import io.fd.vpp.jvpp.core.dto.Ip6NdProxyAddDelReply;
+import io.fd.vpp.jvpp.core.types.Ip6Address;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.NdProxyIp6Augmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.NdProxies;
@@ -66,7 +67,8 @@ public class NdProxyCustomizerTest extends WriterCustomizerTest {
         customizer.writeCurrentAttributes(getId(address), data, writeContext);
         final Ip6NdProxyAddDel request = new Ip6NdProxyAddDel();
         request.swIfIndex = IF_INDEX;
-        request.address = new byte[] {0x20, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01};
+        request.ip = new Ip6Address();
+        request.ip.ip6Address = new byte[] {0x20, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01};
         verify(api).ip6NdProxyAddDel(request);
     }
 
@@ -85,7 +87,8 @@ public class NdProxyCustomizerTest extends WriterCustomizerTest {
         final Ip6NdProxyAddDel request = new Ip6NdProxyAddDel();
         request.isDel = 1;
         request.swIfIndex = IF_INDEX;
-        request.address = new byte[] {0x20, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x03};
+        request.ip = new Ip6Address();
+        request.ip.ip6Address = new byte[] {0x20, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x03};
         verify(api).ip6NdProxyAddDel(request);
     }
 

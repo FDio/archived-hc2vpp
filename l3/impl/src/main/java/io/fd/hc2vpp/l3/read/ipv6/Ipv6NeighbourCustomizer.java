@@ -31,6 +31,7 @@ import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.core.dto.IpNeighborDetails;
 import io.fd.vpp.jvpp.core.dto.IpNeighborDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.IpNeighborFlags;
 import java.util.List;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
@@ -69,12 +70,14 @@ public class Ipv6NeighbourCustomizer extends IpNeighbourReader
         if (dumpOpt.isPresent()) {
             dumpOpt.get().ipNeighborDetails
                     .stream()
-                    .filter(ipNeighborDetails -> ip.equals(arrayToIpv6AddressNoZone(ipNeighborDetails.ipAddress)))
+                    .filter(ipNeighborDetails -> ip.equals(arrayToIpv6AddressNoZone(
+                            ipNeighborDetails.neighbor.ipAddress.un.getIp6().ip6Address)))
                     .findFirst()
-                    .ifPresent(ipNeighborDetails -> builder.setIp(arrayToIpv6AddressNoZone(ipNeighborDetails.ipAddress))
+                    .ifPresent(ipNeighborDetails -> builder.setIp(arrayToIpv6AddressNoZone(
+                            ipNeighborDetails.neighbor.ipAddress.un.getIp6().ip6Address))
                             .withKey(keyMapper().apply(ipNeighborDetails))
-                            .setLinkLayerAddress(toPhysAddress(ipNeighborDetails.macAddress))
-                            .setOrigin(ipNeighborDetails.isStatic == 0
+                            .setLinkLayerAddress(toPhysAddress(ipNeighborDetails.neighbor.macAddress.macaddress))
+                            .setOrigin(ipNeighborDetails.neighbor.flags != IpNeighborFlags.IP_API_NEIGHBOR_FLAG_STATIC
                                     ? Dynamic
                                     : Static));
         }
@@ -92,6 +95,7 @@ public class Ipv6NeighbourCustomizer extends IpNeighbourReader
     }
 
     private Function<IpNeighborDetails, NeighborKey> keyMapper() {
-        return ipNeighborDetails -> new NeighborKey(arrayToIpv6AddressNoZone(ipNeighborDetails.ipAddress));
+        return ipNeighborDetails -> new NeighborKey(
+                arrayToIpv6AddressNoZone(ipNeighborDetails.neighbor.ipAddress.un.getIp6().ip6Address));
     }
 }

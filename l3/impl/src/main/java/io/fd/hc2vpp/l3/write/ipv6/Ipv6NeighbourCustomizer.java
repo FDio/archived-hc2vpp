@@ -25,12 +25,14 @@ import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.l3.utils.ip.write.IpWriter;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpNeighborAddDel;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.IpNeighborFlags;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.Neighbor;
@@ -40,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
-        implements ListWriterCustomizer<Neighbor, NeighborKey>, ByteDataTranslator, AddressTranslator,
+        implements ListWriterCustomizer<Neighbor, NeighborKey>, ByteDataTranslator, AddressTranslator, IpWriter,
         JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6NeighbourCustomizer.class);
@@ -59,7 +61,7 @@ public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
         checkNotNull(dataAfter, "Cannot write null neighbour");
         checkArgument(id.firstKeyOf(Interface.class) != null, "No parent interface key found");
 
-        LOG.debug("Processing request for Neigbour write");
+        LOG.debug("Processing request for Neighbour write");
         String interfaceName = id.firstKeyOf(Interface.class).getName();
         MappingContext mappingContext = writeContext.getMappingContext();
 
@@ -79,7 +81,7 @@ public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
         checkNotNull(dataBefore, "Cannot delete null neighbour");
         checkArgument(id.firstKeyOf(Interface.class) != null, "No parent interface key found");
 
-        LOG.debug("Processing request for Neigbour delete");
+        LOG.debug("Processing request for Neighbour delete");
         String interfaceName = id.firstKeyOf(Interface.class).getName();
         MappingContext mappingContext = writeContext.getMappingContext();
 
@@ -94,15 +96,13 @@ public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
 
     private void addDelNeighbourAndReply(InstanceIdentifier<Neighbor> id, boolean add, int parentInterfaceIndex,
                                          Neighbor data) throws WriteFailedException {
-
-        IpNeighborAddDel request = new IpNeighborAddDel();
-
-        request.isAdd = booleanToByte(add);
-        request.isIpv6 = 1;
-        request.isStatic = 1;
-        request.dstAddress = ipv6AddressNoZoneToArray(data.getIp());
-        request.macAddress = parseMac(data.getLinkLayerAddress().getValue());
-        request.swIfIndex = parentInterfaceIndex;
-        getReplyForWrite(getFutureJVpp().ipNeighborAddDel(request).toCompletableFuture(), id);
+        addDelNeighbour(id, () -> {
+            IpNeighborAddDel request = preBindRequest(add);
+            request.neighbor.flags = IpNeighborFlags.IP_API_NEIGHBOR_FLAG_STATIC;
+            request.neighbor.macAddress = parseMacAddress(data.getLinkLayerAddress().getValue());
+            request.neighbor.ipAddress = ipv6AddressToAddress(data.getIp());
+            request.neighbor.swIfIndex = parentInterfaceIndex;
+            return request;
+        }, getFutureJVpp());
     }
 }

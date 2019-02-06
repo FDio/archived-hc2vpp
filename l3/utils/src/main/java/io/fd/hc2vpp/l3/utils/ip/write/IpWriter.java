@@ -29,6 +29,8 @@ import io.fd.vpp.jvpp.core.dto.IpNeighborAddDel;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddress;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.IpNeighbor;
+import io.fd.vpp.jvpp.core.types.IpNeighborFlags;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Supplier;
 import javax.annotation.Nonnegative;
@@ -142,25 +144,11 @@ public interface IpWriter extends ByteDataTranslator, AddressTranslator, JvppRep
         getReplyForWrite(api.ipNeighborAddDel(requestSupplier.get()).toCompletableFuture(), id);
     }
 
-    default IpNeighborAddDel preBindIpv4Request(final boolean add) {
-        IpNeighborAddDel request = staticPreBindRequest(add);
-        request.isIpv6 = 0;
-
-        return request;
-    }
-
-    default IpNeighborAddDel preBindIpv6Request(final boolean add) {
-        IpNeighborAddDel request = staticPreBindRequest(add);
-        request.isIpv6 = 1;
-
-        return request;
-    }
-
-    static IpNeighborAddDel staticPreBindRequest(final boolean add) {
+    default IpNeighborAddDel preBindRequest(final boolean add) {
         IpNeighborAddDel request = new IpNeighborAddDel();
-
+        request.neighbor = new IpNeighbor();
         request.isAdd = ByteDataTranslator.INSTANCE.booleanToByte(add);
-        request.isStatic = 1;
+        request.neighbor.flags = IpNeighborFlags.IP_API_NEIGHBOR_FLAG_STATIC;
         return request;
     }
 }

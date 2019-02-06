@@ -30,6 +30,8 @@ import io.fd.vpp.jvpp.core.dto.IpsecSpdDetails;
 import io.fd.vpp.jvpp.core.dto.IpsecSpdDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpsecSpdsDetails;
 import io.fd.vpp.jvpp.core.dto.IpsecSpdsDetailsReplyDump;
+import io.fd.vpp.jvpp.core.types.IpsecSpdAction;
+import io.fd.vpp.jvpp.core.types.IpsecSpdEntry;
 import java.util.LinkedList;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.IpsecStateSpdAugmentation;
@@ -38,6 +40,7 @@ import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.i
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.ipsec.state.SpdBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.ipsec.state.SpdKey;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.ipsec.state.spd.SpdEntries;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.IpsecState;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -47,11 +50,10 @@ public class IpsecStateSpdCustomizerTest extends ReaderCustomizerTest<Spd, SpdBu
     private static InstanceIdentifier<Spd> SPD_IID = InstanceIdentifier.create(IpsecState.class)
             .augmentation(IpsecStateSpdAugmentation.class).child(Spd.class, new SpdKey(10));
 
-    private static final String LOCAL_ADDR_START = "192.168.11.1";
-    private static final String LOCAL_ADDR_END = "192.168.11.255";
+    private static final Ipv4Address LOCAL_ADDR_START = new Ipv4Address("192.168.11.1");
+    private static final Ipv4Address LOCAL_ADDR_END = new Ipv4Address("192.168.11.255");
     private static final short PORT_START = 0;
     private static final short PORT_END = Short.MAX_VALUE;
-    private static final int POLICY_PROTECT = 3;
     private static final int SPD_ID = 10;
     private static final int SA_ID = 10;
     private static final int PROTOCOL = 1;
@@ -71,17 +73,17 @@ public class IpsecStateSpdCustomizerTest extends ReaderCustomizerTest<Spd, SpdBu
         final IpsecSpdDetailsReplyDump spdDetailsReply = new IpsecSpdDetailsReplyDump();
         LinkedList<IpsecSpdDetails> spdDetails = new LinkedList<>();
         IpsecSpdDetails spdDetail = new IpsecSpdDetails();
-        spdDetail.isIpv6 = BYTE_FALSE;
-        spdDetail.isOutbound = BYTE_TRUE;
-        spdDetail.spdId = SPD_ID;
-        spdDetail.protocol = PROTOCOL;
-        spdDetail.localStartAddr = ipv4AddressNoZoneToArray(LOCAL_ADDR_START);
-        spdDetail.localStopAddr = ipv4AddressNoZoneToArray(LOCAL_ADDR_END);
-        spdDetail.localStartPort = PORT_START;
-        spdDetail.localStopPort = PORT_END;
-        spdDetail.policy = POLICY_PROTECT;
-        spdDetail.saId = SA_ID;
-        spdDetail.priority = PRIORITY;
+        spdDetail.entry = new IpsecSpdEntry();
+        spdDetail.entry.isOutbound = BYTE_TRUE;
+        spdDetail.entry.spdId = SPD_ID;
+        spdDetail.entry.protocol = PROTOCOL;
+        spdDetail.entry.localAddressStart = ipv4AddressToAddress(LOCAL_ADDR_START);
+        spdDetail.entry.localAddressStop = ipv4AddressToAddress(LOCAL_ADDR_END);
+        spdDetail.entry.localPortStart = PORT_START;
+        spdDetail.entry.localPortStop = PORT_END;
+        spdDetail.entry.policy = IpsecSpdAction.IPSEC_API_SPD_ACTION_PROTECT;
+        spdDetail.entry.saId = SA_ID;
+        spdDetail.entry.priority = PRIORITY;
         spdDetails.add(spdDetail);
         spdDetailsReply.ipsecSpdDetails = spdDetails;
         when(api.ipsecSpdDump(any())).thenReturn(future(spdDetailsReply));

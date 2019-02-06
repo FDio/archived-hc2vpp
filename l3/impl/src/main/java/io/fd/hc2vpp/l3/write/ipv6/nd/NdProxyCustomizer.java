@@ -27,6 +27,7 @@ import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.Ip6NdProxyAddDel;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.Ip6Address;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxy;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxyKey;
@@ -76,7 +77,8 @@ public final class NdProxyCustomizer extends FutureJVppCustomizer
 
         final Ip6NdProxyAddDel request = new Ip6NdProxyAddDel();
         request.swIfIndex = swIfIndex;
-        request.address = addressBytes;
+        request.ip = new Ip6Address();
+        request.ip.ip6Address = addressBytes;
         request.isDel = booleanToByte(!add);
 
         getReplyForWrite(getFutureJVpp().ip6NdProxyAddDel(request).toCompletableFuture(), id);

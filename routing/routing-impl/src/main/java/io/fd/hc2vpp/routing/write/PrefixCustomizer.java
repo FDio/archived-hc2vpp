@@ -82,8 +82,7 @@ final class PrefixCustomizer extends FutureJVppCustomizer
         final int ifcIndex = interfaceContext.getIndex(ifcName, writeContext.getMappingContext());
         final SwInterfaceIp6NdRaPrefix request = new SwInterfaceIp6NdRaPrefix();
         request.swIfIndex = ifcIndex;
-        request.address = ipv6AddressPrefixToArray(prefix.getPrefixSpec());
-        request.addressLength = extractPrefix(prefix.getPrefixSpec()); // prefix length (vpp api naming bug)
+        request.prefix = ipv6AddressPrefixToPrefix(prefix.getPrefixSpec());
 
         if (isDelete) {
             request.isNo = 1;

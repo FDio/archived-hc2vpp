@@ -21,6 +21,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.net.InetAddresses;
+import io.fd.vpp.jvpp.core.types.Address;
+import io.fd.vpp.jvpp.core.types.AddressFamily;
+import io.fd.vpp.jvpp.core.types.AddressUnion;
+import io.fd.vpp.jvpp.core.types.Ip6Address;
+import io.fd.vpp.jvpp.core.types.Prefix;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -46,13 +51,47 @@ public interface Ipv6Translator extends ByteDataTranslator {
     }
 
     /**
+     * Transform Ipv6 address to a Address acceptable by VPP.
+     *
+     * @param address {@link Ipv6Address} to be translated
+     * @return Vpp {@link Address} from Ipv6 address
+     */
+    default Address ipv6AddressToAddress(@Nonnull final Ipv6Address address) {
+        Address addr = new Address();
+        addr.af = AddressFamily.ADDRESS_IP6;
+        Ip6Address ip6Address = new Ip6Address();
+        ip6Address.ip6Address = ipv6AddressNoZoneToArray(address);
+        addr.un = new AddressUnion(ip6Address);
+        return addr;
+    }
+
+    /**
      * Creates address array from address part of {@link Ipv6Prefix}
+     *
+     * @return Ipv6 address as byte array
      */
     default byte[] ipv6AddressPrefixToArray(@Nonnull final Ipv6Prefix ipv6Prefix) {
         checkNotNull(ipv6Prefix, "Cannot convert null prefix");
 
         return ipv6AddressNoZoneToArray(new Ipv6AddressNoZone(
                 new Ipv6Address(ipv6Prefix.getValue().substring(0, ipv6Prefix.getValue().indexOf('/')))));
+    }
+
+    /**
+     * Transforms {@link Prefix} from {@link Ipv6Prefix}
+     * @param ipv6Prefix prefix to be translated
+     * @return Vpp {@link Prefix} from {@link Ipv6Prefix}
+     */
+    default Prefix ipv6AddressPrefixToPrefix(@Nonnull final Ipv6Prefix ipv6Prefix) {
+        checkNotNull(ipv6Prefix, "Cannot convert null prefix");
+        Prefix prefix = new Prefix();
+        prefix.address = new Address();
+        prefix.address.af = AddressFamily.ADDRESS_IP6;
+        Ip6Address ip6Address = new Ip6Address();
+        ip6Address.ip6Address = ipv6AddressPrefixToArray(ipv6Prefix);
+        prefix.address.un = new AddressUnion(ip6Address);
+        prefix.addressLength = extractPrefix(ipv6Prefix);
+        return prefix;
     }
 
     /**

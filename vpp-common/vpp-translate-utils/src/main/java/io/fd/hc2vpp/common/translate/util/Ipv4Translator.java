@@ -18,9 +18,14 @@ package io.fd.hc2vpp.common.translate.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.fd.vpp.jvpp.core.types.Address;
+import io.fd.vpp.jvpp.core.types.AddressFamily;
+import io.fd.vpp.jvpp.core.types.AddressUnion;
+import io.fd.vpp.jvpp.core.types.Ip4Address;
 import java.util.Arrays;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 
@@ -81,6 +86,34 @@ public interface Ipv4Translator extends ByteDataTranslator {
      */
     default byte[] ipv4AddressNoZoneToArray(final Ipv4AddressNoZone ipv4Addr) {
         return ipv4AddressNoZoneToArray(ipv4Addr.getValue());
+    }
+
+    /**
+     * Transform Ipv4 address to a Ip4Address acceptable by VPP.
+     *
+     * @return byte array with address bytes
+     */
+    default Address ipv4AddressNoZoneToAddress(final Ipv4AddressNoZone ipv4Addr) {
+        Address address = new Address();
+        address.af = AddressFamily.ADDRESS_IP4;
+        Ip4Address ip4Address = new Ip4Address();
+        ip4Address.ip4Address = ipv4AddressNoZoneToArray(ipv4Addr);
+        address.un = new AddressUnion(ip4Address);
+        return address;
+    }
+
+    /**
+     * Transform Ipv4 address to a Ip4Address acceptable by VPP.
+     *
+     * @return byte array with address bytes
+     */
+    default Address ipv4AddressToAddress(final Ipv4Address ipv4Addr) {
+        Address address = new Address();
+        address.af = AddressFamily.ADDRESS_IP4;
+        Ip4Address ip4Address = new Ip4Address();
+        ip4Address.ip4Address = ipv4AddressNoZoneToArray(ipv4Addr.getValue());
+        address.un = new AddressUnion(ip4Address);
+        return address;
     }
 
     default byte[] ipv4AddressNoZoneToArray(final String ipv4Addr) {

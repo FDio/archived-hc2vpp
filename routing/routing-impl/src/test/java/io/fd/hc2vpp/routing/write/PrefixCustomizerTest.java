@@ -29,6 +29,10 @@ import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceIp6NdRaPrefix;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceIp6NdRaPrefixReply;
+import io.fd.vpp.jvpp.core.types.Address;
+import io.fd.vpp.jvpp.core.types.AddressFamily;
+import io.fd.vpp.jvpp.core.types.AddressUnion;
+import io.fd.vpp.jvpp.core.types.Ip6Address;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -82,12 +86,24 @@ public class PrefixCustomizerTest extends WriterCustomizerTest implements Schema
         request.swIfIndex = IFC_INDEX;
 
         // 2001:0db8:0a0b:12f0:0000:0000:0000:0002/64
-        request.address =
-            new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
-        request.addressLength = 64;
+        request.prefix = getPrefix(
+                new byte[]{0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0, 0, 0, 0, 0, 0, 0, 0x02},
+                (byte) 64);
         request.valLifetime = 2592000; // default value
         request.prefLifetime = 604800; // default value
         verify(api).swInterfaceIp6NdRaPrefix(request);
+    }
+
+    public io.fd.vpp.jvpp.core.types.Prefix getPrefix(byte[] ip6address, byte length) {
+        io.fd.vpp.jvpp.core.types.Prefix prefix = new io.fd.vpp.jvpp.core.types.Prefix();
+        Address address = new Address();
+        address.af = AddressFamily.ADDRESS_IP6;
+        Ip6Address ip6Address = new Ip6Address();
+        ip6Address.ip6Address = ip6address;
+        address.un = new AddressUnion(ip6Address);
+        prefix.addressLength = length;
+        prefix.address = address;
+        return prefix;
     }
 
     @Test
@@ -99,9 +115,9 @@ public class PrefixCustomizerTest extends WriterCustomizerTest implements Schema
         request.swIfIndex = IFC_INDEX;
 
         // 2001:0db8:0a0b:12f0:0000:0000:0000:0002/64
-        request.address =
-            new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
-        request.addressLength = 64;
+        request.prefix = getPrefix(
+                new byte[]{0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0, 0, 0, 0, 0, 0, 0, 0x02},
+                (byte) 64);
         request.noAdvertise = 1;
         request.noAutoconfig = 1;
         request.valLifetime = -1;
@@ -117,9 +133,9 @@ public class PrefixCustomizerTest extends WriterCustomizerTest implements Schema
         final SwInterfaceIp6NdRaPrefix request = new SwInterfaceIp6NdRaPrefix();
         request.swIfIndex = IFC_INDEX;
         // 2001:0db8:0a0b:12f0:0000:0000:0000:0002/64
-        request.address =
-            new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
-        request.addressLength = 64;
+        request.prefix = getPrefix(
+                new byte[]{0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0, 0, 0, 0, 0, 0, 0, 0x02},
+                (byte) 64);
         request.isNo = 1;
         verify(api).swInterfaceIp6NdRaPrefix(request);
     }

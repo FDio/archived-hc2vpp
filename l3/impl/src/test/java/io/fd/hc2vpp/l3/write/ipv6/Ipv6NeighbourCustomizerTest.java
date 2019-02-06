@@ -29,6 +29,13 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.IpNeighborAddDel;
 import io.fd.vpp.jvpp.core.dto.IpNeighborAddDelReply;
+import io.fd.vpp.jvpp.core.types.Address;
+import io.fd.vpp.jvpp.core.types.AddressFamily;
+import io.fd.vpp.jvpp.core.types.AddressUnion;
+import io.fd.vpp.jvpp.core.types.Ip6Address;
+import io.fd.vpp.jvpp.core.types.IpNeighbor;
+import io.fd.vpp.jvpp.core.types.IpNeighborFlags;
+import io.fd.vpp.jvpp.core.types.MacAddress;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
@@ -121,12 +128,18 @@ public class Ipv6NeighbourCustomizerTest extends WriterCustomizerTest implements
 
     private IpNeighborAddDel getExpectedRequest(final boolean isAdd) {
         final IpNeighborAddDel request = new IpNeighborAddDel();
-        request.isIpv6 = 1;
         request.isAdd = booleanToByte(isAdd);
-        request.isStatic = 1;
-        request.dstAddress = new byte[]{32, 1, 13, -72, 10, 11, 18, -16, 0, 0, 0, 0, 0, 0, 0, 1};
-        request.macAddress = new byte[]{(byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, 0x11, 0x22};
-        request.swIfIndex = IFACE_ID;
+        request.neighbor = new IpNeighbor();
+        request.neighbor.macAddress = new MacAddress();
+        request.neighbor.macAddress.macaddress =
+                new byte[]{(byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, 0x11, 0x22};
+        request.neighbor.ipAddress = new Address();
+        request.neighbor.ipAddress.af = AddressFamily.ADDRESS_IP6;
+        Ip6Address ip6Address = new Ip6Address();
+        ip6Address.ip6Address = new byte[]{32, 1, 13, -72, 10, 11, 18, -16, 0, 0, 0, 0, 0, 0, 0, 1};
+        request.neighbor.ipAddress.un = new AddressUnion(ip6Address);
+        request.neighbor.flags = IpNeighborFlags.IP_API_NEIGHBOR_FLAG_STATIC;
+        request.neighbor.swIfIndex = IFACE_ID;
         return request;
     }
 

@@ -25,6 +25,7 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.Ip4Address;
 import io.fd.vpp.jvpp.core.types.ProxyArp;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
@@ -88,9 +89,11 @@ public class ProxyRangeCustomizer extends FutureJVppCustomizer
         final ProxyArpAddDel proxyArpAddDel = new ProxyArpAddDel();
         proxyArpAddDel.isAdd = isAdd;
         proxyArpAddDel.proxy = new ProxyArp();
-        proxyArpAddDel.proxy.lowAddress = Ipv4Translator.INSTANCE.ipv4AddressNoZoneToArray(lAddr);
-        proxyArpAddDel.proxy.hiAddress = Ipv4Translator.INSTANCE.ipv4AddressNoZoneToArray(hAddr);
-        proxyArpAddDel.proxy.vrfId = vrfId;
+        proxyArpAddDel.proxy.low = new Ip4Address();
+        proxyArpAddDel.proxy.low.ip4Address = Ipv4Translator.INSTANCE.ipv4AddressNoZoneToArray(lAddr);
+        proxyArpAddDel.proxy.hi = new Ip4Address();
+        proxyArpAddDel.proxy.hi.ip4Address = Ipv4Translator.INSTANCE.ipv4AddressNoZoneToArray(hAddr);
+        proxyArpAddDel.proxy.tableId = vrfId;
         return proxyArpAddDel;
     }
 }

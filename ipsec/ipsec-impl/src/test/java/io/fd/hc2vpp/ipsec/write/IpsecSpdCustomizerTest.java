@@ -29,9 +29,11 @@ import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpsecSpdAddDel;
-import io.fd.vpp.jvpp.core.dto.IpsecSpdAddDelEntry;
-import io.fd.vpp.jvpp.core.dto.IpsecSpdAddDelEntryReply;
 import io.fd.vpp.jvpp.core.dto.IpsecSpdAddDelReply;
+import io.fd.vpp.jvpp.core.dto.IpsecSpdEntryAddDel;
+import io.fd.vpp.jvpp.core.dto.IpsecSpdEntryAddDelReply;
+import io.fd.vpp.jvpp.core.types.IpsecSpdAction;
+import io.fd.vpp.jvpp.core.types.IpsecSpdEntry;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +58,7 @@ public class IpsecSpdCustomizerTest extends WriterCustomizerTest implements Sche
     protected void setUpTest() throws Exception {
         customizer = new IpsecSpdCustomizer(api);
         when(api.ipsecSpdAddDel(any())).thenReturn(future(new IpsecSpdAddDelReply()));
-        when(api.ipsecSpdAddDelEntry(any())).thenReturn(future(new IpsecSpdAddDelEntryReply()));
+        when(api.ipsecSpdEntryAddDel(any())).thenReturn(future(new IpsecSpdEntryAddDelReply()));
     }
 
     @Test
@@ -69,8 +71,8 @@ public class IpsecSpdCustomizerTest extends WriterCustomizerTest implements Sche
         createSpdRequest.spdId = SPD_ID;
 
         verify(api).ipsecSpdAddDel(createSpdRequest);
-        verify(api).ipsecSpdAddDelEntry(translateSpdEntry(spd.getSpdEntries().get(0), SPD_ID, true));
-        verify(api).ipsecSpdAddDelEntry(translateSpdEntry(spd.getSpdEntries().get(1), SPD_ID, true));
+        verify(api).ipsecSpdEntryAddDel(translateSpdEntry(spd.getSpdEntries().get(0), SPD_ID, true));
+        verify(api).ipsecSpdEntryAddDel(translateSpdEntry(spd.getSpdEntries().get(1), SPD_ID, true));
     }
 
     @Test
@@ -81,7 +83,7 @@ public class IpsecSpdCustomizerTest extends WriterCustomizerTest implements Sche
         Spd before = ipsecBefore.getSpd().get(0);
         Spd after = ipsecAfter.getSpd().get(0);
         customizer.updateCurrentAttributes(getSpdId(SPD_ID), before, after, writeContext);
-        verify(api).ipsecSpdAddDelEntry(translateSpdEntry(after.getSpdEntries().get(0), SPD_ID, true));
+        verify(api).ipsecSpdEntryAddDel(translateSpdEntry(after.getSpdEntries().get(0), SPD_ID, true));
     }
 
     @Test
@@ -102,71 +104,64 @@ public class IpsecSpdCustomizerTest extends WriterCustomizerTest implements Sche
         return InstanceIdentifier.create(Ipsec.class).child(Spd.class, new SpdKey(spdId));
     }
 
-    private IpsecSpdAddDelEntry translateSpdEntry(final SpdEntries entry, int spdId, boolean isAdd) {
-        IpsecSpdAddDelEntry request = new IpsecSpdAddDelEntry();
-        request.spdId = spdId;
+    private IpsecSpdEntryAddDel translateSpdEntry(final SpdEntries entry, int spdId, boolean isAdd) {
+        IpsecSpdEntryAddDel request = new IpsecSpdEntryAddDel();
+        request.entry = new IpsecSpdEntry();
+        request.entry.spdId = spdId;
         request.isAdd = isAdd
                 ? BYTE_TRUE
                 : BYTE_FALSE;
         IpsecSpdEntriesAugmentation aug = entry.augmentation(IpsecSpdEntriesAugmentation.class);
         if (aug != null) {
-            if (aug.isIsIpv6() != null) {
-                request.isIpv6 = (byte) (aug.isIsIpv6()
-                        ? 1
-                        : 0);
-            }
 
             if (aug.getDirection() != null) {
-                request.isOutbound = (byte) aug.getDirection().getIntValue();
+                request.entry.isOutbound = (byte) aug.getDirection().getIntValue();
             }
 
             if (aug.getPriority() != null) {
-                request.priority = aug.getPriority();
+                request.entry.priority = aug.getPriority();
             }
 
             if (aug.getOperation() != null) {
                 final String operation = aug.getOperation().getName();
                 if (operation.equalsIgnoreCase("bypass")) {
-                    request.policy = (byte) 0;
+                    request.entry.policy = IpsecSpdAction.IPSEC_API_SPD_ACTION_BYPASS;
                 } else if (operation.equalsIgnoreCase("discard")) {
-                    request.policy = (byte) 1;
+                    request.entry.policy = IpsecSpdAction.IPSEC_API_SPD_ACTION_DISCARD;
                 } else if (operation.equalsIgnoreCase("protect")) {
-                    request.policy = (byte) 3;
+                    request.entry.policy = IpsecSpdAction.IPSEC_API_SPD_ACTION_PROTECT;
                 }
             }
 
             if (aug.getLaddrStart() != null) {
                 if (aug.getLaddrStart().getIpv4Address() != null) {
-                    request.localAddressStart =
-                            ipv4AddressNoZoneToArray(aug.getLaddrStart().getIpv4Address().getValue());
+                    request.entry.localAddressStart = ipv4AddressToAddress(aug.getLaddrStart().getIpv4Address());
                 } else if (aug.getLaddrStart().getIpv6Address() != null) {
-                    request.localAddressStart = ipv6AddressNoZoneToArray(aug.getLaddrStart().getIpv6Address());
+                    request.entry.localAddressStart = ipv6AddressToAddress(aug.getLaddrStart().getIpv6Address());
                 }
             }
 
             if (aug.getLaddrStop() != null) {
                 if (aug.getLaddrStop().getIpv4Address() != null) {
-                    request.localAddressStop = ipv4AddressNoZoneToArray(aug.getLaddrStop().getIpv4Address().getValue());
+                    request.entry.localAddressStop = ipv4AddressToAddress(aug.getLaddrStop().getIpv4Address());
                 } else if (aug.getLaddrStop().getIpv6Address() != null) {
-                    request.localAddressStop = ipv6AddressNoZoneToArray(aug.getLaddrStop().getIpv6Address());
+                    request.entry.localAddressStop = ipv6AddressToAddress(aug.getLaddrStop().getIpv6Address());
                 }
             }
 
             if (aug.getRaddrStop() != null) {
                 if (aug.getRaddrStop().getIpv4Address() != null) {
-                    request.remoteAddressStop =
-                            ipv4AddressNoZoneToArray(aug.getRaddrStop().getIpv4Address().getValue());
+                    request.entry.remoteAddressStop = ipv4AddressToAddress(aug.getRaddrStop().getIpv4Address());
                 } else if (aug.getRaddrStop().getIpv6Address() != null) {
-                    request.remoteAddressStop = ipv6AddressNoZoneToArray(aug.getRaddrStop().getIpv6Address());
+                    request.entry.remoteAddressStop = ipv6AddressToAddress(aug.getRaddrStop().getIpv6Address());
                 }
             }
 
             if (aug.getRaddrStart() != null) {
                 if (aug.getRaddrStart().getIpv4Address() != null) {
-                    request.remoteAddressStart =
-                            ipv4AddressNoZoneToArray(aug.getRaddrStart().getIpv4Address().getValue());
+                    request.entry.remoteAddressStart = ipv4AddressToAddress(aug.getRaddrStart().getIpv4Address());
                 } else if (aug.getRaddrStart().getIpv6Address() != null) {
-                    request.remoteAddressStart = ipv6AddressNoZoneToArray(aug.getRaddrStart().getIpv6Address());
+                    request.entry.remoteAddressStart = ipv6AddressToAddress(aug.getRaddrStart().getIpv6Address());
                 }
             }
         }

@@ -25,8 +25,10 @@ import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpsecSpdAddDel;
-import io.fd.vpp.jvpp.core.dto.IpsecSpdAddDelEntry;
+import io.fd.vpp.jvpp.core.dto.IpsecSpdEntryAddDel;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.IpsecSpdAction;
+import io.fd.vpp.jvpp.core.types.IpsecSpdEntry;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.IpsecSpdEntriesAugmentation;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ipsec.Spd;
@@ -78,71 +80,65 @@ public class IpsecSpdCustomizer extends FutureJVppCustomizer
 
     private void addSpdEntry(final InstanceIdentifier<Spd> id, int spdId, final SpdEntries entry)
             throws WriteFailedException {
-        IpsecSpdAddDelEntry request = new IpsecSpdAddDelEntry();
-        request.spdId = spdId;
+        IpsecSpdEntryAddDel request = new IpsecSpdEntryAddDel();
+        request.entry = new IpsecSpdEntry();
+        request.entry.spdId = spdId;
         request.isAdd = ByteDataTranslator.BYTE_TRUE;
         IpsecSpdEntriesAugmentation entryAug = entry.augmentation(IpsecSpdEntriesAugmentation.class);
         if (entryAug == null) {
             return;
         }
 
-        if (entryAug.isIsIpv6() != null) {
-            request.isIpv6 = (byte) (entryAug.isIsIpv6()
-                    ? 1
-                    : 0);
-        }
         if (entryAug.getDirection() != null) {
-            request.isOutbound = (byte) entryAug.getDirection().getIntValue();
+            request.entry.isOutbound = (byte) entryAug.getDirection().getIntValue();
         }
 
         if (entryAug.getPriority() != null) {
-            request.priority = entryAug.getPriority();
+            request.entry.priority = entryAug.getPriority();
         }
 
         if (entryAug.getOperation() != null) {
             final String operation = entryAug.getOperation().getName();
             if (operation.equalsIgnoreCase("bypass")) {
-                request.policy = (byte) 0;
+                request.entry.policy = IpsecSpdAction.IPSEC_API_SPD_ACTION_BYPASS;
             } else if (operation.equalsIgnoreCase("discard")) {
-                request.policy = (byte) 1;
+                request.entry.policy = IpsecSpdAction.IPSEC_API_SPD_ACTION_DISCARD;
             } else if (operation.equalsIgnoreCase("protect")) {
-                request.policy = (byte) 3;
+                request.entry.policy = IpsecSpdAction.IPSEC_API_SPD_ACTION_PROTECT;
             }
         }
 
         if (entryAug.getLaddrStart() != null) {
             if (entryAug.getLaddrStart().getIpv4Address() != null) {
-                request.localAddressStart =
-                        ipv4AddressNoZoneToArray(entryAug.getLaddrStart().getIpv4Address().getValue());
+                request.entry.localAddressStart = ipv4AddressToAddress(entryAug.getLaddrStart().getIpv4Address());
             } else if (entryAug.getLaddrStart().getIpv6Address() != null) {
-                request.localAddressStart = ipv6AddressNoZoneToArray(entryAug.getLaddrStart().getIpv6Address());
+                request.entry.localAddressStart = ipv6AddressToAddress(entryAug.getLaddrStart().getIpv6Address());
             }
         }
         if (entryAug.getLaddrStop() != null) {
             if (entryAug.getLaddrStop().getIpv4Address() != null) {
-                request.localAddressStop =
-                        ipv4AddressNoZoneToArray(entryAug.getLaddrStop().getIpv4Address().getValue());
+                request.entry.localAddressStop = ipv4AddressToAddress(entryAug.getLaddrStop().getIpv4Address());
             } else if (entryAug.getLaddrStop().getIpv6Address() != null) {
-                request.localAddressStop = ipv6AddressNoZoneToArray(entryAug.getLaddrStop().getIpv6Address());
+                request.entry.localAddressStop = ipv6AddressToAddress(entryAug.getLaddrStop().getIpv6Address());
             }
         }
         if (entryAug.getRaddrStop() != null) {
             if (entryAug.getRaddrStop().getIpv4Address() != null) {
-                request.remoteAddressStop =
-                        ipv4AddressNoZoneToArray(entryAug.getRaddrStop().getIpv4Address().getValue());
+                request.entry.remoteAddressStop = ipv4AddressToAddress(entryAug.getRaddrStop().getIpv4Address());
             } else if (entryAug.getRaddrStop().getIpv6Address() != null) {
-                request.remoteAddressStop = ipv6AddressNoZoneToArray(entryAug.getRaddrStop().getIpv6Address());
+                request.entry.remoteAddressStop = ipv6AddressToAddress(entryAug.getRaddrStop().getIpv6Address());
             }
         }
 
         if (entryAug.getRaddrStart() != null) {
             if (entryAug.getRaddrStart().getIpv4Address() != null) {
-                request.remoteAddressStart =
-                        ipv4AddressNoZoneToArray(entryAug.getRaddrStart().getIpv4Address().getValue());
+                request.entry.remoteAddressStart = ipv4AddressToAddress(entryAug.getRaddrStart().getIpv4Address());
             } else if (entryAug.getRaddrStart().getIpv6Address() != null) {
-                request.remoteAddressStart = ipv6AddressNoZoneToArray(entryAug.getRaddrStart().getIpv6Address());
+                request.entry.remoteAddressStart = ipv6AddressToAddress(entryAug.getRaddrStart().getIpv6Address());
             }
         }
-        getReplyForWrite(getFutureJVpp().ipsecSpdAddDelEntry(request).toCompletableFuture(), id);
+
+        //TODO HC2VPP-403: missing local and remote port definitions
+        getReplyForWrite(getFutureJVpp().ipsecSpdEntryAddDel(request).toCompletableFuture(), id);
     }
 }

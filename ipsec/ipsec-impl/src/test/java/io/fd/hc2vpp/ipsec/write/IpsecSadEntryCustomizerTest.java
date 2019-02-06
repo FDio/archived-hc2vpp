@@ -16,6 +16,8 @@
 
 package io.fd.hc2vpp.ipsec.write;
 
+import static io.fd.vpp.jvpp.core.types.IpsecSadFlags.IPSEC_API_SAD_FLAG_NONE;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,11 +31,19 @@ import io.fd.hc2vpp.ipsec.helpers.SchemaContextTestHelper;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.IpsecSadAddDelEntry;
-import io.fd.vpp.jvpp.core.dto.IpsecSadAddDelEntryReply;
+import io.fd.vpp.jvpp.core.dto.IpsecSadEntryAddDel;
+import io.fd.vpp.jvpp.core.dto.IpsecSadEntryAddDelReply;
+import io.fd.vpp.jvpp.core.types.IpsecCryptoAlg;
+import io.fd.vpp.jvpp.core.types.IpsecIntegAlg;
+import io.fd.vpp.jvpp.core.types.IpsecProto;
+import io.fd.vpp.jvpp.core.types.IpsecSadEntry;
+import io.fd.vpp.jvpp.core.types.IpsecSadFlags;
+import io.fd.vpp.jvpp.core.types.IpsecSpdEntry;
+import io.fd.vpp.jvpp.core.types.Key;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.IkeEncryptionAlgorithmT;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.IkeIntegrityAlgorithmT;
@@ -68,8 +78,8 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
             InstanceIdentifier.create(Ipsec.class).child(Sad.class);
     private static final String INTEG_KEY = "0123456789012346";
     private static final String CRYPTO_KEY = "9876543210987654";
-    private static final String TNL_SRC_ADDR = "192.168.1.1";
-    private static final String TNL_DST_ADDR = "192.168.1.2";
+    private static final Ipv4Address TNL_SRC_ADDR = new Ipv4Address("192.168.1.1");
+    private static final Ipv4Address TNL_DST_ADDR = new Ipv4Address("192.168.1.2");
     private static final int SPI_1002 = 1002;
     private static final int SAD_ID = 10;
 
@@ -80,29 +90,30 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
     @Override
     protected void setUpTest() throws Exception {
         customizer = new IpsecSadEntryCustomizer(api, namingCntext);
-        when(api.ipsecSadAddDelEntry(any())).thenReturn(future(new IpsecSadAddDelEntryReply()));
+        when(api.ipsecSadEntryAddDel(any())).thenReturn(future(new IpsecSadEntryAddDelReply()));
     }
 
     @Test
     public void testWrite(@InjectTestData(resourcePath = "/sadEntries/addDelSadEntry.json", id = SAD_PATH) Sad sad)
             throws WriteFailedException {
         final SadEntries data = sad.getSadEntries().get(0);
-        final IpsecSadAddDelEntry request = new IpsecSadAddDelEntry();
+        final IpsecSadEntryAddDel request = new IpsecSadEntryAddDel();
         request.isAdd = BYTE_TRUE;
-        request.spi = SPI_1002;
-        request.sadId = SAD_ID;
-        request.isTunnel = BYTE_TRUE;
-        request.isTunnelIpv6 = BYTE_FALSE;
-        request.integrityKey = INTEG_KEY.getBytes();
-        request.integrityKeyLength = (byte) request.integrityKey.length;
-        request.cryptoKey = CRYPTO_KEY.getBytes();
-        request.cryptoKeyLength = (byte) request.cryptoKey.length;
-        request.useAntiReplay = 0;
-        request.tunnelSrcAddress = ipv4AddressNoZoneToArray(TNL_SRC_ADDR);
-        request.tunnelDstAddress = ipv4AddressNoZoneToArray(TNL_DST_ADDR);
+        request.entry = new io.fd.vpp.jvpp.core.types.IpsecSadEntry();
+        request.entry.spi = SPI_1002;
+        request.entry.sadId = SAD_ID;
+        request.entry.integrityKey = new Key();
+        request.entry.integrityKey.data = INTEG_KEY.getBytes();
+        request.entry.integrityKey.length = (byte) INTEG_KEY.getBytes().length;
+        request.entry.cryptoKey = new Key();
+        request.entry.cryptoKey.data = CRYPTO_KEY.getBytes();
+        request.entry.cryptoKey.length = (byte) CRYPTO_KEY.getBytes().length;
+        request.entry.flags = IpsecSadFlags.IPSEC_API_SAD_FLAG_IS_TUNNEL;
+        request.entry.tunnelSrc = ipv4AddressToAddress(TNL_SRC_ADDR);
+        request.entry.tunnelDst = ipv4AddressToAddress(TNL_DST_ADDR);
 
         // ESP
-        request.protocol = BYTE_TRUE; //0 = AH, 1 = ESP
+        request.entry.protocol = IpsecProto.IPSEC_API_PROTO_ESP;
         // - auth MD5-96
         //  - crypto Aes-Cbc-128
         testEspAuthEncrCombination(data, IkeIntegrityAlgorithmT.AuthHmacMd596,
@@ -132,10 +143,11 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
                 IkeEncryptionAlgorithmT.EncrDes, request);
 
         // AH
-        request.protocol = BYTE_FALSE;
-        request.cryptoAlgorithm = 0;
-        request.cryptoKey = null;
-        request.cryptoKeyLength = 0;
+        request.entry.protocol = IpsecProto.IPSEC_API_PROTO_AH;
+        request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_NONE;
+        request.entry.cryptoKey = new Key();
+        request.entry.cryptoKey.data = null;
+        request.entry.cryptoKey.length = 0;
         // - auth SHA1-96
         testAhAuthorization(data, IkeIntegrityAlgorithmT.AuthHmacSha196, request);
         // - auth MD5-96
@@ -151,20 +163,24 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         final SadEntries after = relayAfter.getSadEntries().get(0);
         final Long spi = after.getSpi();
         customizer.updateCurrentAttributes(getId(IpsecTrafficDirection.Outbound, spi), before, after, writeContext);
-        final IpsecSadAddDelEntry request = new IpsecSadAddDelEntry();
+        final IpsecSadEntryAddDel request = new IpsecSadEntryAddDel();
         request.isAdd = BYTE_TRUE;
-        request.spi = SPI_1002;
-        request.sadId = SAD_ID;
-        request.protocol = BYTE_FALSE;
-        request.isTunnel = BYTE_FALSE;
-        request.isTunnelIpv6 = BYTE_TRUE;
-        request.integrityAlgorithm = 1;
-        request.integrityKey = INTEG_KEY.getBytes();
-        request.integrityKeyLength = (byte) request.integrityKey.length;
-        request.useAntiReplay = BYTE_TRUE;
-        request.tunnelSrcAddress = ipv6AddressNoZoneToArray(Ipv6Address.getDefaultInstance("2001::11"));
-        request.tunnelDstAddress = ipv6AddressNoZoneToArray(Ipv6Address.getDefaultInstance("2001::12"));
-        verify(api).ipsecSadAddDelEntry(request);
+        request.entry = new IpsecSadEntry();
+        request.entry.spi = SPI_1002;
+        request.entry.sadId = SAD_ID;
+        request.entry.protocol = IpsecProto.IPSEC_API_PROTO_AH;
+        request.entry.integrityAlgorithm = IpsecIntegAlg.IPSEC_API_INTEG_ALG_MD5_96;
+        request.entry.integrityKey = new Key();
+        request.entry.integrityKey.data = INTEG_KEY.getBytes();
+        request.entry.integrityKey.length = (byte) INTEG_KEY.getBytes().length;
+        request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_NONE;
+        request.entry.cryptoKey = new Key();
+        request.entry.cryptoKey.data = null;
+        request.entry.cryptoKey.length = 0;
+        request.entry.flags = IpsecSadFlags.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY;
+        request.entry.tunnelSrc = ipv6AddressToAddress(Ipv6Address.getDefaultInstance("2001::11"));
+        request.entry.tunnelDst = ipv6AddressToAddress(Ipv6Address.getDefaultInstance("2001::12"));
+        verify(api).ipsecSadEntryAddDel(request);
     }
 
     @Test
@@ -173,11 +189,13 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         final SadEntries data = sad.getSadEntries().get(0);
         final Long spi = data.getSpi();
         customizer.deleteCurrentAttributes(getId(IpsecTrafficDirection.Outbound, spi), data, writeContext);
-        final IpsecSadAddDelEntry request = new IpsecSadAddDelEntry();
+        final IpsecSadEntryAddDel request = new IpsecSadEntryAddDel();
         request.isAdd = BYTE_FALSE;
-        request.spi = SPI_1002;
-        request.sadId = SAD_ID;
-        verify(api).ipsecSadAddDelEntry(request);
+        request.entry = new IpsecSadEntry();
+        request.entry.spi = SPI_1002;
+        request.entry.sadId = SAD_ID;
+        request.entry.flags = IPSEC_API_SAD_FLAG_NONE;
+        verify(api).ipsecSadEntryAddDel(request);
     }
 
     private InstanceIdentifier<SadEntries> getId(final IpsecTrafficDirection direction, final Long spi) {
@@ -185,7 +203,7 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
     }
 
     private void testAhAuthorization(final SadEntries otherData, final IkeIntegrityAlgorithmT authAlg,
-                                     final IpsecSadAddDelEntry request) throws WriteFailedException {
+                                     final IpsecSadEntryAddDel request) throws WriteFailedException {
         SadEntriesBuilder builder = new SadEntriesBuilder(otherData);
         builder.setEsp(null);
         AhBuilder ahBuilder = new AhBuilder();
@@ -193,11 +211,11 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         builder.setAh(ahBuilder.build());
         customizer.writeCurrentAttributes(getId(IpsecTrafficDirection.Outbound, Integer.toUnsignedLong(SPI_1002)),
                 builder.build(), writeContext);
-        verify(api).ipsecSadAddDelEntry(request);
+        verify(api).ipsecSadEntryAddDel(request);
     }
 
     private void testEspAuthEncrCombination(final SadEntries otherData, final IkeIntegrityAlgorithmT authAlg,
-                                            final IkeEncryptionAlgorithmT encrAlg, final IpsecSadAddDelEntry request)
+                                            final IkeEncryptionAlgorithmT encrAlg, final IpsecSadEntryAddDel request)
             throws WriteFailedException {
         SadEntriesBuilder builder = new SadEntriesBuilder(otherData);
         builder.setAh(null);
@@ -209,26 +227,26 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
                 builder.build(), writeContext);
 
         if (encrAlg == IkeEncryptionAlgorithmT.EncrAesCbc128) {
-            request.cryptoAlgorithm = 1;
+            request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_AES_CBC_128;
         } else if (encrAlg == IkeEncryptionAlgorithmT.EncrAesCbc192) {
-            request.cryptoAlgorithm = 2;
+            request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_AES_CBC_192;
         } else if (encrAlg == IkeEncryptionAlgorithmT.EncrAesCbc256) {
-            request.cryptoAlgorithm = 3;
+            request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_AES_CBC_256;
         } else if (encrAlg == IkeEncryptionAlgorithmT.EncrDes) {
-            request.cryptoAlgorithm = 4;
+            request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_DES_CBC;
         } else {
-            request.cryptoAlgorithm = 0;
+            request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_NONE;
         }
 
         if (authAlg == IkeIntegrityAlgorithmT.AuthHmacMd596) {
-            request.integrityAlgorithm = 1;
+            request.entry.integrityAlgorithm = IpsecIntegAlg.IPSEC_API_INTEG_ALG_MD5_96;
         } else if (authAlg == IkeIntegrityAlgorithmT.AuthHmacSha196) {
-            request.integrityAlgorithm = 2;
+            request.entry.integrityAlgorithm = IpsecIntegAlg.IPSEC_API_INTEG_ALG_SHA1_96;
         } else {
-            request.integrityAlgorithm = 0;
+            request.entry.integrityAlgorithm = IpsecIntegAlg.IPSEC_API_INTEG_ALG_NONE;
         }
 
-        verify(api).ipsecSadAddDelEntry(request);
+        verify(api).ipsecSadEntryAddDel(request);
     }
 
     private Encryption getEspEncryption(IkeEncryptionAlgorithmT alg) {

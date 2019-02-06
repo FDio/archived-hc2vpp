@@ -55,11 +55,11 @@ public class SubInterfaceIpv4NeighbourCustomizer extends FutureJVppCustomizer
         LOG.debug("Processing request for Neighbour {} write", id);
 
         addDelNeighbour(id, () -> {
-            IpNeighborAddDel request = preBindIpv4Request(true);
+            IpNeighborAddDel request = preBindRequest(true);
 
-            request.dstAddress = ipv4AddressNoZoneToArray(data.getIp());
-            request.macAddress = parseMac(data.getLinkLayerAddress().getValue());
-            request.swIfIndex = subInterfaceIndex(id, interfaceContext, writeContext.getMappingContext());
+            request.neighbor.macAddress = parseMacAddress(data.getLinkLayerAddress().getValue());
+            request.neighbor.ipAddress = ipv4AddressNoZoneToAddress(data.getIp());
+            request.neighbor.swIfIndex = subInterfaceIndex(id, interfaceContext, writeContext.getMappingContext());
             // we don't have support for sub-interface routing, so not setting vrf
 
             return request;
@@ -75,11 +75,11 @@ public class SubInterfaceIpv4NeighbourCustomizer extends FutureJVppCustomizer
         LOG.debug("Processing request for Neighbour {} delete", id);
 
         addDelNeighbour(id, () -> {
-            IpNeighborAddDel request = preBindIpv4Request(false);
+            IpNeighborAddDel request = preBindRequest(false);
 
-            request.dstAddress = ipv4AddressNoZoneToArray(data.getIp());
-            request.macAddress = parseMac(data.getLinkLayerAddress().getValue());
-            request.swIfIndex = subInterfaceIndex(id, interfaceContext, writeContext.getMappingContext());
+            request.neighbor.macAddress = parseMacAddress(data.getLinkLayerAddress().getValue());
+            request.neighbor.ipAddress = ipv4AddressNoZoneToAddress(data.getIp());
+            request.neighbor.swIfIndex = subInterfaceIndex(id, interfaceContext, writeContext.getMappingContext());
 
             //TODO HONEYCOMB-182 if it is necessary for future use ,make adjustments to be able to set vrfid
             //request.vrfId

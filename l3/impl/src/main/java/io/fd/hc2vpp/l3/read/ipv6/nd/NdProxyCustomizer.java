@@ -88,7 +88,7 @@ public final class NdProxyCustomizer extends FutureJVppCustomizer
 
         return dump.get().ip6NdProxyDetails.stream()
             .filter(detail -> detail.swIfIndex == swIfIndex)
-            .map(detail -> new NdProxyKey(arrayToIpv6AddressNoZone(detail.address)))
+            .map(detail -> new NdProxyKey(arrayToIpv6AddressNoZone(detail.ip.ip6Address)))
             .collect(Collectors.toList());
     }
 

@@ -25,12 +25,19 @@ import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.IpsecSadAddDelEntry;
-import io.fd.vpp.jvpp.core.dto.IpsecSadAddDelEntryReply;
+import io.fd.vpp.jvpp.core.dto.IpsecSadEntryAddDel;
+import io.fd.vpp.jvpp.core.dto.IpsecSadEntryAddDelReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.IpsecCryptoAlg;
+import io.fd.vpp.jvpp.core.types.IpsecIntegAlg;
+import io.fd.vpp.jvpp.core.types.IpsecProto;
+import io.fd.vpp.jvpp.core.types.IpsecSadEntry;
+import io.fd.vpp.jvpp.core.types.IpsecSadFlags;
+import io.fd.vpp.jvpp.core.types.Key;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.IpsecSadEntriesAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.IpsecMode;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ip.address.grouping.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ip.address.grouping.ip.address.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ip.address.grouping.ip.address.Ipv6Address;
@@ -87,44 +94,54 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
     private void addDelEntry(final InstanceIdentifier<SadEntries> id,
                              final SadEntries dataAfter,
                              final WriteContext writeContext, boolean adding) throws WriteFailedException {
-        final IpsecSadAddDelEntry entry = new IpsecSadAddDelEntry();
+        final IpsecSadEntryAddDel request = new IpsecSadEntryAddDel();
+        request.entry = new IpsecSadEntry();
         IpsecSadEntriesAugmentation augment = dataAfter.augmentation(IpsecSadEntriesAugmentation.class);
         if (augment != null && augment.getSaId() != null) {
-            entry.sadId = augment.getSaId();
+            request.entry.sadId = augment.getSaId();
         }
         if (dataAfter.getSpi() != null) {
-            entry.spi = dataAfter.getSpi().intValue();
+            request.entry.spi = dataAfter.getSpi().intValue();
         }
-        if (dataAfter.getAntiReplayWindow() != null) {
-            entry.useAntiReplay = dataAfter.getAntiReplayWindow() > 0
-                    ? BYTE_TRUE
-                    : BYTE_FALSE;
+        request.entry.flags = IpsecSadFlags.IPSEC_API_SAD_FLAG_NONE;
+        if (dataAfter.getAntiReplayWindow() != null && dataAfter.getAntiReplayWindow() > 0) {
+            request.entry.flags = IpsecSadFlags.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY;
         }
 
-        if (dataAfter.getSaMode() != null) {
-            entry.isTunnel = Integer.valueOf(dataAfter.getSaMode().getIntValue()).byteValue();
+        if (dataAfter.getSaMode() != null && dataAfter.getSaMode().equals(IpsecMode.Tunnel)) {
+            //TODO check if flags can be set at once
+            if (dataAfter.getSourceAddress() != null &&
+                    dataAfter.getSourceAddress().getIpAddress() instanceof Ipv4Address) {
+                request.entry.flags = IpsecSadFlags
+                        .forValue((request.entry.flags.value + IpsecSadFlags.IPSEC_API_SAD_FLAG_IS_TUNNEL.value));
+            } else if (dataAfter.getSourceAddress() != null &&
+                    dataAfter.getSourceAddress().getIpAddress() instanceof Ipv6Address) {
+                request.entry.flags = IpsecSadFlags
+                        .forValue((request.entry.flags.value + IpsecSadFlags.IPSEC_API_SAD_FLAG_IS_TUNNEL_V6.value));
+            }
         }
-        entry.isAdd = adding
+        request.isAdd = adding
                 ? ByteDataTranslator.BYTE_TRUE
                 : ByteDataTranslator.BYTE_FALSE;
         if (dataAfter.getEsp() != null) {
-            entry.protocol = 1;
-            fillEspAuthentication(entry, dataAfter.getEsp());
-            fillEspEncryption(entry, dataAfter.getEsp());
+            request.entry.protocol = IpsecProto.IPSEC_API_PROTO_ESP;
+            fillEspAuthentication(request, dataAfter.getEsp());
+            fillEspEncryption(request, dataAfter.getEsp());
 
         } else if (dataAfter.getAh() != null) {
-            entry.protocol = 0;
-            fillAhAuthentication(entry, dataAfter.getAh());
+            request.entry.protocol = IpsecProto.IPSEC_API_PROTO_AH;
+            fillAhAuthentication(request, dataAfter.getAh());
+            fillAhEncryption(request, dataAfter.getAh());
         }
 
-        fillAddresses(entry, dataAfter);
+        fillAddresses(request, dataAfter);
 
-        LOG.debug("IPSec config change id={} request={}", id, entry);
-        final CompletionStage<IpsecSadAddDelEntryReply> ipsecSadEntryAddDellReplyFuture =
-                getFutureJVpp().ipsecSadAddDelEntry(entry);
+        LOG.debug("IPSec config change id={} request={}", id, request);
+        final CompletionStage<IpsecSadEntryAddDelReply> ipsecSadEntryAddDellReplyFuture =
+                getFutureJVpp().ipsecSadEntryAddDel(request);
         getReplyForWrite(ipsecSadEntryAddDellReplyFuture.toCompletableFuture(), id);
         if (adding) {
-            sadEntryMapping.addChild(dataAfter.key().getDirection().getName(), entry.sadId,
+            sadEntryMapping.addChild(dataAfter.key().getDirection().getName(), request.entry.sadId,
                     String.valueOf(dataAfter.key().getSpi()), writeContext.getMappingContext());
         } else {
             sadEntryMapping
@@ -133,7 +150,7 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
         }
     }
 
-    private void fillAhAuthentication(IpsecSadAddDelEntry targetEntry, Ah data) {
+    private void fillAhAuthentication(IpsecSadEntryAddDel request, Ah data) {
         //0 = None, 1 = MD5-96, 2 = SHA1-96, 3 = SHA-256, 4 = SHA-384, 5=SHA-512
         AuthenticationAlgorithm authAlg = data.getAuthenticationAlgorithm();
         if (authAlg != null) {
@@ -142,22 +159,33 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
                 integKey =
                         ((org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ipsec.sa.ah.grouping.ah.authentication.algorithm.HmacMd596) authAlg)
                                 .getHmacMd596().getKeyStr().stringValue();
-                targetEntry.integrityAlgorithm = 1;
+                request.entry.integrityAlgorithm = IpsecIntegAlg.IPSEC_API_INTEG_ALG_MD5_96;
             } else if (authAlg instanceof org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ipsec.sa.ah.grouping.ah.authentication.algorithm.HmacSha196) {
                 integKey =
                         ((org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ipsec.sa.ah.grouping.ah.authentication.algorithm.HmacSha196) authAlg)
                                 .getHmacSha196().getKeyStr().stringValue();
-                targetEntry.integrityAlgorithm = 2;
+                request.entry.integrityAlgorithm = IpsecIntegAlg.IPSEC_API_INTEG_ALG_SHA1_96;
             } else {
-                targetEntry.integrityAlgorithm = 0;
+                request.entry.integrityAlgorithm = IpsecIntegAlg.IPSEC_API_INTEG_ALG_NONE;
                 return;
             }
-            targetEntry.integrityKey = integKey.getBytes();
-            targetEntry.integrityKeyLength = (byte) integKey.getBytes().length;
+            request.entry.integrityKey = new Key();
+            request.entry.integrityKey.data = integKey.getBytes();
+            request.entry.integrityKey.length = (byte) integKey.getBytes().length;
+            request.entry.cryptoKey = new Key();
+            request.entry.cryptoKey.data = null;
+            request.entry.cryptoKey.length = 0 ;
         }
     }
 
-    private void fillEspAuthentication(IpsecSadAddDelEntry targetEntry, Esp data) {
+    private void fillAhEncryption(IpsecSadEntryAddDel request, Ah data) {
+        request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_NONE;
+        request.entry.cryptoKey = new Key();
+        request.entry.cryptoKey.data = null;
+        request.entry.cryptoKey.length = 0;
+    }
+
+    private void fillEspAuthentication(IpsecSadEntryAddDel request, Esp data) {
         //0 = None, 1 = MD5-96, 2 = SHA1-96, 3 = SHA-256, 4 = SHA-384, 5=SHA-512
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ipsec.sa.esp.grouping.esp.Authentication
                 authAlg = data.getAuthentication();
@@ -165,57 +193,58 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
             String integKey;
             if (authAlg.getAuthenticationAlgorithm() instanceof HmacMd596) {
                 integKey = ((HmacMd596) authAlg.getAuthenticationAlgorithm()).getHmacMd596().getKeyStr().stringValue();
-                targetEntry.integrityAlgorithm = 1;
+                request.entry.integrityAlgorithm = IpsecIntegAlg.IPSEC_API_INTEG_ALG_MD5_96;
             } else if (authAlg.getAuthenticationAlgorithm() instanceof HmacSha196) {
                 integKey =
                         ((HmacSha196) authAlg.getAuthenticationAlgorithm()).getHmacSha196().getKeyStr().stringValue();
-                targetEntry.integrityAlgorithm = 2;
+                request.entry.integrityAlgorithm = IpsecIntegAlg.IPSEC_API_INTEG_ALG_SHA1_96;
             } else {
-                targetEntry.integrityAlgorithm = 0;
+                request.entry.integrityAlgorithm = IpsecIntegAlg.IPSEC_API_INTEG_ALG_NONE;
                 return;
             }
-            targetEntry.integrityKey = integKey.getBytes();
-            targetEntry.integrityKeyLength = (byte) integKey.getBytes().length;
+            request.entry.integrityKey = new Key();
+            request.entry.integrityKey.data = integKey.getBytes();
+            request.entry.integrityKey.length = (byte) integKey.getBytes().length;
         }
     }
 
-    private void fillEspEncryption(IpsecSadAddDelEntry targetEntry, Esp data) {
+    private void fillEspEncryption(IpsecSadEntryAddDel request, Esp data) {
         //0 = Null, 1 = AES-CBC-128, 2 = AES-CBC-192, 3 = AES-CBC-256, 4 = 3DES-CBC
         if (data.getEncryption() != null && data.getEncryption().getEncryptionAlgorithm() != null) {
             String cryptoKey = "";
             EncryptionAlgorithm encrAlg = data.getEncryption().getEncryptionAlgorithm();
             if (encrAlg instanceof Aes128Cbc) {
                 cryptoKey = ((Aes128Cbc) encrAlg).getAes128Cbc().getKeyStr().stringValue();
-                targetEntry.cryptoAlgorithm = 1;
+                request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_AES_CBC_128;
             } else if (encrAlg instanceof Aes192Cbc) {
                 cryptoKey = ((Aes192Cbc) encrAlg).getAes192Cbc().getKeyStr().stringValue();
-                targetEntry.cryptoAlgorithm = 2;
+                request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_AES_CBC_192;
             } else if (encrAlg instanceof Aes256Cbc) {
                 cryptoKey = ((Aes256Cbc) encrAlg).getAes256Cbc().getKeyStr().stringValue();
-                targetEntry.cryptoAlgorithm = 3;
+                request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_AES_CBC_256;
             } else if (encrAlg instanceof DesCbc) {
                 cryptoKey = ((DesCbc) encrAlg).getDesCbc().getKeyStr().stringValue();
-                targetEntry.cryptoAlgorithm = 4;
+                // TODO verify before the value was "4" now the result is "10"
+                request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_DES_CBC;
             } else {
-                targetEntry.cryptoAlgorithm = 0;
+                request.entry.cryptoAlgorithm = IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_NONE;
                 return;
             }
-            targetEntry.cryptoKey = cryptoKey.getBytes();
-            targetEntry.cryptoKeyLength = (byte) cryptoKey.getBytes().length;
+            request.entry.cryptoKey = new Key();
+            request.entry.cryptoKey.data = cryptoKey.getBytes();
+            request.entry.cryptoKey.length = (byte) cryptoKey.getBytes().length;
         }
     }
 
-    private void fillAddresses(IpsecSadAddDelEntry targetEntry, SadEntries data) {
+    private void fillAddresses(IpsecSadEntryAddDel request, SadEntries data) {
         if (data.getSourceAddress() != null && data.getSourceAddress().getIpAddress() != null) {
             IpAddress sourceAddr = data.getSourceAddress().getIpAddress();
             if (sourceAddr instanceof Ipv4Address) {
                 Ipv4Address ipv4 = (Ipv4Address) sourceAddr;
-                targetEntry.isTunnelIpv6 = 0;
-                targetEntry.tunnelSrcAddress = ipv4AddressNoZoneToArray(ipv4.getIpv4Address().getValue());
+                request.entry.tunnelSrc = ipv4AddressToAddress(ipv4.getIpv4Address());
             } else if (sourceAddr instanceof Ipv6Address) {
                 Ipv6Address ipv6 = (Ipv6Address) sourceAddr;
-                targetEntry.isTunnelIpv6 = 1;
-                targetEntry.tunnelSrcAddress = ipv6AddressNoZoneToArray(ipv6.getIpv6Address());
+                request.entry.tunnelSrc = ipv6AddressToAddress(ipv6.getIpv6Address());
             }
         }
 
@@ -224,12 +253,10 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
 
             if (destAddr instanceof Ipv4Address) {
                 Ipv4Address ipv4 = (Ipv4Address) destAddr;
-                targetEntry.isTunnelIpv6 = 0;
-                targetEntry.tunnelDstAddress = ipv4AddressNoZoneToArray(ipv4.getIpv4Address().getValue());
+                request.entry.tunnelDst = ipv4AddressToAddress(ipv4.getIpv4Address());
             } else if (destAddr instanceof Ipv6Address) {
                 Ipv6Address ipv6 = (Ipv6Address) destAddr;
-                targetEntry.isTunnelIpv6 = 1;
-                targetEntry.tunnelDstAddress = ipv6AddressNoZoneToArray(ipv6.getIpv6Address());
+                request.entry.tunnelDst = ipv6AddressToAddress(ipv6.getIpv6Address());
             }
         }
     }

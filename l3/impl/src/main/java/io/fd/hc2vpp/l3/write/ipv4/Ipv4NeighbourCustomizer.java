@@ -61,11 +61,11 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
         LOG.debug("Processing request for Neighbour {} write", id);
 
         addDelNeighbour(id, () -> {
-            IpNeighborAddDel request = preBindIpv4Request(true);
+            IpNeighborAddDel request = preBindRequest(true);
 
-            request.dstAddress = ipv4AddressNoZoneToArray(data.getIp());
-            request.macAddress = parseMac(data.getLinkLayerAddress().getValue());
-            request.swIfIndex = interfaceContext
+            request.neighbor.macAddress = parseMacAddress(data.getLinkLayerAddress().getValue());
+            request.neighbor.ipAddress = ipv4AddressNoZoneToAddress(data.getIp());
+            request.neighbor.swIfIndex = interfaceContext
                     .getIndex(id.firstKeyOf(Interface.class).getName(), writeContext.getMappingContext());
             return request;
         }, getFutureJVpp());
@@ -80,11 +80,11 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
         LOG.debug("Processing request for Neighbour {} delete", id);
 
         addDelNeighbour(id, () -> {
-            IpNeighborAddDel request = preBindIpv4Request(false);
+            IpNeighborAddDel request = preBindRequest(false);
 
-            request.dstAddress = ipv4AddressNoZoneToArray(data.getIp());
-            request.macAddress = parseMac(data.getLinkLayerAddress().getValue());
-            request.swIfIndex = interfaceContext
+            request.neighbor.macAddress = parseMacAddress(data.getLinkLayerAddress().getValue());
+            request.neighbor.ipAddress = ipv4AddressNoZoneToAddress(data.getIp());
+            request.neighbor.swIfIndex = interfaceContext
                     .getIndex(id.firstKeyOf(Interface.class).getName(), writeContext.getMappingContext());
             return request;
         }, getFutureJVpp());

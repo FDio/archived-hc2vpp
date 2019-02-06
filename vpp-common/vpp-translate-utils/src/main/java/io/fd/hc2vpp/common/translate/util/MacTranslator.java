@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Splitter;
+import io.fd.vpp.jvpp.core.types.MacAddress;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -37,12 +38,28 @@ public interface MacTranslator {
 
     /**
      * Parse string represented mac address (using ":" as separator) into a byte array
+     *
+     * @param macAddress string representation of MAC address (using ":" as separator)
+     * @return byte array mac address
      */
     @Nonnull
     default byte[] parseMac(@Nonnull final String macAddress) {
         final List<String> parts = COLON_SPLITTER.splitToList(macAddress);
         checkArgument(parts.size() == 6, "Mac address is expected to have 6 parts but was: %s", macAddress);
         return parseMacLikeString(parts);
+    }
+
+    /**
+     * Parse string represented mac address (using ":" as separator) into a MacAddress in VPP
+     *
+     * @param macAddress string representation of MAC address (using ":" as separator)
+     * @return VPP MacAddress
+     */
+    @Nonnull
+    default MacAddress parseMacAddress(@Nonnull final String macAddress) {
+        MacAddress mac = new MacAddress();
+        mac.macaddress = parseMac(macAddress);
+        return mac;
     }
 
     default byte[] parseMacLikeString(final List<String> strings) {

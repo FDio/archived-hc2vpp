@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.ipsec.read;
 
 import com.google.common.base.Optional;
-import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
@@ -35,6 +34,7 @@ import io.fd.vpp.jvpp.core.dto.IpsecSpdsDetails;
 import io.fd.vpp.jvpp.core.dto.IpsecSpdsDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpsecSpdsDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.AddressFamily;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -134,23 +134,22 @@ public class IpsecStateSpdCustomizer extends FutureJVppCustomizer
     private SpdEntries translateDetailToEntry(final IpsecSpdDetails details) {
 
         SpdEntriesBuilder builder = new SpdEntriesBuilder();
-        builder.setDirection(IpsecTrafficDirection.forValue(details.isOutbound))
-                .setIsIpv6(ByteDataTranslator.INSTANCE.byteToBoolean(details.isIpv6))
-                .setPriority(details.priority);
-        switch (details.policy) {
-            case 0:
+        builder.setDirection(IpsecTrafficDirection.forValue(details.entry.isOutbound))
+                .setPriority(details.entry.priority);
+        switch (details.entry.policy) {
+            case IPSEC_API_SPD_ACTION_BYPASS:
                 builder.setOperation(IpsecSpdOperation.Bypass);
                 break;
-            case 1:
+            case IPSEC_API_SPD_ACTION_DISCARD:
                 builder.setOperation(IpsecSpdOperation.Discard);
                 break;
-            case 3:
+            case IPSEC_API_SPD_ACTION_PROTECT:
                 builder.setOperation(IpsecSpdOperation.Protect);
-                builder.setProtectSaId(details.saId);
+                builder.setProtectSaId(details.entry.saId);
                 break;
         }
 
-        if (builder.isIsIpv6()) {
+        if (details.entry.localAddressStart != null && details.entry.localAddressStart.af.equals(AddressFamily.ADDRESS_IP6)) {
             processIpv6AddressRanges(builder, details);
         } else {
             processIpv4AddressRanges(builder, details);
@@ -160,40 +159,62 @@ public class IpsecStateSpdCustomizer extends FutureJVppCustomizer
     }
 
     private void processIpv4AddressRanges(final SpdEntriesBuilder builder, final IpsecSpdDetails details) {
-        if (details.localStartAddr != null && details.localStartAddr.length > 0) {
+        if (details.entry.localAddressStart != null &&
+                details.entry.localAddressStart.un.getIp4().ip4Address.length > 0) {
             builder.setLaddrStart(IpAddressBuilder.getDefaultInstance(
-                    new IpAddressNoZone(arrayToIpv4AddressNoZone(details.localStartAddr)).stringValue()));
+                    new IpAddressNoZone(
+                            arrayToIpv4AddressNoZone(details.entry.localAddressStart.un.getIp4().ip4Address))
+                            .stringValue()));
         }
-        if (details.localStopAddr != null && details.localStopAddr.length > 0) {
+        if (details.entry.localAddressStop != null &&
+                details.entry.localAddressStop.un.getIp4().ip4Address.length > 0) {
             builder.setLaddrStop(IpAddressBuilder.getDefaultInstance(
-                    new IpAddressNoZone(arrayToIpv4AddressNoZone(details.localStopAddr)).stringValue()));
+                    new IpAddressNoZone(arrayToIpv4AddressNoZone(details.entry.localAddressStop.un.getIp4().ip4Address))
+                            .stringValue()));
         }
-        if (details.remoteStartAddr != null && details.remoteStartAddr.length > 0) {
+        if (details.entry.remoteAddressStart != null &&
+                details.entry.remoteAddressStart.un.getIp4().ip4Address.length > 0) {
             builder.setRaddrStart(IpAddressBuilder.getDefaultInstance(
-                    new IpAddressNoZone(arrayToIpv4AddressNoZone(details.remoteStartAddr)).stringValue()));
+                    new IpAddressNoZone(
+                            arrayToIpv4AddressNoZone(details.entry.remoteAddressStart.un.getIp4().ip4Address))
+                            .stringValue()));
         }
-        if (details.remoteStopAddr != null && details.remoteStopAddr.length > 0) {
+        if (details.entry.remoteAddressStop != null &&
+                details.entry.remoteAddressStop.un.getIp4().ip4Address.length > 0) {
             builder.setRaddrStop(IpAddressBuilder.getDefaultInstance(
-                    new IpAddressNoZone(arrayToIpv4AddressNoZone(details.remoteStopAddr)).stringValue()));
+                    new IpAddressNoZone(
+                            arrayToIpv4AddressNoZone(details.entry.remoteAddressStop.un.getIp4().ip4Address))
+                            .stringValue()));
         }
     }
 
     private void processIpv6AddressRanges(final SpdEntriesBuilder builder, final IpsecSpdDetails details) {
-        if (details.localStartAddr != null && details.localStartAddr.length > 0) {
+        if (details.entry.localAddressStart != null &&
+                details.entry.localAddressStart.un.getIp6().ip6Address.length > 0) {
             builder.setLaddrStart(IpAddressBuilder.getDefaultInstance(
-                    new IpAddressNoZone(arrayToIpv6AddressNoZone(details.localStartAddr)).stringValue()));
+                    new IpAddressNoZone(
+                            arrayToIpv6AddressNoZone(details.entry.localAddressStart.un.getIp6().ip6Address))
+                            .stringValue()));
         }
-        if (details.localStopAddr != null && details.localStopAddr.length > 0) {
+        if (details.entry.localAddressStop != null &&
+                details.entry.localAddressStop.un.getIp6().ip6Address.length > 0) {
             builder.setLaddrStop(IpAddressBuilder.getDefaultInstance(
-                    new IpAddressNoZone(arrayToIpv6AddressNoZone(details.localStopAddr)).stringValue()));
+                    new IpAddressNoZone(arrayToIpv6AddressNoZone(details.entry.localAddressStop.un.getIp6().ip6Address))
+                            .stringValue()));
         }
-        if (details.remoteStartAddr != null && details.remoteStartAddr.length > 0) {
+        if (details.entry.remoteAddressStart != null &&
+                details.entry.remoteAddressStart.un.getIp6().ip6Address.length > 0) {
             builder.setRaddrStart(IpAddressBuilder.getDefaultInstance(
-                    new IpAddressNoZone(arrayToIpv6AddressNoZone(details.remoteStartAddr)).stringValue()));
+                    new IpAddressNoZone(
+                            arrayToIpv6AddressNoZone(details.entry.remoteAddressStart.un.getIp6().ip6Address))
+                            .stringValue()));
         }
-        if (details.remoteStopAddr != null && details.remoteStopAddr.length > 0) {
+        if (details.entry.remoteAddressStop != null &&
+                details.entry.remoteAddressStop.un.getIp6().ip6Address.length > 0) {
             builder.setRaddrStop(IpAddressBuilder.getDefaultInstance(
-                    new IpAddressNoZone(arrayToIpv6AddressNoZone(details.remoteStopAddr)).stringValue()));
+                    new IpAddressNoZone(
+                            arrayToIpv6AddressNoZone(details.entry.remoteAddressStop.un.getIp6().ip6Address))
+                            .stringValue()));
         }
     }
 
