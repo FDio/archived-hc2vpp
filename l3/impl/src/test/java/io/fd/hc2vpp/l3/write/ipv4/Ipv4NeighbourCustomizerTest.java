@@ -137,7 +137,8 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements
         ip4Address.ip4Address = new byte[]{(byte) 192, (byte) 168, 2, 1};
         request.neighbor.ipAddress.un = new AddressUnion(ip4Address);
         request.isAdd = booleanToByte(isAdd);
-        request.neighbor.flags = IpNeighborFlags.IP_API_NEIGHBOR_FLAG_STATIC;
+        request.neighbor.flags = new IpNeighborFlags();
+        request.neighbor.flags.add(IpNeighborFlags.IpNeighborFlagsOptions.IP_API_NEIGHBOR_FLAG_STATIC);
         request.neighbor.swIfIndex = IFACE_ID;
         return request;
     }

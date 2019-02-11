@@ -103,21 +103,17 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
         if (dataAfter.getSpi() != null) {
             request.entry.spi = dataAfter.getSpi().intValue();
         }
-        request.entry.flags = IpsecSadFlags.IPSEC_API_SAD_FLAG_NONE;
+        request.entry.flags = new IpsecSadFlags();
         if (dataAfter.getAntiReplayWindow() != null && dataAfter.getAntiReplayWindow() > 0) {
-            request.entry.flags = IpsecSadFlags.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY;
+            request.entry.flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY);
         }
-
         if (dataAfter.getSaMode() != null && dataAfter.getSaMode().equals(IpsecMode.Tunnel)) {
-            //TODO check if flags can be set at once
             if (dataAfter.getSourceAddress() != null &&
                     dataAfter.getSourceAddress().getIpAddress() instanceof Ipv4Address) {
-                request.entry.flags = IpsecSadFlags
-                        .forValue((request.entry.flags.value + IpsecSadFlags.IPSEC_API_SAD_FLAG_IS_TUNNEL.value));
+                request.entry.flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL);
             } else if (dataAfter.getSourceAddress() != null &&
                     dataAfter.getSourceAddress().getIpAddress() instanceof Ipv6Address) {
-                request.entry.flags = IpsecSadFlags
-                        .forValue((request.entry.flags.value + IpsecSadFlags.IPSEC_API_SAD_FLAG_IS_TUNNEL_V6.value));
+                request.entry.flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL_V6);
             }
         }
         request.isAdd = adding

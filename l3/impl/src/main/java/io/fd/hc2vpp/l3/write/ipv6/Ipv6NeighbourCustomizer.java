@@ -98,7 +98,8 @@ public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
                                          Neighbor data) throws WriteFailedException {
         addDelNeighbour(id, () -> {
             IpNeighborAddDel request = preBindRequest(add);
-            request.neighbor.flags = IpNeighborFlags.IP_API_NEIGHBOR_FLAG_STATIC;
+            request.neighbor.flags = new IpNeighborFlags();
+            request.neighbor.flags.add(IpNeighborFlags.IpNeighborFlagsOptions.IP_API_NEIGHBOR_FLAG_STATIC);
             request.neighbor.macAddress = parseMacAddress(data.getLinkLayerAddress().getValue());
             request.neighbor.ipAddress = ipv6AddressToAddress(data.getIp());
             request.neighbor.swIfIndex = parentInterfaceIndex;

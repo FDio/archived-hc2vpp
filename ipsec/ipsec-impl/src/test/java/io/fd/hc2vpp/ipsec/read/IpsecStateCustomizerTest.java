@@ -87,8 +87,9 @@ public class IpsecStateCustomizerTest extends ReaderCustomizerTest<IpsecState, I
         saDetail.entry.protocol = IPSEC_API_PROTO_ESP;
         saDetail.lastSeqInbound = LAST_SEQ_INB;
         saDetail.replayWindow = REPLY_WINDOW;
-        saDetail.entry.flags = IpsecSadFlags.forValue(IpsecSadFlags.IPSEC_API_SAD_FLAG_IS_TUNNEL.value +
-                IpsecSadFlags.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY.value);
+        saDetail.entry.flags = new IpsecSadFlags();
+        saDetail.entry.flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL);
+        saDetail.entry.flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY);
         saDetail.entry.tunnelSrc = ipv4AddressNoZoneToAddress(TUNNEL_SRC_ADDR);
         saDetail.entry.tunnelDst = ipv4AddressNoZoneToAddress(TUNNEL_DST_ADDR);
         saDetails.add(saDetail);

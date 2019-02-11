@@ -77,9 +77,10 @@ public class Ipv6NeighbourCustomizer extends IpNeighbourReader
                             ipNeighborDetails.neighbor.ipAddress.un.getIp6().ip6Address))
                             .withKey(keyMapper().apply(ipNeighborDetails))
                             .setLinkLayerAddress(toPhysAddress(ipNeighborDetails.neighbor.macAddress.macaddress))
-                            .setOrigin(ipNeighborDetails.neighbor.flags != IpNeighborFlags.IP_API_NEIGHBOR_FLAG_STATIC
-                                    ? Dynamic
-                                    : Static));
+                            .setOrigin(ipNeighborDetails.neighbor.flags
+                                    .contains(IpNeighborFlags.IpNeighborFlagsOptions.IP_API_NEIGHBOR_FLAG_STATIC)
+                                    ? Static
+                                    : Dynamic));
         }
     }
 

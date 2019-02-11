@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.ipsec.write;
 
-import static io.fd.vpp.jvpp.core.types.IpsecSadFlags.IPSEC_API_SAD_FLAG_NONE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -38,7 +37,6 @@ import io.fd.vpp.jvpp.core.types.IpsecIntegAlg;
 import io.fd.vpp.jvpp.core.types.IpsecProto;
 import io.fd.vpp.jvpp.core.types.IpsecSadEntry;
 import io.fd.vpp.jvpp.core.types.IpsecSadFlags;
-import io.fd.vpp.jvpp.core.types.IpsecSpdEntry;
 import io.fd.vpp.jvpp.core.types.Key;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,6 +92,27 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
     }
 
     @Test
+    public void testFlags() {
+        IpsecSadFlags flags = new IpsecSadFlags();
+        flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL);
+        flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY);
+        flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_EXTENDED_SEQ_NUM);
+
+        IpsecSadFlags flags2 = new IpsecSadFlags();
+        flags2.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY);
+        flags2.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_EXTENDED_SEQ_NUM);
+        flags2.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL);
+        ;
+        IpsecSadFlags flags3 = new IpsecSadFlags();
+        flags3.setOptionsValue(7);
+
+        assertEquals(4, IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL.value);
+        assertEquals(flags, flags2);
+        assertEquals(7, flags.getOptionsValue());
+        assertEquals(flags, flags3);
+    }
+
+    @Test
     public void testWrite(@InjectTestData(resourcePath = "/sadEntries/addDelSadEntry.json", id = SAD_PATH) Sad sad)
             throws WriteFailedException {
         final SadEntries data = sad.getSadEntries().get(0);
@@ -108,7 +127,8 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         request.entry.cryptoKey = new Key();
         request.entry.cryptoKey.data = CRYPTO_KEY.getBytes();
         request.entry.cryptoKey.length = (byte) CRYPTO_KEY.getBytes().length;
-        request.entry.flags = IpsecSadFlags.IPSEC_API_SAD_FLAG_IS_TUNNEL;
+        request.entry.flags = new IpsecSadFlags();
+        request.entry.flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL);
         request.entry.tunnelSrc = ipv4AddressToAddress(TNL_SRC_ADDR);
         request.entry.tunnelDst = ipv4AddressToAddress(TNL_DST_ADDR);
 
@@ -177,7 +197,8 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         request.entry.cryptoKey = new Key();
         request.entry.cryptoKey.data = null;
         request.entry.cryptoKey.length = 0;
-        request.entry.flags = IpsecSadFlags.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY;
+        request.entry.flags = new IpsecSadFlags();
+        request.entry.flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY);
         request.entry.tunnelSrc = ipv6AddressToAddress(Ipv6Address.getDefaultInstance("2001::11"));
         request.entry.tunnelDst = ipv6AddressToAddress(Ipv6Address.getDefaultInstance("2001::12"));
         verify(api).ipsecSadEntryAddDel(request);
@@ -194,7 +215,7 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         request.entry = new IpsecSadEntry();
         request.entry.spi = SPI_1002;
         request.entry.sadId = SAD_ID;
-        request.entry.flags = IPSEC_API_SAD_FLAG_NONE;
+        request.entry.flags = new IpsecSadFlags();
         verify(api).ipsecSadEntryAddDel(request);
     }
 

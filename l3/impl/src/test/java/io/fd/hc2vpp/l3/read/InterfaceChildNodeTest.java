@@ -37,6 +37,7 @@ import io.fd.vpp.jvpp.core.types.AddressUnion;
 import io.fd.vpp.jvpp.core.types.Ip4Address;
 import io.fd.vpp.jvpp.core.types.Ip6Address;
 import io.fd.vpp.jvpp.core.types.IpNeighbor;
+import io.fd.vpp.jvpp.core.types.IpNeighborFlags;
 import io.fd.vpp.jvpp.core.types.MacAddress;
 import java.util.Arrays;
 import java.util.List;
@@ -209,6 +210,8 @@ public interface InterfaceChildNodeTest extends NamingContextHelper, FutureProdu
         detail.neighbor.ipAddress.un = addressUnion;
         detail.neighbor.macAddress = new MacAddress();
         detail.neighbor.macAddress.macaddress = mac;
+        detail.neighbor.flags = new IpNeighborFlags();
+        detail.neighbor.flags.add(IpNeighborFlags.IpNeighborFlagsOptions.IP_API_NEIGHBOR_FLAG_STATIC);
         return detail;
     }
 

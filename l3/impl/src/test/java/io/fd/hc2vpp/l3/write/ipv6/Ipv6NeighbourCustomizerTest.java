@@ -138,7 +138,8 @@ public class Ipv6NeighbourCustomizerTest extends WriterCustomizerTest implements
         Ip6Address ip6Address = new Ip6Address();
         ip6Address.ip6Address = new byte[]{32, 1, 13, -72, 10, 11, 18, -16, 0, 0, 0, 0, 0, 0, 0, 1};
         request.neighbor.ipAddress.un = new AddressUnion(ip6Address);
-        request.neighbor.flags = IpNeighborFlags.IP_API_NEIGHBOR_FLAG_STATIC;
+        request.neighbor.flags = new IpNeighborFlags();
+        request.neighbor.flags.add(IpNeighborFlags.IpNeighborFlagsOptions.IP_API_NEIGHBOR_FLAG_STATIC);
         request.neighbor.swIfIndex = IFACE_ID;
         return request;
     }

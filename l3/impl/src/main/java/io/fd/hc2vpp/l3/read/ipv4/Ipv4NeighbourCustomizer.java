@@ -82,9 +82,10 @@ public class Ipv4NeighbourCustomizer extends IpNeighbourReader
                             ipNeighborDetails.neighbor.ipAddress.un.getIp4().ip4Address))
                             .withKey(keyMapper().apply(ipNeighborDetails))
                             .setLinkLayerAddress(toPhysAddress(ipNeighborDetails.neighbor.macAddress.macaddress))
-                            .setOrigin(ipNeighborDetails.neighbor.flags != IpNeighborFlags.IP_API_NEIGHBOR_FLAG_STATIC
-                                    ? Dynamic
-                                    : Static));
+                            .setOrigin(ipNeighborDetails.neighbor.flags
+                                    .contains(IpNeighborFlags.IpNeighborFlagsOptions.IP_API_NEIGHBOR_FLAG_STATIC)
+                                    ? Static
+                                    : Dynamic));
         }
     }
 

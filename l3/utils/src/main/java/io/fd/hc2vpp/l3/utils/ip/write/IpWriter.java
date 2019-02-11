@@ -148,7 +148,8 @@ public interface IpWriter extends ByteDataTranslator, AddressTranslator, JvppRep
         IpNeighborAddDel request = new IpNeighborAddDel();
         request.neighbor = new IpNeighbor();
         request.isAdd = ByteDataTranslator.INSTANCE.booleanToByte(add);
-        request.neighbor.flags = IpNeighborFlags.IP_API_NEIGHBOR_FLAG_STATIC;
+        request.neighbor.flags = new IpNeighborFlags();
+        request.neighbor.flags.add(IpNeighborFlags.IpNeighborFlagsOptions.IP_API_NEIGHBOR_FLAG_STATIC);
         return request;
     }
 }
