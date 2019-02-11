@@ -31,6 +31,8 @@ import io.fd.vpp.jvpp.core.dto.IpsecSaDetails;
 import io.fd.vpp.jvpp.core.dto.IpsecSaDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpsecSaDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.IpsecCryptoAlg;
+import io.fd.vpp.jvpp.core.types.IpsecIntegAlg;
 import java.util.LinkedList;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.IpsecStateSpdAugmentation;
@@ -84,14 +86,68 @@ public class IpsecStateCustomizer extends FutureJVppCustomizer
             IpsecSaDetailsReplyDump reply = dumpSa.get();
             for (IpsecSaDetails details : reply.ipsecSaDetails) {
                 SaBuilder saBuilder = new SaBuilder();
-                saBuilder.setSpi(Integer.toUnsignedLong(details.spi))
+                saBuilder.setSpi(Integer.toUnsignedLong(details.entry.spi))
                         .setAntiReplayWindow(Long.valueOf(details.replayWindow).intValue())
-                        .setAuthenticationAlgorithm(IkeIntegrityAlgorithmT.forValue(details.integAlg))
-                        .setEncryptionAlgorithm(IkeEncryptionAlgorithmT.forValue(details.cryptoAlg));
+                        .setAuthenticationAlgorithm(parseAuthAlgorithm(details.entry.integrityAlgorithm))
+                        .setEncryptionAlgorithm(parseCryptoAlgorithm(details.entry.cryptoAlgorithm));
                 listSa.add(saBuilder.build());
             }
             builder.setSa(listSa);
         }
+    }
+
+    private IkeEncryptionAlgorithmT parseCryptoAlgorithm(final IpsecCryptoAlg cryptoAlgorithm) {
+        switch (cryptoAlgorithm){
+            case IPSEC_API_CRYPTO_ALG_NONE:
+                return IkeEncryptionAlgorithmT.EncrNull;
+            case IPSEC_API_CRYPTO_ALG_AES_CBC_128:
+                return  IkeEncryptionAlgorithmT.EncrAesCbc128;
+            case IPSEC_API_CRYPTO_ALG_AES_CBC_192:
+                return IkeEncryptionAlgorithmT.EncrAesCbc192;
+            case IPSEC_API_CRYPTO_ALG_AES_CBC_256:
+                return IkeEncryptionAlgorithmT.EncrAesCbc256;
+            case IPSEC_API_CRYPTO_ALG_AES_CTR_128:
+                // todo verify Cryptoalgorithms
+                return IkeEncryptionAlgorithmT.EncrAesCtr;
+            case IPSEC_API_CRYPTO_ALG_AES_CTR_192:
+                // todo verify Cryptoalgorithms
+                return IkeEncryptionAlgorithmT.EncrAesCtr;
+            case IPSEC_API_CRYPTO_ALG_AES_CTR_256:
+                // todo verify Cryptoalgorithms
+                return IkeEncryptionAlgorithmT.EncrAesCtr;
+            case IPSEC_API_CRYPTO_ALG_AES_GCM_128:
+                return IkeEncryptionAlgorithmT.EncrAesGcm8Icv;
+            case IPSEC_API_CRYPTO_ALG_AES_GCM_192:
+                return IkeEncryptionAlgorithmT.EncrAesGcm12Icv;
+            case IPSEC_API_CRYPTO_ALG_AES_GCM_256:
+                return IkeEncryptionAlgorithmT.EncrAesGcm16Icv;
+            case IPSEC_API_CRYPTO_ALG_DES_CBC:
+                // todo verify Cryptoalgorithms
+                return IkeEncryptionAlgorithmT.EncrDes;
+            case IPSEC_API_CRYPTO_ALG_3DES_CBC:
+                return IkeEncryptionAlgorithmT.Encr3des;
+        }
+        return IkeEncryptionAlgorithmT.EncrNull;
+    }
+
+    private IkeIntegrityAlgorithmT parseAuthAlgorithm(final IpsecIntegAlg integrityAlgorithm) {
+        switch (integrityAlgorithm){
+            case IPSEC_API_INTEG_ALG_NONE:
+                return IkeIntegrityAlgorithmT.AuthNone;
+            case IPSEC_API_INTEG_ALG_MD5_96:
+                return IkeIntegrityAlgorithmT.AuthHmacMd596;
+            case IPSEC_API_INTEG_ALG_SHA1_96:
+                return IkeIntegrityAlgorithmT.AuthHmacSha196;
+            case IPSEC_API_INTEG_ALG_SHA_256_96:
+                return IkeIntegrityAlgorithmT.AuthHmacSha225696;
+            case IPSEC_API_INTEG_ALG_SHA_256_128:
+                return IkeIntegrityAlgorithmT.AuthHmacSha2256128;
+            case IPSEC_API_INTEG_ALG_SHA_384_192:
+                return IkeIntegrityAlgorithmT.AuthHmacSha2384192;
+            case IPSEC_API_INTEG_ALG_SHA_512_256:
+                return IkeIntegrityAlgorithmT.AuthHmacSha2512256;
+        }
+        return IkeIntegrityAlgorithmT.AuthNone;
     }
 
     @Override
