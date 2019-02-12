@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 WORKDIR /hc2vpp
 
@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     # Utils
     iproute2 iputils-ping net-tools vim-tiny jshon telnet curl \
     # VPP package dependencies
-    libnuma1 libssl1.0.0 libmbedcrypto0 libmbedtls10 libmbedx509-0 \
+    libnuma1 libssl1.0.0 libmbedcrypto1 libmbedtls10 libmbedx509-0 \
     # Honeycomb package dependencies
     openjdk-8-jre-headless \
 
