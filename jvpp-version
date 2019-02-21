@@ -1,0 +1,8 @@
+#!/bin/sh
+echo 'RELEASE'
+
+# Determines which JVPP version to use in hc2vpp-integration job.
+# 'RELEASE' will use the latest JVPP in the respective branch.
+# Alternatively use a specific JVPP version.
+# Do not include the suffix ('_amd64', '.x86_64'), it will be appended.
+# Examples: '19.04-release', '19.04-rc0~11-gd9599f0~b8', ...
