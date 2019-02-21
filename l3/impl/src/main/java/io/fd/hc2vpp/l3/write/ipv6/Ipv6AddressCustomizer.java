@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.l3.write.ipv6;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.l3.utils.ip.write.IpWriter;
@@ -45,7 +43,7 @@ public class Ipv6AddressCustomizer extends FutureJVppCustomizer
     public Ipv6AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                  @Nonnull final NamingContext interfaceContext) {
         super(futureJVppCore);
-        this.interfaceContext = checkNotNull(interfaceContext, "Interface context cannot be null");
+        this.interfaceContext = interfaceContext;
     }
 
     @Override

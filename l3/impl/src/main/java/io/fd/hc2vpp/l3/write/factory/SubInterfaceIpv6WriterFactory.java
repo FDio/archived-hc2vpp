@@ -25,7 +25,9 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.l3.write.ipv6.subinterface.SubInterfaceIpv6AddressCustomizer;
+import io.fd.hc2vpp.l3.write.ipv6.subinterface.SubInterfaceIpv6AddressValidator;
 import io.fd.hc2vpp.l3.write.ipv6.subinterface.SubInterfaceIpv6NeighbourCustomizer;
+import io.fd.hc2vpp.l3.write.ipv6.subinterface.SubInterfaceIpv6NeighbourValidator;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
@@ -56,12 +58,14 @@ public class SubInterfaceIpv6WriterFactory implements WriterFactory {
                 ipv6SubifcAddressId = SUB_IFC_ID.child(Ipv6.class)
                 .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.Address.class);
         registry.addAfter(new GenericListWriter<>(ipv6SubifcAddressId,
-                new SubInterfaceIpv6AddressCustomizer(jvpp, ifcNamingContext)), ImmutableSet
+                new SubInterfaceIpv6AddressCustomizer(jvpp, ifcNamingContext),
+                new SubInterfaceIpv6AddressValidator(ifcNamingContext)), ImmutableSet
                 .of(rewriteId, SUB_IFC_ID.child(Routing.class)));
         final InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.Neighbor>
                 ipv6NeighborId = SUB_IFC_ID.child(Ipv6.class)
                 .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.Neighbor.class);
         registry.addAfter(new GenericListWriter<>(ipv6NeighborId,
-                new SubInterfaceIpv6NeighbourCustomizer(jvpp, ifcNamingContext)), rewriteId);
+                new SubInterfaceIpv6NeighbourCustomizer(jvpp, ifcNamingContext),
+                new SubInterfaceIpv6NeighbourValidator(ifcNamingContext)), rewriteId);
     }
 }

@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.l3.write.ipv6.nd;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -38,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class NdProxyCustomizer extends FutureJVppCustomizer
-    implements ListWriterCustomizer<NdProxy, NdProxyKey>, AddressTranslator, JvppReplyConsumer {
+        implements ListWriterCustomizer<NdProxy, NdProxyKey>, AddressTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(NdProxyCustomizer.class);
     private final NamingContext interfaceContext;
@@ -46,7 +44,7 @@ public final class NdProxyCustomizer extends FutureJVppCustomizer
     public NdProxyCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                              @Nonnull final NamingContext interfaceContext) {
         super(futureJVppCore);
-        this.interfaceContext = checkNotNull(interfaceContext, "Interface context cannot be null");
+        this.interfaceContext = interfaceContext;
     }
 
     @Override
@@ -66,12 +64,12 @@ public final class NdProxyCustomizer extends FutureJVppCustomizer
         final int swIfIndex = interfaceContext.getIndex(interfaceName, writeContext.getMappingContext());
         addDelNdProxy(id, swIfIndex, dataBefore.getAddress(), false);
         LOG.debug("ND proxy was successfully removed from interface {}(id={}): {}", interfaceName, swIfIndex,
-            dataBefore);
+                dataBefore);
     }
 
     private void addDelNdProxy(final InstanceIdentifier<NdProxy> id, final int swIfIndex,
                                final Ipv6AddressNoZone address, final boolean add)
-        throws WriteFailedException {
+            throws WriteFailedException {
 
         final byte[] addressBytes = ipv6AddressNoZoneToArray(address);
 

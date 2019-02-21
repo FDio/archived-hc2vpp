@@ -24,8 +24,10 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.l3.write.ipv4.Ipv4AddressCustomizer;
+import io.fd.hc2vpp.l3.write.ipv4.Ipv4AddressValidator;
 import io.fd.hc2vpp.l3.write.ipv4.Ipv4Customizer;
 import io.fd.hc2vpp.l3.write.ipv4.Ipv4NeighbourCustomizer;
+import io.fd.hc2vpp.l3.write.ipv4.Ipv4NeighbourValidator;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -60,11 +62,11 @@ public class Ipv4WriterFactory implements WriterFactory {
                 ImmutableSet.of(IFC_ID, VPP_IFC_AUG_ID.child(Routing.class)));
         //  Address(after Ipv4) =
         final InstanceIdentifier<Address> ipv4AddressId = ipv4Id.child(Address.class);
-        registry.addAfter(new GenericListWriter<>(ipv4AddressId, new Ipv4AddressCustomizer(jvpp, ifcNamingContext)),
+        registry.addAfter(new GenericListWriter<>(ipv4AddressId, new Ipv4AddressCustomizer(jvpp, ifcNamingContext),
+                        new Ipv4AddressValidator(ifcNamingContext)),
                 ipv4Id);
         //  Neighbor(after ipv4Address)
         registry.addAfter(new GenericListWriter<>(ipv4Id.child(Neighbor.class), new Ipv4NeighbourCustomizer(jvpp,
-                ifcNamingContext)), ipv4AddressId);
+                ifcNamingContext), new Ipv4NeighbourValidator(ifcNamingContext)), ipv4AddressId);
     }
-
 }

@@ -58,7 +58,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
     private NamingContext interfaceContext;
     private Ipv4AddressCustomizer customizer;
 
-    private static InstanceIdentifier<Address> getAddressId(final String ifaceName) {
+    static InstanceIdentifier<Address> getAddressId(final String ifaceName) {
         return InstanceIdentifier.builder(Interfaces.class)
                 .child(Interface.class, new InterfaceKey(ifaceName))
                 .augmentation(Interface1.class)
@@ -83,7 +83,8 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
     }
 
     private void whenSwInterfaceAddDelAddressThenSuccess() {
-        doReturn(future(new SwInterfaceAddDelAddressReply())).when(api).swInterfaceAddDelAddress(any(SwInterfaceAddDelAddress.class));
+        doReturn(future(new SwInterfaceAddDelAddressReply())).when(api)
+                .swInterfaceAddDelAddress(any(SwInterfaceAddDelAddress.class));
     }
 
     private void whenSwInterfaceAddDelAddressThenFailure() {
@@ -130,7 +131,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         fail("WriteFailedException was expected");
     }
 
-    @Test(expected =  UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdate() throws Exception {
         final Address data = mock(Address.class);
         customizer.updateCurrentAttributes(getAddressId(IFACE_NAME), data, data, writeContext);
@@ -206,7 +207,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verify(api).swInterfaceAddDelAddress(generateSwInterfaceAddDelAddressRequest(new byte[]{-64, -88, 2, 1},
-                (byte) 1, (byte) expectedPrefixLength));
+                    (byte) 1, (byte) expectedPrefixLength));
             return;
         }
         fail("WriteFailedException was expec16ted");
@@ -226,7 +227,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         customizer.writeCurrentAttributes(id, data, writeContext);
 
         verify(api).swInterfaceAddDelAddress(generateSwInterfaceAddDelAddressRequest(new byte[]{-64, -88, 2, 1},
-            (byte) 1, (byte) expectedPrefixLength));
+                (byte) 1, (byte) expectedPrefixLength));
     }
 
     private void testSingleIllegalNetmask(final String stringMask) throws Exception {

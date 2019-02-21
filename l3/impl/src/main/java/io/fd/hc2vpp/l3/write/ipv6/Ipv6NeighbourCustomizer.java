@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.l3.write.ipv6;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
@@ -58,9 +56,6 @@ public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
                                        @Nonnull WriteContext writeContext)
             throws WriteFailedException {
 
-        checkNotNull(dataAfter, "Cannot write null neighbour");
-        checkArgument(id.firstKeyOf(Interface.class) != null, "No parent interface key found");
-
         LOG.debug("Processing request for Neighbour write");
         String interfaceName = id.firstKeyOf(Interface.class).getName();
         MappingContext mappingContext = writeContext.getMappingContext();
@@ -78,9 +73,6 @@ public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
                                         @Nonnull WriteContext writeContext)
             throws WriteFailedException {
 
-        checkNotNull(dataBefore, "Cannot delete null neighbour");
-        checkArgument(id.firstKeyOf(Interface.class) != null, "No parent interface key found");
-
         LOG.debug("Processing request for Neighbour delete");
         String interfaceName = id.firstKeyOf(Interface.class).getName();
         MappingContext mappingContext = writeContext.getMappingContext();
@@ -89,7 +81,6 @@ public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
                 "Mapping does not contains mapping for provider interface name %s", interfaceName);
 
         LOG.debug("Parent interface[{}] index found", interfaceName);
-
         addDelNeighbourAndReply(id, false, interfaceContext.getIndex(interfaceName, mappingContext), dataBefore);
         LOG.debug("Neighbour {} successfully deleted", id);
     }

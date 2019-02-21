@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.l3.write.ipv4;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.l3.utils.ip.write.IpWriter;
@@ -49,7 +47,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
     public Ipv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                  @Nonnull final NamingContext interfaceContext) {
         super(futureJVppCore);
-        this.interfaceContext = checkNotNull(interfaceContext, "Interface context cannot be null");
+        this.interfaceContext = interfaceContext;
     }
 
     @Override
@@ -79,11 +77,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
         if (subnet instanceof PrefixLength) {
             setPrefixLengthSubnet(add, id, interfaceName, interfaceIndex, address, (PrefixLength) subnet);
-        } else if (subnet instanceof Netmask) {
-            setNetmaskSubnet(add, id, interfaceName, interfaceIndex, address, (Netmask) subnet);
         } else {
-            LOG.error("Unable to handle subnet of type {}", subnet);
-            throw new WriteFailedException(id, "Unable to handle subnet of type " + subnet.getClass());
+            setNetmaskSubnet(add, id, interfaceName, interfaceIndex, address, (Netmask) subnet);
         }
     }
 
@@ -96,8 +91,6 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
                 interfaceName, interfaceIndex, subnet, address);
 
         final DottedQuad netmask = subnet.getNetmask();
-        checkNotNull(netmask, "netmask value should not be null");
-
         final byte subnetLength = getSubnetMaskLength(netmask.getValue());
         addDelAddress(getFutureJVpp(), add, id, interfaceIndex, address.getIp(), subnetLength);
     }

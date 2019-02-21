@@ -56,8 +56,8 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements
     private static final String IFACE_NAME = "parent";
     private static final int IFACE_ID = 5;
     private static final InstanceIdentifier<Neighbor> IID =
-        InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
-            .augmentation(Interface1.class).child(Ipv4.class).child(Neighbor.class);
+            InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
+                    .augmentation(Interface1.class).child(Ipv4.class).child(Neighbor.class);
 
     private Ipv4NeighbourCustomizer customizer;
 
@@ -86,6 +86,7 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements
         }
         fail("WriteFailedException expected");
     }
+
     @Test(expected = UnsupportedOperationException.class)
     public void testUpdateCurrentAttributes() throws WriteFailedException {
         customizer.updateCurrentAttributes(IID, getData(), getData(), writeContext);
@@ -125,6 +126,7 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements
         final PhysAddress mac = new PhysAddress("aa:bb:cc:ee:11:22");
         return new NeighborBuilder().setIp(noZoneIp).setLinkLayerAddress(mac).build();
     }
+
     private IpNeighborAddDel getExpectedRequest(final boolean isAdd) {
         final IpNeighborAddDel request = new IpNeighborAddDel();
         request.neighbor = new IpNeighbor();

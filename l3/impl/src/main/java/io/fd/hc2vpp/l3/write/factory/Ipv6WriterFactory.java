@@ -24,9 +24,12 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.l3.write.ipv6.Ipv6AddressCustomizer;
+import io.fd.hc2vpp.l3.write.ipv6.Ipv6AddressValidator;
 import io.fd.hc2vpp.l3.write.ipv6.Ipv6Customizer;
 import io.fd.hc2vpp.l3.write.ipv6.Ipv6NeighbourCustomizer;
+import io.fd.hc2vpp.l3.write.ipv6.Ipv6NeighbourValidator;
 import io.fd.hc2vpp.l3.write.ipv6.nd.NdProxyCustomizer;
+import io.fd.hc2vpp.l3.write.ipv6.nd.NdProxyValidator;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -68,14 +71,17 @@ public class Ipv6WriterFactory implements WriterFactory {
 
         final InstanceIdentifier<Address>
                 ipv6AddressId = ipv6Id.child(Address.class);
-        registry.addAfter(new GenericListWriter<>(ipv6AddressId, new Ipv6AddressCustomizer(jvpp, ifcNamingContext)),
+        registry.addAfter(new GenericListWriter<>(ipv6AddressId, new Ipv6AddressCustomizer(jvpp, ifcNamingContext),
+                        new Ipv6AddressValidator(ifcNamingContext)),
                 ipv6Id);
 
         registry.addAfter(new GenericListWriter<>(ipv6Id.child(Neighbor.class),
-                new Ipv6NeighbourCustomizer(jvpp, ifcNamingContext)), ipv6AddressId);
+                        new Ipv6NeighbourCustomizer(jvpp, ifcNamingContext), new Ipv6NeighbourValidator(ifcNamingContext)),
+                ipv6AddressId);
         //     ND Proxy
         final InstanceIdentifier<NdProxy> ndProxyId =
-            ipv6Id.augmentation(NdProxyIp6Augmentation.class).child(NdProxies.class).child(NdProxy.class);
-        registry.addAfter(new GenericListWriter<>(ndProxyId, new NdProxyCustomizer(jvpp, ifcNamingContext)), ipv6Id);
+                ipv6Id.augmentation(NdProxyIp6Augmentation.class).child(NdProxies.class).child(NdProxy.class);
+        registry.addAfter(new GenericListWriter<>(ndProxyId, new NdProxyCustomizer(jvpp, ifcNamingContext),
+                new NdProxyValidator(ifcNamingContext)), ipv6Id);
     }
 }

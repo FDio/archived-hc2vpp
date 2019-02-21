@@ -21,7 +21,9 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.l3.write.ipv4.ProxyArpCustomizer;
+import io.fd.hc2vpp.l3.write.ipv4.ProxyArpValidator;
 import io.fd.hc2vpp.l3.write.ipv4.ProxyRangeCustomizer;
+import io.fd.hc2vpp.l3.write.ipv4.ProxyRangeValidator;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -38,11 +40,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public final class ProxyArpWriterFactory implements WriterFactory {
 
     public static final InstanceIdentifier<ProxyRange> PROXY_RANGE_IID =
-        InstanceIdentifier.create(ProxyRanges.class).child(ProxyRange.class);
+            InstanceIdentifier.create(ProxyRanges.class).child(ProxyRange.class);
     private static final InstanceIdentifier<Interface>
-        IFC_ID = InstanceIdentifier.create(Interfaces.class).child(Interface.class);
+            IFC_ID = InstanceIdentifier.create(Interfaces.class).child(Interface.class);
     private static final InstanceIdentifier<ProxyArp> PROXY_ARP_IID =
-        IFC_ID.augmentation(ProxyArpInterfaceAugmentation.class).child(ProxyArp.class);
+            IFC_ID.augmentation(ProxyArpInterfaceAugmentation.class).child(ProxyArp.class);
 
     private final FutureJVppCore jvpp;
     private final NamingContext ifcNamingContext;
@@ -58,13 +60,15 @@ public final class ProxyArpWriterFactory implements WriterFactory {
     public void init(final ModifiableWriterRegistryBuilder registry) {
         // proxy-arp
         //  proxy-range =
-        registry.add(new GenericListWriter<>(PROXY_RANGE_IID, new ProxyRangeCustomizer(jvpp)));
+        registry.add(
+                new GenericListWriter<>(PROXY_RANGE_IID, new ProxyRangeCustomizer(jvpp), new ProxyRangeValidator()));
 
         // interfaces
         //  interface
         //   proxy-arp-interface-augmentation
         //    proxy-arp =
-        registry.addAfter(new GenericWriter<>(PROXY_ARP_IID, new ProxyArpCustomizer(jvpp, ifcNamingContext)),
-            Sets.newHashSet(PROXY_RANGE_IID, IFC_ID));
+        registry.addAfter(new GenericWriter<>(PROXY_ARP_IID, new ProxyArpCustomizer(jvpp, ifcNamingContext),
+                        new ProxyArpValidator(ifcNamingContext)),
+                Sets.newHashSet(PROXY_RANGE_IID, IFC_ID));
     }
 }
