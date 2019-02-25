@@ -4,5 +4,5 @@ BUILD_DIR=$1
 
 # Build deb binary only package
 cd ${BUILD_DIR}
-dpkg-buildpackage -b
+dpkg-buildpackage -b -uc
 cd -

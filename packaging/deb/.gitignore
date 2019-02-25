@@ -3,3 +3,4 @@
 **/honeycomb-*/
 *.deb
 *.changes
+*.buildinfo
