@@ -16,21 +16,21 @@
 
 package io.fd.hc2vpp.ipsec.write;
 
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.ipsec.FutureJVppIkev2Customizer;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.Ikev2SetLocalKey;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2SetLocalKey;
+import io.fd.vpp.jvpp.ikev2.future.FutureJVppIkev2Facade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.IpsecIkeGlobalConfAugmentation;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ikev2.IkeGlobalConfiguration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class Ikev2GlobalConfigurationCustomizer extends FutureJVppCustomizer
+public class Ikev2GlobalConfigurationCustomizer extends FutureJVppIkev2Customizer
         implements WriterCustomizer<IkeGlobalConfiguration>, JvppReplyConsumer {
-    public Ikev2GlobalConfigurationCustomizer(final FutureJVppCore vppApi) {
+    public Ikev2GlobalConfigurationCustomizer(final FutureJVppIkev2Facade vppApi) {
         super(vppApi);
     }
 
@@ -44,7 +44,7 @@ public class Ikev2GlobalConfigurationCustomizer extends FutureJVppCustomizer
             if (fileAUg.getLocalKeyFile() != null) {
                 Ikev2SetLocalKey request = new Ikev2SetLocalKey();
                 request.keyFile = fileAUg.getLocalKeyFile().getBytes();
-                getReplyForWrite(getFutureJVpp().ikev2SetLocalKey(request).toCompletableFuture(), id);
+                getReplyForWrite(getjVppIkev2Facade().ikev2SetLocalKey(request).toCompletableFuture(), id);
             }
         }
     }

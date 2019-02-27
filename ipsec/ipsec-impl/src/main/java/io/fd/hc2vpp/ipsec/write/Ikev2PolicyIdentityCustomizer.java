@@ -17,15 +17,15 @@
 package io.fd.hc2vpp.ipsec.write;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.ipsec.FutureJVppIkev2Customizer;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileSetId;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileSetId;
+import io.fd.vpp.jvpp.ikev2.future.FutureJVppIkev2Facade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.identity.grouping.identity.FqdnString;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.identity.grouping.identity.Ipv4Address;
@@ -35,10 +35,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev18
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ikev2.Policy;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class Ikev2PolicyIdentityCustomizer extends FutureJVppCustomizer
+public class Ikev2PolicyIdentityCustomizer extends FutureJVppIkev2Customizer
         implements WriterCustomizer<Identity>, JvppReplyConsumer, ByteDataTranslator, Ipv4Translator, Ipv6Translator {
 
-    public Ikev2PolicyIdentityCustomizer(final FutureJVppCore vppApi) {
+    public Ikev2PolicyIdentityCustomizer(final FutureJVppIkev2Facade vppApi) {
         super(vppApi);
     }
 
@@ -74,7 +74,7 @@ public class Ikev2PolicyIdentityCustomizer extends FutureJVppCustomizer
         request.isLocal = isLocalId
                 ? BYTE_TRUE
                 : BYTE_FALSE;
-        getReplyForWrite(getFutureJVpp().ikev2ProfileSetId(request).toCompletableFuture(), id);
+        getReplyForWrite(getjVppIkev2Facade().ikev2ProfileSetId(request).toCompletableFuture(), id);
     }
 
     private void transformIdentityToRequest(

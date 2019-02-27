@@ -23,10 +23,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import io.fd.hc2vpp.ipsec.read.IpsecReaderFactory;
@@ -37,6 +39,7 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.ikev2.future.FutureJVppIkev2Facade;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;
@@ -58,7 +61,8 @@ public class IpsecModuleTest {
     @Before
     public void setUp() {
         initMocks(this);
-        Guice.createInjector(new IpsecModule(), BoundFieldModule.of(this)).injectMembers(this);
+        Guice.createInjector(new IpsecModule(MockJVppIkev2Provider.class), BoundFieldModule.of(this))
+                .injectMembers(this);
     }
 
     @Test
@@ -79,5 +83,13 @@ public class IpsecModuleTest {
         assertNotNull(registryBuilder.build());
         assertEquals(1, readerFactories.size());
         assertTrue(readerFactories.iterator().next() instanceof IpsecReaderFactory);
+    }
+
+    private static final class MockJVppIkev2Provider implements Provider<FutureJVppIkev2Facade> {
+
+        @Override
+        public FutureJVppIkev2Facade get() {
+            return mock(FutureJVppIkev2Facade.class);
+        }
     }
 }

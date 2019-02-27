@@ -28,10 +28,12 @@ import io.fd.hc2vpp.ipsec.helpers.SchemaContextTestHelper;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileSetId;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileSetIdReply;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileSetId;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileSetIdReply;
+import io.fd.vpp.jvpp.ikev2.future.FutureJVppIkev2Facade;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.Ikev2;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ike.general.policy.profile.grouping.Identity;
@@ -52,11 +54,13 @@ public class Ikev2PolicyIdentityCustomizerTest extends WriterCustomizerTest impl
             "/hc2vpp-ietf-ipsec:ikev2/hc2vpp-ietf-ipsec:policy[hc2vpp-ietf-ipsec:name='" + POLICY_NAME +
                     "']/hc2vpp-ietf-ipsec:identity";
     private Ikev2PolicyIdentityCustomizer customizer;
+    @Mock
+    protected FutureJVppIkev2Facade ikev2api;
 
     @Override
     protected void setUpTest() throws Exception {
-        customizer = new Ikev2PolicyIdentityCustomizer(api);
-        when(api.ikev2ProfileSetId(any())).thenReturn(future(new Ikev2ProfileSetIdReply()));
+        customizer = new Ikev2PolicyIdentityCustomizer(ikev2api);
+        when(ikev2api.ikev2ProfileSetId(any())).thenReturn(future(new Ikev2ProfileSetIdReply()));
     }
 
     @Test
@@ -70,7 +74,7 @@ public class Ikev2PolicyIdentityCustomizerTest extends WriterCustomizerTest impl
         request.isLocal = BYTE_TRUE;
         request.data = ipv4AddressNoZoneToArray(IPV4_TYPE_DATA);
         request.dataLen = request.data.length;
-        verify(api).ikev2ProfileSetId(request);
+        verify(ikev2api).ikev2ProfileSetId(request);
     }
 
     @Test
@@ -84,7 +88,7 @@ public class Ikev2PolicyIdentityCustomizerTest extends WriterCustomizerTest impl
         request.isLocal = BYTE_FALSE;
         request.data = FQDN_TYPE_DATA.getBytes();
         request.dataLen = request.data.length;
-        verify(api).ikev2ProfileSetId(request);
+        verify(ikev2api).ikev2ProfileSetId(request);
     }
 
     @Test
@@ -98,7 +102,7 @@ public class Ikev2PolicyIdentityCustomizerTest extends WriterCustomizerTest impl
         request.isLocal = BYTE_FALSE;
         request.data = ipv6AddressNoZoneToArray(new Ipv6Address(IPV6_TYPE_DATA));
         request.dataLen = request.data.length;
-        verify(api).ikev2ProfileSetId(request);
+        verify(ikev2api).ikev2ProfileSetId(request);
     }
 
     @Test
@@ -113,7 +117,7 @@ public class Ikev2PolicyIdentityCustomizerTest extends WriterCustomizerTest impl
         request.isLocal = BYTE_TRUE;
         request.data = RFC822_TYPE_DATA.getBytes();
         request.dataLen = request.data.length;
-        verify(api).ikev2ProfileSetId(request);
+        verify(ikev2api).ikev2ProfileSetId(request);
     }
 
     private InstanceIdentifier<Identity> getId() {

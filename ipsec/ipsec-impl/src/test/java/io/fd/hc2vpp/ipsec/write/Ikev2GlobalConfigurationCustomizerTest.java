@@ -23,9 +23,11 @@ import static org.mockito.Mockito.when;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.ipsec.helpers.SchemaContextTestHelper;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.Ikev2SetLocalKey;
-import io.fd.vpp.jvpp.core.dto.Ikev2SetLocalKeyReply;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2SetLocalKey;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2SetLocalKeyReply;
+import io.fd.vpp.jvpp.ikev2.future.FutureJVppIkev2Facade;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.IpsecIkeGlobalConfAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.IpsecIkeGlobalConfAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.Ikev2;
@@ -39,11 +41,13 @@ public class Ikev2GlobalConfigurationCustomizerTest extends WriterCustomizerTest
             .child(IkeGlobalConfiguration.class);
     private Ikev2GlobalConfigurationCustomizer customizer;
     private static final String LOCAL_KEY_FILE = "/home/localadmin/certs/client-key.pem";
+    @Mock
+    protected FutureJVppIkev2Facade ikev2api;
 
     @Override
     protected void setUpTest() throws Exception {
-        customizer = new Ikev2GlobalConfigurationCustomizer(api);
-        when(api.ikev2SetLocalKey(any())).thenReturn(future(new Ikev2SetLocalKeyReply()));
+        customizer = new Ikev2GlobalConfigurationCustomizer(ikev2api);
+        when(ikev2api.ikev2SetLocalKey(any())).thenReturn(future(new Ikev2SetLocalKeyReply()));
     }
 
     @Test
@@ -55,6 +59,6 @@ public class Ikev2GlobalConfigurationCustomizerTest extends WriterCustomizerTest
         customizer.writeCurrentAttributes(IID, dataAfterBuilder.build(), writeContext);
         Ikev2SetLocalKey request = new Ikev2SetLocalKey();
         request.keyFile = LOCAL_KEY_FILE.getBytes();
-        verify(api).ikev2SetLocalKey(request);
+        verify(ikev2api).ikev2SetLocalKey(request);
     }
 }

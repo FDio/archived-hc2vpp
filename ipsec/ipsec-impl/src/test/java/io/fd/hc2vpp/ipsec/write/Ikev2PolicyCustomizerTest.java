@@ -30,15 +30,17 @@ import io.fd.hc2vpp.ipsec.helpers.SchemaContextTestHelper;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileAddDel;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileAddDelReply;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileSetAuth;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileSetAuthReply;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileSetTs;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileSetTsReply;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileAddDel;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileAddDelReply;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileSetAuth;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileSetAuthReply;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileSetTs;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileSetTsReply;
+import io.fd.vpp.jvpp.ikev2.future.FutureJVppIkev2Facade;
 import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.IpsecIkev2PolicyAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.ikev2.policy.aug.grouping.TrafficSelectors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.Ikev2;
@@ -53,13 +55,15 @@ public class Ikev2PolicyCustomizerTest extends WriterCustomizerTest implements S
 
     private static final String IKEV2_PATH = "/hc2vpp-ietf-ipsec:ikev2";
     private Ikev2PolicyCustomizer customizer;
+    @Mock
+    protected FutureJVppIkev2Facade ikev2api;
 
     @Override
     protected void setUpTest() throws Exception {
-        customizer = new Ikev2PolicyCustomizer(api);
-        when(api.ikev2ProfileAddDel(any())).thenReturn(future(new Ikev2ProfileAddDelReply()));
-        when(api.ikev2ProfileSetTs(any())).thenReturn(future(new Ikev2ProfileSetTsReply()));
-        when(api.ikev2ProfileSetAuth(any())).thenReturn(future(new Ikev2ProfileSetAuthReply()));
+        customizer = new Ikev2PolicyCustomizer(ikev2api);
+        when(ikev2api.ikev2ProfileAddDel(any())).thenReturn(future(new Ikev2ProfileAddDelReply()));
+        when(ikev2api.ikev2ProfileSetTs(any())).thenReturn(future(new Ikev2ProfileSetTsReply()));
+        when(ikev2api.ikev2ProfileSetAuth(any())).thenReturn(future(new Ikev2ProfileSetAuthReply()));
     }
 
     @Test
@@ -71,10 +75,10 @@ public class Ikev2PolicyCustomizerTest extends WriterCustomizerTest implements S
         profileAddrequest.isAdd = BYTE_TRUE;
         profileAddrequest.name = policy.getName().getBytes();
 
-        verify(api).ikev2ProfileAddDel(profileAddrequest);
-        verify(api).ikev2ProfileSetTs(translateTStoRequest(policy.augmentation(IpsecIkev2PolicyAugmentation.class)
+        verify(ikev2api).ikev2ProfileAddDel(profileAddrequest);
+        verify(ikev2api).ikev2ProfileSetTs(translateTStoRequest(policy.augmentation(IpsecIkev2PolicyAugmentation.class)
                 .getTrafficSelectors().get(0), policy.getName()));
-        verify(api).ikev2ProfileSetAuth(translateAuthToRequest(policy));
+        verify(ikev2api).ikev2ProfileSetAuth(translateAuthToRequest(policy));
     }
 
     @Test
@@ -86,10 +90,10 @@ public class Ikev2PolicyCustomizerTest extends WriterCustomizerTest implements S
         final Policy after = ikev2After.getPolicy().get(0);
         customizer.updateCurrentAttributes(getId(before.getName()), before, after, writeContext);
 
-        verify(api, times(0)).ikev2ProfileAddDel(any());
-        verify(api).ikev2ProfileSetTs(translateTStoRequest(after.augmentation(IpsecIkev2PolicyAugmentation.class)
+        verify(ikev2api, times(0)).ikev2ProfileAddDel(any());
+        verify(ikev2api).ikev2ProfileSetTs(translateTStoRequest(after.augmentation(IpsecIkev2PolicyAugmentation.class)
                 .getTrafficSelectors().get(0), after.getName()));
-        verify(api).ikev2ProfileSetAuth(translateAuthToRequest(after));
+        verify(ikev2api).ikev2ProfileSetAuth(translateAuthToRequest(after));
     }
 
     @Test
@@ -100,9 +104,9 @@ public class Ikev2PolicyCustomizerTest extends WriterCustomizerTest implements S
         final Ikev2ProfileAddDel request = new Ikev2ProfileAddDel();
         request.name = policy.getName().getBytes();
         request.isAdd = BYTE_FALSE;
-        verify(api).ikev2ProfileAddDel(request);
-        verify(api, times(0)).ikev2ProfileSetTs(any());
-        verify(api, times(0)).ikev2ProfileSetAuth(any());
+        verify(ikev2api).ikev2ProfileAddDel(request);
+        verify(ikev2api, times(0)).ikev2ProfileSetTs(any());
+        verify(ikev2api, times(0)).ikev2ProfileSetAuth(any());
     }
 
     private InstanceIdentifier<Policy> getId(final String name) {

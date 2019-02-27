@@ -24,6 +24,7 @@ import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.ikev2.future.FutureJVppIkev2Facade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.IpsecIkeGlobalConfAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.IpsecIkev2PolicyAugmentation;
@@ -67,11 +68,15 @@ public final class IpsecWriterFactory implements WriterFactory {
     private static final InstanceIdentifier<Spd> SPD_ID = IPSEC_ID.child(Spd.class);
 
     private final FutureJVppCore vppApi;
+    private final FutureJVppIkev2Facade vppIkev2Api;
     private MultiNamingContext sadEntriesMapping;
 
     @Inject
-    public IpsecWriterFactory(final FutureJVppCore vppApi, final MultiNamingContext sadEntriesMappingContext) {
+    public IpsecWriterFactory(final FutureJVppCore vppApi,
+                              final FutureJVppIkev2Facade vppIkev2Api,
+                              final MultiNamingContext sadEntriesMappingContext) {
         this.vppApi = vppApi;
+        this.vppIkev2Api = vppIkev2Api;
         this.sadEntriesMapping = sadEntriesMappingContext;
     }
 
@@ -104,16 +109,16 @@ public final class IpsecWriterFactory implements WriterFactory {
         registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(IkeGlobalConfiguration.class)
                         .augmentation(IpsecIkeGlobalConfAugmentation.class)),
                 new GenericWriter<>(IKE2_ID.child(IkeGlobalConfiguration.class),
-                        new Ikev2GlobalConfigurationCustomizer(vppApi)));
+                        new Ikev2GlobalConfigurationCustomizer(vppIkev2Api)));
         registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(Policy.class).child(
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ikev2.policy.profile.grouping.Authentication.class),
                 InstanceIdentifier.create(Policy.class).augmentation(IpsecIkev2PolicyAugmentation.class),
                 InstanceIdentifier.create(Policy.class).augmentation(IpsecIkev2PolicyAugmentation.class)
                         .child(TrafficSelectors.class)),
-                new GenericListWriter<>(IKE2_ID.child(Policy.class), new Ikev2PolicyCustomizer(vppApi)));
+                new GenericListWriter<>(IKE2_ID.child(Policy.class), new Ikev2PolicyCustomizer(vppIkev2Api)));
         registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(Identity.class).child(Local.class),
                 InstanceIdentifier.create(Identity.class).child(Remote.class)),
                 new GenericWriter<>(IKE2_ID.child(Policy.class).child(Identity.class),
-                        new Ikev2PolicyIdentityCustomizer(vppApi)));
+                        new Ikev2PolicyIdentityCustomizer(vppIkev2Api)));
     }
 }

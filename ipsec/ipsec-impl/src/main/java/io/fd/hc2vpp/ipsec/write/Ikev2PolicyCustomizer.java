@@ -17,17 +17,17 @@
 package io.fd.hc2vpp.ipsec.write;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.ipsec.FutureJVppIkev2Customizer;
 import io.fd.hc2vpp.ipsec.dto.AuthMethod;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileAddDel;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileSetAuth;
-import io.fd.vpp.jvpp.core.dto.Ikev2ProfileSetTs;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileAddDel;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileSetAuth;
+import io.fd.vpp.jvpp.ikev2.dto.Ikev2ProfileSetTs;
+import io.fd.vpp.jvpp.ikev2.future.FutureJVppIkev2Facade;
 import java.nio.ByteBuffer;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.ipsec.rev181213.IpsecIkev2PolicyAugmentation;
@@ -38,10 +38,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev18
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.ikev2.policy.profile.grouping.Authentication;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class Ikev2PolicyCustomizer extends FutureJVppCustomizer
+public class Ikev2PolicyCustomizer extends FutureJVppIkev2Customizer
         implements ListWriterCustomizer<Policy, PolicyKey>, JvppReplyConsumer, ByteDataTranslator, Ipv4Translator {
 
-    public Ikev2PolicyCustomizer(final FutureJVppCore vppApi) {
+    public Ikev2PolicyCustomizer(final FutureJVppIkev2Facade vppApi) {
         super(vppApi);
     }
 
@@ -51,7 +51,7 @@ public class Ikev2PolicyCustomizer extends FutureJVppCustomizer
         final Ikev2ProfileAddDel request = new Ikev2ProfileAddDel();
         request.isAdd = BYTE_TRUE;
         request.name = dataAfter.getName().getBytes();
-        getReplyForWrite(getFutureJVpp().ikev2ProfileAddDel(request).toCompletableFuture(), id);
+        getReplyForWrite(getjVppIkev2Facade().ikev2ProfileAddDel(request).toCompletableFuture(), id);
         addAuthorization(dataAfter, id);
         addTrafficSelectors(dataAfter, id);
     }
@@ -62,7 +62,7 @@ public class Ikev2PolicyCustomizer extends FutureJVppCustomizer
         final Ikev2ProfileAddDel request = new Ikev2ProfileAddDel();
         request.isAdd = BYTE_FALSE;
         request.name = dataBefore.getName().getBytes();
-        getReplyForWrite(getFutureJVpp().ikev2ProfileAddDel(request).toCompletableFuture(), id);
+        getReplyForWrite(getjVppIkev2Facade().ikev2ProfileAddDel(request).toCompletableFuture(), id);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class Ikev2PolicyCustomizer extends FutureJVppCustomizer
                 if (dataAfter.getName() != null) {
                     addTsRequest.name = dataAfter.getName().getBytes();
                 }
-                getReplyForWrite(getFutureJVpp().ikev2ProfileSetTs(addTsRequest).toCompletableFuture(), id);
+                getReplyForWrite(getjVppIkev2Facade().ikev2ProfileSetTs(addTsRequest).toCompletableFuture(), id);
             }
         }
     }
@@ -141,7 +141,7 @@ public class Ikev2PolicyCustomizer extends FutureJVppCustomizer
         request.dataLen = request.data.length;
         request.isHex = BYTE_FALSE;
         request.authMethod = AuthMethod.RSA_SIG.getValue();
-        getReplyForWrite(getFutureJVpp().ikev2ProfileSetAuth(request).toCompletableFuture(), id);
+        getReplyForWrite(getjVppIkev2Facade().ikev2ProfileSetAuth(request).toCompletableFuture(), id);
     }
 
     private void setProfilePreSharedKeyAuth(final String name,
@@ -155,6 +155,6 @@ public class Ikev2PolicyCustomizer extends FutureJVppCustomizer
         request.data = preSharedKey.stringValue().getBytes();
         request.dataLen = request.data.length;
         request.name = name.getBytes();
-        getReplyForWrite(getFutureJVpp().ikev2ProfileSetAuth(request).toCompletableFuture(), id);
+        getReplyForWrite(getjVppIkev2Facade().ikev2ProfileSetAuth(request).toCompletableFuture(), id);
     }
 }

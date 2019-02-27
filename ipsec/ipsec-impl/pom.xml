@@ -30,11 +30,21 @@
     <version>1.19.04-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
+    <properties>
+        <jvpp.version>19.04-SNAPSHOT</jvpp.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ipsec-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.jvpp</groupId>
+            <artifactId>jvpp-ikev2</artifactId>
+            <version>${jvpp.version}</version>
         </dependency>
 
         <!--VPP common-->
@@ -51,6 +61,11 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>cfg-init</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>binding-init</artifactId>
         </dependency>
 
         <!-- Translation -->
