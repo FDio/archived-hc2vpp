@@ -45,11 +45,11 @@
             <artifactId>translate-spi</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-registry</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-core</artifactId>
         </dependency>
         <dependency>

@@ -28,7 +28,7 @@
         </dependency>
         <!-- Vpp api java wrapped -->
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-core</artifactId>
         </dependency>
         <!-- Infrastructure utils for translation code -->

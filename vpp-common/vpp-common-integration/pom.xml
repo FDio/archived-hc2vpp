@@ -78,12 +78,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-registry</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-core</artifactId>
             <version>${jvpp.version}</version>
         </dependency>

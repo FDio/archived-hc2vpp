@@ -47,11 +47,11 @@
 
         <!-- JVPP -->
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-registry</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-nat</artifactId>
             <version>19.04-SNAPSHOT</version>
         </dependency>

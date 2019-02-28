@@ -60,7 +60,7 @@
             <artifactId>cfg-init</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-core</artifactId>
         </dependency>
 

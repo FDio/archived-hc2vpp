@@ -46,7 +46,7 @@
         </dependency>
 
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-acl</artifactId>
             <version>${jvpp.acl.version}</version>
         </dependency>

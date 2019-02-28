@@ -37,47 +37,47 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-acl</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-core</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-gtpu</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-ioamexport</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-ioampot</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-ioamtrace</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-nat</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-pppoe</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
+            <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-registry</artifactId>
             <version>${jvpp.version}</version>
         </dependency>

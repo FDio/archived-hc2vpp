@@ -81,22 +81,22 @@
       <artifactId>cfg-init</artifactId>
     </dependency>
     <dependency>
-        <groupId>io.fd.vpp</groupId>
+        <groupId>io.fd.jvpp</groupId>
         <artifactId>jvpp-registry</artifactId>
         <version>${jvpp.version}</version>
     </dependency>
     <dependency>
-        <groupId>io.fd.vpp</groupId>
+        <groupId>io.fd.jvpp</groupId>
         <artifactId>jvpp-ioamtrace</artifactId>
         <version>${ioam.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.fd.vpp</groupId>
+      <groupId>io.fd.jvpp</groupId>
       <artifactId>jvpp-ioampot</artifactId>
       <version>${ioam.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.fd.vpp</groupId>
+      <groupId>io.fd.jvpp</groupId>
       <artifactId>jvpp-ioamexport</artifactId>
       <version>${ioam.version}</version>
     </dependency>

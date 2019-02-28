@@ -79,12 +79,12 @@
       <artifactId>cfg-init</artifactId>
     </dependency>
     <dependency>
-        <groupId>io.fd.vpp</groupId>
+        <groupId>io.fd.jvpp</groupId>
         <artifactId>jvpp-registry</artifactId>
         <version>19.04-SNAPSHOT</version>
     </dependency>
     <dependency>
-        <groupId>io.fd.vpp</groupId>
+        <groupId>io.fd.jvpp</groupId>
         <artifactId>jvpp-nsh</artifactId>
         <version>19.04-SNAPSHOT</version>
     </dependency>
