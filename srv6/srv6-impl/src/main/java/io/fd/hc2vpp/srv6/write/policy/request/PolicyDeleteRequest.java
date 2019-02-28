@@ -21,9 +21,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import io.fd.hc2vpp.srv6.util.JVppRequest;
 import io.fd.hc2vpp.srv6.write.DeleteRequest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.SrPolicyDel;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import io.fd.vpp.jvpp.core.types.Srv6Sid;
+import io.fd.jvpp.core.dto.SrPolicyDel;
+import io.fd.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.types.Srv6Sid;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 

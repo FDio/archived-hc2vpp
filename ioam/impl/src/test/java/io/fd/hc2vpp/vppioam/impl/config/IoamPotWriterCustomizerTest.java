@@ -23,11 +23,11 @@ import static org.mockito.Mockito.verify;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.ioampot.dto.PotProfileAdd;
-import io.fd.vpp.jvpp.ioampot.dto.PotProfileAddReply;
-import io.fd.vpp.jvpp.ioampot.dto.PotProfileDel;
-import io.fd.vpp.jvpp.ioampot.dto.PotProfileDelReply;
-import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
+import io.fd.jvpp.ioampot.dto.PotProfileAdd;
+import io.fd.jvpp.ioampot.dto.PotProfileAddReply;
+import io.fd.jvpp.ioampot.dto.PotProfileDel;
+import io.fd.jvpp.ioampot.dto.PotProfileDelReply;
+import io.fd.jvpp.ioampot.future.FutureJVppIoampot;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

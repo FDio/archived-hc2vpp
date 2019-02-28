@@ -24,8 +24,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
-import io.fd.vpp.jvpp.core.dto.OneEidTableAddDelMap;
-import io.fd.vpp.jvpp.core.dto.OneEidTableAddDelMapReply;
+import io.fd.jvpp.core.dto.OneEidTableAddDelMap;
+import io.fd.jvpp.core.dto.OneEidTableAddDelMapReply;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;

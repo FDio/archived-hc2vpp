@@ -17,7 +17,7 @@
 package io.fd.hc2vpp.srv6.util.function;
 
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.vpp.jvpp.core.dto.SrLocalsidsDetails;
+import io.fd.jvpp.core.dto.SrLocalsidsDetails;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6._static.cfg.SidBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.Srv6EndpointType;

@@ -16,10 +16,10 @@
 
 package io.fd.hc2vpp.it.jvpp.benchmark.classify;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
-import io.fd.vpp.jvpp.acl.dto.AclAddReplace;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import io.fd.jvpp.core.dto.ClassifyAddDelTable;
 import org.junit.Test;
 
 public class ClassifyTableProviderImplTest {

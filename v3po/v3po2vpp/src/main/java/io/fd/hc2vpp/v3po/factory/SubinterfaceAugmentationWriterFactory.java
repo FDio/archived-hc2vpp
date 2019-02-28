@@ -31,7 +31,7 @@ import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.subinterface.span.rev170607.VppSubinterfaceSpanAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.subinterface.span.rev170607.interfaces._interface.sub.interfaces.sub._interface.Span;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.unnumbered.interfaces.rev180103.SubinterfaceUnnumberedAugmentation;

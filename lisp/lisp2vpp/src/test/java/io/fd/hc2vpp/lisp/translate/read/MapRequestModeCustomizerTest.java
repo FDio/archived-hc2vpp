@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 import static org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.MapRequestMode.DestinationOnly;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowOneMapRequestModeReply;
+import io.fd.jvpp.core.dto.ShowOneMapRequestModeReply;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.lisp.feature.data.grouping.LispFeatureDataBuilder;

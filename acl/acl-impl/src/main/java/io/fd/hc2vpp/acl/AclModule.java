@@ -30,7 +30,7 @@ import io.fd.hc2vpp.acl.write.factory.AclWriterFactory;
 import io.fd.hc2vpp.acl.write.factory.InterfaceAclWriterFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
+import io.fd.jvpp.acl.future.FutureJVppAclFacade;
 import javax.annotation.Nonnull;
 import net.jmob.guice.conf.core.ConfigurationModule;
 import org.slf4j.Logger;

@@ -18,7 +18,7 @@ package io.fd.hc2vpp.routing.trait;
 
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.vpp.jvpp.core.types.FibPath;
+import io.fd.jvpp.core.types.FibPath;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop;
 

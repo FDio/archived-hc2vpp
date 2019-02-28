@@ -25,7 +25,7 @@ import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionReadBinder;
 import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionWriteBinder;
 import io.fd.hc2vpp.srv6.write.sid.request.XConnectLocalSidRequest;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 
 abstract class XConnectFunctionBinder extends FutureJVppCustomizer

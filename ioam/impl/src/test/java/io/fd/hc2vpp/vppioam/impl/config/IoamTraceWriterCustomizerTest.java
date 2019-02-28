@@ -23,11 +23,11 @@ import static org.mockito.Mockito.verify;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.ioamtrace.dto.TraceProfileAdd;
-import io.fd.vpp.jvpp.ioamtrace.dto.TraceProfileAddReply;
-import io.fd.vpp.jvpp.ioamtrace.dto.TraceProfileDel;
-import io.fd.vpp.jvpp.ioamtrace.dto.TraceProfileDelReply;
-import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
+import io.fd.jvpp.ioamtrace.dto.TraceProfileAdd;
+import io.fd.jvpp.ioamtrace.dto.TraceProfileAddReply;
+import io.fd.jvpp.ioamtrace.dto.TraceProfileDel;
+import io.fd.jvpp.ioamtrace.dto.TraceProfileDelReply;
+import io.fd.jvpp.ioamtrace.future.FutureJVppIoamtrace;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev170327.IoamTraceConfig;

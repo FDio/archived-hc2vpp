@@ -25,8 +25,8 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSpanEnableDisable;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSpanEnableDisableReply;
+import io.fd.jvpp.core.dto.SwInterfaceSpanEnableDisable;
+import io.fd.jvpp.core.dto.SwInterfaceSpanEnableDisableReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;

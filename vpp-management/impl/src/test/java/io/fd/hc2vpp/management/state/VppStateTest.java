@@ -33,11 +33,11 @@ import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuild
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.util.YangDAG;
-import io.fd.vpp.jvpp.core.dto.ShowVersion;
-import io.fd.vpp.jvpp.core.dto.ShowVersionReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import io.fd.vpp.jvpp.dto.ControlPing;
-import io.fd.vpp.jvpp.dto.ControlPingReply;
+import io.fd.jvpp.core.dto.ShowVersion;
+import io.fd.jvpp.core.dto.ShowVersionReply;
+import io.fd.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.dto.ControlPing;
+import io.fd.jvpp.dto.ControlPingReply;
 import javax.annotation.Nonnull;
 import org.junit.Before;
 import org.junit.Test;

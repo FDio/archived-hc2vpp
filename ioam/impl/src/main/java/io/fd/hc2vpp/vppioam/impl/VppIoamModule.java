@@ -28,12 +28,12 @@ import io.fd.hc2vpp.vppioam.impl.util.JVppIoamPotProvider;
 import io.fd.hc2vpp.vppioam.impl.util.JVppIoamTraceProvider;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import io.fd.vpp.jvpp.ioamexport.future.FutureJVppIoamexport;
-import io.fd.vpp.jvpp.ioamexport.future.FutureJVppIoamexportFacade;
-import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
-import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampotFacade;
-import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
-import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
+import io.fd.jvpp.ioamexport.future.FutureJVppIoamexport;
+import io.fd.jvpp.ioamexport.future.FutureJVppIoamexportFacade;
+import io.fd.jvpp.ioampot.future.FutureJVppIoampot;
+import io.fd.jvpp.ioampot.future.FutureJVppIoampotFacade;
+import io.fd.jvpp.ioamtrace.future.FutureJVppIoamtrace;
+import io.fd.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

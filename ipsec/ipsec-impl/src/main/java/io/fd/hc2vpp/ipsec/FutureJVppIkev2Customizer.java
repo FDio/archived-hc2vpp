@@ -18,7 +18,7 @@ package io.fd.hc2vpp.ipsec;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.fd.vpp.jvpp.ikev2.future.FutureJVppIkev2Facade;
+import io.fd.jvpp.ikev2.future.FutureJVppIkev2Facade;
 import javax.annotation.Nonnull;
 
 /**

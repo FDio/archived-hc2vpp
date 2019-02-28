@@ -23,8 +23,8 @@ import static org.mockito.Mockito.verify;
 
 import io.fd.hc2vpp.srv6.Srv6IIds;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.SrLocalsidAddDel;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.SrLocalsidAddDel;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 

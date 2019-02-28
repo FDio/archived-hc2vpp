@@ -25,10 +25,10 @@ import static org.mockito.Mockito.verify;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.core.dto.CreateLoopback;
-import io.fd.vpp.jvpp.core.dto.CreateLoopbackReply;
-import io.fd.vpp.jvpp.core.dto.DeleteLoopback;
-import io.fd.vpp.jvpp.core.dto.DeleteLoopbackReply;
+import io.fd.jvpp.core.dto.CreateLoopback;
+import io.fd.jvpp.core.dto.CreateLoopbackReply;
+import io.fd.jvpp.core.dto.DeleteLoopback;
+import io.fd.jvpp.core.dto.DeleteLoopbackReply;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;

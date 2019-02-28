@@ -21,8 +21,8 @@ import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import io.fd.hc2vpp.common.translate.util.VppStatusListener;
 import io.fd.honeycomb.translate.read.ReaderFactory;
-import io.fd.vpp.jvpp.JVppRegistry;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.JVppRegistry;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import net.jmob.guice.conf.core.ConfigurationModule;
 
 public final class VppCommonModule extends AbstractModule {

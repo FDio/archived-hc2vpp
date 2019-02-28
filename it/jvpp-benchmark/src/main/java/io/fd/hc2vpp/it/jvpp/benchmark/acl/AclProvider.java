@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.it.jvpp.benchmark.acl;
 
-import io.fd.vpp.jvpp.acl.dto.AclAddReplace;
+import io.fd.jvpp.acl.dto.AclAddReplace;
 
 /**
  * Provides ACLs for JVpp Benchmark.

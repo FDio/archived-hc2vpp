@@ -20,9 +20,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.MplsRouteAddDel;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import io.fd.vpp.jvpp.core.types.FibMplsLabel;
+import io.fd.jvpp.core.dto.MplsRouteAddDel;
+import io.fd.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.types.FibMplsLabel;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.mpls.rev171120.LookupType;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.mpls.rev171120.StaticLspVppLookupAugmentation;

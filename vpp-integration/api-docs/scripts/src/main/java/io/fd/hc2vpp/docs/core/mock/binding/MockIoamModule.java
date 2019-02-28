@@ -20,11 +20,11 @@ import static io.fd.hc2vpp.docs.core.mock.binding.MockBindingModule.noOpProxy;
 
 import com.google.inject.Provider;
 import io.fd.hc2vpp.vppioam.impl.VppIoamModule;
-import io.fd.vpp.jvpp.JVpp;
-import io.fd.vpp.jvpp.JVppRegistry;
-import io.fd.vpp.jvpp.ioamexport.future.FutureJVppIoamexportFacade;
-import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampotFacade;
-import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
+import io.fd.jvpp.JVpp;
+import io.fd.jvpp.JVppRegistry;
+import io.fd.jvpp.ioamexport.future.FutureJVppIoamexportFacade;
+import io.fd.jvpp.ioampot.future.FutureJVppIoampotFacade;
+import io.fd.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
 import java.io.IOException;
 
 /**

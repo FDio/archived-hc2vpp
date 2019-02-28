@@ -25,7 +25,7 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.jvpp.core.dto.SwInterfaceDetails;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

@@ -23,8 +23,8 @@ import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.IpTableAddDel;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.IpTableAddDel;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import java.nio.charset.StandardCharsets;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 

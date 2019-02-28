@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.dto.JVppReply;
+import io.fd.jvpp.VppBaseCallException;
+import io.fd.jvpp.dto.JVppReply;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;

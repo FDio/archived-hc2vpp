@@ -17,9 +17,9 @@
 package io.fd.hc2vpp.it.jvpp.benchmark.util;
 
 import com.google.common.io.CharStreams;
-import io.fd.vpp.jvpp.JVppRegistry;
-import io.fd.vpp.jvpp.JVppRegistryImpl;
-import io.fd.vpp.jvpp.dto.JVppReply;
+import io.fd.jvpp.JVppRegistry;
+import io.fd.jvpp.JVppRegistryImpl;
+import io.fd.jvpp.dto.JVppReply;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;

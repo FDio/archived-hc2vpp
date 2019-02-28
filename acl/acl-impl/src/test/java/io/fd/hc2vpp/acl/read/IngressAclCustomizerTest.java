@@ -16,12 +16,12 @@
 
 package io.fd.hc2vpp.acl.read;
 
-import static io.fd.vpp.jvpp.Assertions.assertEquals;
+import static io.fd.jvpp.Assertions.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.vpp.jvpp.acl.dto.AclInterfaceListDetailsReplyDump;
+import io.fd.jvpp.acl.dto.AclInterfaceListDetailsReplyDump;
 import javax.annotation.Nonnull;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.Ingress;

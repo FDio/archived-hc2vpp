@@ -18,7 +18,6 @@ package io.fd.hc2vpp.nat.read;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -27,10 +26,10 @@ import io.fd.hc2vpp.nat.util.MappingEntryContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetails;
-import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetailsReplyDump;
-import io.fd.vpp.jvpp.nat.dto.Nat64BibDetails;
-import io.fd.vpp.jvpp.nat.dto.Nat64BibDetailsReplyDump;
+import io.fd.jvpp.nat.dto.Nat44StaticMappingDetails;
+import io.fd.jvpp.nat.dto.Nat44StaticMappingDetailsReplyDump;
+import io.fd.jvpp.nat.dto.Nat64BibDetails;
+import io.fd.jvpp.nat.dto.Nat64BibDetailsReplyDump;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;

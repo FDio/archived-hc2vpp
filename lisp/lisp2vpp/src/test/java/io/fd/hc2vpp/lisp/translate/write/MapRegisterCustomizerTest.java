@@ -27,12 +27,12 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.OneMapRegisterEnableDisable;
-import io.fd.vpp.jvpp.core.dto.OneMapRegisterEnableDisableReply;
-import io.fd.vpp.jvpp.core.dto.OneMapRegisterFallbackThreshold;
-import io.fd.vpp.jvpp.core.dto.OneMapRegisterFallbackThresholdReply;
-import io.fd.vpp.jvpp.core.dto.OneMapRegisterSetTtl;
-import io.fd.vpp.jvpp.core.dto.OneMapRegisterSetTtlReply;
+import io.fd.jvpp.core.dto.OneMapRegisterEnableDisable;
+import io.fd.jvpp.core.dto.OneMapRegisterEnableDisableReply;
+import io.fd.jvpp.core.dto.OneMapRegisterFallbackThreshold;
+import io.fd.jvpp.core.dto.OneMapRegisterFallbackThresholdReply;
+import io.fd.jvpp.core.dto.OneMapRegisterSetTtl;
+import io.fd.jvpp.core.dto.OneMapRegisterSetTtlReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;

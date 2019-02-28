@@ -18,7 +18,7 @@ package io.fd.hc2vpp.acl.util.ace.extractor;
 
 
 import io.fd.hc2vpp.common.translate.util.MacTranslator;
-import io.fd.vpp.jvpp.acl.types.MacipAclRule;
+import io.fd.jvpp.acl.types.MacipAclRule;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.Accept;

@@ -23,7 +23,7 @@ import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.routing.naming.Ipv6RouteNamesFactory;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.vpp.jvpp.core.types.FibPath;
+import io.fd.jvpp.core.types.FibPath;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;

@@ -39,7 +39,7 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.future.FutureJVppNatFacade;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;

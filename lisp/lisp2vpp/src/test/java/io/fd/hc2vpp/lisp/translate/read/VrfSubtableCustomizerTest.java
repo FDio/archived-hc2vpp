@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 import io.fd.hc2vpp.lisp.translate.read.trait.SubtableReaderTestCase;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.VppCallbackException;
+import io.fd.jvpp.VppCallbackException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.eid.table.grouping.EidTable;

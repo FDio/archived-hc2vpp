@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import io.fd.hc2vpp.acl.AclTestSchemaContext;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
-import io.fd.vpp.jvpp.acl.types.AclRule;
+import io.fd.jvpp.acl.types.AclRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppIcmpAceAugmentation;

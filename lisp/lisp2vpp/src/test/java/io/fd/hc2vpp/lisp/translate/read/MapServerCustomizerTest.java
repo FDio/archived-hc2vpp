@@ -24,9 +24,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.OneMapServerDetails;
-import io.fd.vpp.jvpp.core.dto.OneMapServerDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.OneMapServerDump;
+import io.fd.jvpp.core.dto.OneMapServerDetails;
+import io.fd.jvpp.core.dto.OneMapServerDetailsReplyDump;
+import io.fd.jvpp.core.dto.OneMapServerDump;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;

@@ -24,8 +24,8 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.GpeEnableDisable;
-import io.fd.vpp.jvpp.core.dto.GpeEnableDisableReply;
+import io.fd.jvpp.core.dto.GpeEnableDisable;
+import io.fd.jvpp.core.dto.GpeEnableDisableReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;

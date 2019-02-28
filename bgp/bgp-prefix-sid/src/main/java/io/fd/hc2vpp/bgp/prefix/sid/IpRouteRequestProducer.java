@@ -21,8 +21,8 @@ import static io.fd.hc2vpp.bgp.prefix.sid.MplsRouteRequestProducer.MPLS_LABEL_IN
 
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.MplsLabelTranslator;
-import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
-import io.fd.vpp.jvpp.core.types.FibMplsLabel;
+import io.fd.jvpp.core.dto.IpAddDelRoute;
+import io.fd.jvpp.core.types.FibMplsLabel;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;

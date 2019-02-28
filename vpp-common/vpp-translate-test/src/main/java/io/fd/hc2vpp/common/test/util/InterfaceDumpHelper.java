@@ -19,11 +19,11 @@ package io.fd.hc2vpp.common.test.util;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
+import io.fd.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.jvpp.core.dto.SwInterfaceDetailsReplyDump;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import javax.annotation.Nonnull;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * VPP translation test helper, that helps stubbing {@link FutureJVppCore#swInterfaceDump}.

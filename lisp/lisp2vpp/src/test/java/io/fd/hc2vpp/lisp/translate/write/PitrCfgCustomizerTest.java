@@ -26,8 +26,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.OnePitrSetLocatorSet;
-import io.fd.vpp.jvpp.core.dto.OnePitrSetLocatorSetReply;
+import io.fd.jvpp.core.dto.OnePitrSetLocatorSet;
+import io.fd.jvpp.core.dto.OnePitrSetLocatorSetReply;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

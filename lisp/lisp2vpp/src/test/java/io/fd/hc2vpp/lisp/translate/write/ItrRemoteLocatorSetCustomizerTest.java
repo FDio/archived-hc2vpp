@@ -28,9 +28,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.VppCallbackException;
-import io.fd.vpp.jvpp.core.dto.OneAddDelMapRequestItrRlocs;
-import io.fd.vpp.jvpp.core.dto.OneAddDelMapRequestItrRlocsReply;
+import io.fd.jvpp.VppCallbackException;
+import io.fd.jvpp.core.dto.OneAddDelMapRequestItrRlocs;
+import io.fd.jvpp.core.dto.OneAddDelMapRequestItrRlocsReply;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;

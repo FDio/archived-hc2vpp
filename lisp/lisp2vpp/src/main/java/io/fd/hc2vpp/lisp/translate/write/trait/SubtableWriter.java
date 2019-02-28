@@ -21,9 +21,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.OneEidTableAddDelMap;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.VppBaseCallException;
+import io.fd.jvpp.core.dto.OneEidTableAddDelMap;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.eid.table.grouping.eid.table.VniTable;

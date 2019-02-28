@@ -18,7 +18,7 @@ package io.fd.hc2vpp.srv6.util;
 
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 
 public abstract class JVppRequest implements AddressTranslator, JvppReplyConsumer {
 

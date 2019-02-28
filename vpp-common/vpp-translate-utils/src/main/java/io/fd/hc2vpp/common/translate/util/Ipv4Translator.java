@@ -18,10 +18,10 @@ package io.fd.hc2vpp.common.translate.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.fd.vpp.jvpp.core.types.Address;
-import io.fd.vpp.jvpp.core.types.AddressFamily;
-import io.fd.vpp.jvpp.core.types.AddressUnion;
-import io.fd.vpp.jvpp.core.types.Ip4Address;
+import io.fd.jvpp.core.types.Address;
+import io.fd.jvpp.core.types.AddressFamily;
+import io.fd.jvpp.core.types.AddressUnion;
+import io.fd.jvpp.core.types.Ip4Address;
 import java.util.Arrays;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;

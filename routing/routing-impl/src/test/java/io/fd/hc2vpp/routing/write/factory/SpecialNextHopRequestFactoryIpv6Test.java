@@ -34,7 +34,7 @@ import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
+import io.fd.jvpp.core.dto.IpAddDelRoute;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

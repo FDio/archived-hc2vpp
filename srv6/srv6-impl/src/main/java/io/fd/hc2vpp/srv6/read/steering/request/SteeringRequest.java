@@ -18,9 +18,9 @@ package io.fd.hc2vpp.srv6.read.steering.request;
 
 import io.fd.hc2vpp.srv6.util.JVppRequest;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.vpp.jvpp.core.dto.SrSteeringPolDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.SrSteeringPolDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.SrSteeringPolDetailsReplyDump;
+import io.fd.jvpp.core.dto.SrSteeringPolDump;
+import io.fd.jvpp.core.future.FutureJVppCore;
 
 /**
  * General template for steering requests

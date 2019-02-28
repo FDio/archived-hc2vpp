@@ -17,7 +17,7 @@
 package io.fd.hc2vpp.vppioam.impl.util;
 
 import com.google.common.base.Preconditions;
-import io.fd.vpp.jvpp.ioamexport.future.FutureJVppIoamexport;
+import io.fd.jvpp.ioamexport.future.FutureJVppIoamexport;
 import javax.annotation.Nonnull;
 
 public abstract class FutureJVppIoamexportCustomizer {

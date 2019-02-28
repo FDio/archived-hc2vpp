@@ -22,7 +22,7 @@ import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 
 public class InterfaceChangeNotificationProducerProvider implements Provider<InterfaceChangeNotificationProducer> {

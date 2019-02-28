@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.srv6.write.sid.request;
 
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 
 /**
  * Local SID using End function

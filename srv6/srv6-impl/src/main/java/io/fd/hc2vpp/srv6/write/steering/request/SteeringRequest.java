@@ -19,7 +19,7 @@ package io.fd.hc2vpp.srv6.write.steering.request;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.hc2vpp.srv6.util.JVppRequest;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 
 /**

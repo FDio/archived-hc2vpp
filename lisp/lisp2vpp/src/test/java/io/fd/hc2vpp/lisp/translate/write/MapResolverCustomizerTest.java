@@ -26,8 +26,8 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.OneAddDelMapResolver;
-import io.fd.vpp.jvpp.core.dto.OneAddDelMapResolverReply;
+import io.fd.jvpp.core.dto.OneAddDelMapResolver;
+import io.fd.jvpp.core.dto.OneAddDelMapResolverReply;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

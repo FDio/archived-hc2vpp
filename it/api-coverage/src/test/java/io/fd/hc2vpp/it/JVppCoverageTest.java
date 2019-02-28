@@ -16,14 +16,14 @@
 
 package io.fd.hc2vpp.it;
 
-import io.fd.vpp.jvpp.acl.JVppAcl;
-import io.fd.vpp.jvpp.core.JVppCore;
-import io.fd.vpp.jvpp.gtpu.JVppGtpu;
-import io.fd.vpp.jvpp.ioamexport.JVppIoamexport;
-import io.fd.vpp.jvpp.ioampot.JVppIoampot;
-import io.fd.vpp.jvpp.ioamtrace.JVppIoamtrace;
-import io.fd.vpp.jvpp.nat.JVppNat;
-import io.fd.vpp.jvpp.pppoe.JVppPppoe;
+import io.fd.jvpp.acl.JVppAcl;
+import io.fd.jvpp.core.JVppCore;
+import io.fd.jvpp.gtpu.JVppGtpu;
+import io.fd.jvpp.ioamexport.JVppIoamexport;
+import io.fd.jvpp.ioampot.JVppIoampot;
+import io.fd.jvpp.ioamtrace.JVppIoamtrace;
+import io.fd.jvpp.nat.JVppNat;
+import io.fd.jvpp.pppoe.JVppPppoe;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Scanner;

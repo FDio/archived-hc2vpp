@@ -28,9 +28,9 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.VppCallbackException;
-import io.fd.vpp.jvpp.core.dto.OneGetMapRequestItrRlocs;
-import io.fd.vpp.jvpp.core.dto.OneGetMapRequestItrRlocsReply;
+import io.fd.jvpp.VppCallbackException;
+import io.fd.jvpp.core.dto.OneGetMapRequestItrRlocs;
+import io.fd.jvpp.core.dto.OneGetMapRequestItrRlocsReply;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;

@@ -20,14 +20,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import io.fd.hc2vpp.common.test.util.FutureProducer;
+import io.fd.hc2vpp.common.test.util.NamingContextHelper;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.test.util.FutureProducer;
-import io.fd.hc2vpp.common.test.util.NamingContextHelper;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import java.lang.reflect.Method;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +36,6 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Generic test for classes implementing {@link ReaderCustomizer} interface.

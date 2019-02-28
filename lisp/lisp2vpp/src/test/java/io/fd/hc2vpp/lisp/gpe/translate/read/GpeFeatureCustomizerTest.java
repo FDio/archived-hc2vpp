@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.read.InitializingReaderCustomizerTest;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.vpp.jvpp.core.dto.ShowLispStatusReply;
+import io.fd.jvpp.core.dto.ShowLispStatusReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.Gpe;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.gpe.rev170801.GpeState;

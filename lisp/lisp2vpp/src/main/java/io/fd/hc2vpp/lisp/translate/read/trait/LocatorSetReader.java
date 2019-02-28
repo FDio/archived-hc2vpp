@@ -18,9 +18,9 @@ package io.fd.hc2vpp.lisp.translate.read.trait;
 
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.vpp.jvpp.core.dto.OneLocatorSetDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.OneLocatorSetDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.OneLocatorSetDetailsReplyDump;
+import io.fd.jvpp.core.dto.OneLocatorSetDump;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.locator.sets.grouping.locator.sets.LocatorSet;
 

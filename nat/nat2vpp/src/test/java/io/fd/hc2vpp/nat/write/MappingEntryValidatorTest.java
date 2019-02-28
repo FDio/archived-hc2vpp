@@ -20,7 +20,6 @@ import static io.fd.hc2vpp.nat.write.MappingEntryCustomizerTest.IID;
 import static io.fd.hc2vpp.nat.write.MappingEntryCustomizerTest.MAPPING_TABLE_PATH;
 import static io.fd.hc2vpp.nat.write.MappingEntryCustomizerTest.extractMappingEntry;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -30,7 +29,6 @@ import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.DataValidationFailedException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.nat.dto.Nat44AddDelStaticMapping;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

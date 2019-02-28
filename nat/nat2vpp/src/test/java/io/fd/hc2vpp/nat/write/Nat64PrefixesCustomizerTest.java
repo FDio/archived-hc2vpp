@@ -23,9 +23,9 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.vpp.jvpp.nat.dto.Nat64AddDelPrefix;
-import io.fd.vpp.jvpp.nat.dto.Nat64AddDelPrefixReply;
-import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.dto.Nat64AddDelPrefix;
+import io.fd.jvpp.nat.dto.Nat64AddDelPrefixReply;
+import io.fd.jvpp.nat.future.FutureJVppNatFacade;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;

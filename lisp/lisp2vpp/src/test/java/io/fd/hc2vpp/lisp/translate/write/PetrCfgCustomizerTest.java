@@ -27,8 +27,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.OneUsePetr;
-import io.fd.vpp.jvpp.core.dto.OneUsePetrReply;
+import io.fd.jvpp.core.dto.OneUsePetr;
+import io.fd.jvpp.core.dto.OneUsePetrReply;
 import java.util.Arrays;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

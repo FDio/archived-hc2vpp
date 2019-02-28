@@ -28,7 +28,7 @@ import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
+import io.fd.jvpp.core.dto.IpAddDelRoute;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;

@@ -20,9 +20,9 @@ import static io.fd.hc2vpp.docs.core.mock.binding.MockBindingModule.noOpProxy;
 
 import com.google.inject.Provider;
 import io.fd.hc2vpp.nat.NatModule;
-import io.fd.vpp.jvpp.JVpp;
-import io.fd.vpp.jvpp.JVppRegistry;
-import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.JVpp;
+import io.fd.jvpp.JVppRegistry;
+import io.fd.jvpp.nat.future.FutureJVppNatFacade;
 import java.io.IOException;
 
 /**

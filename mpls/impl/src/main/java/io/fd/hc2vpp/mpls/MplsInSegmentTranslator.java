@@ -18,7 +18,7 @@ package io.fd.hc2vpp.mpls;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import io.fd.vpp.jvpp.core.dto.MplsRouteAddDel;
+import io.fd.jvpp.core.dto.MplsRouteAddDel;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment.InSegment;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment_config.Type;

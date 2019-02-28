@@ -16,15 +16,15 @@
 
 package io.fd.hc2vpp.srv6.write.sid.request;
 
-import static io.fd.vpp.jvpp.Assertions.assertEquals;
+import static io.fd.jvpp.Assertions.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import io.fd.hc2vpp.srv6.Srv6IIds;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.SrLocalsidAddDel;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.SrLocalsidAddDel;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.Arrays;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;

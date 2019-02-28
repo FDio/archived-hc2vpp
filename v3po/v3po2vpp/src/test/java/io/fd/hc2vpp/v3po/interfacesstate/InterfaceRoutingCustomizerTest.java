@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceGetTableReply;
+import io.fd.jvpp.core.dto.SwInterfaceGetTableReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VppInterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VppInterfaceStateAugmentationBuilder;

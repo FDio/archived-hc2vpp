@@ -16,10 +16,10 @@
 
 package io.fd.hc2vpp.common.test.util;
 
+import io.fd.jvpp.VppCallbackException;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
-import io.fd.vpp.jvpp.VppCallbackException;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * <p>VPP translation test helper, that produces instances of {@link CompletableFuture} with desired results.</p>

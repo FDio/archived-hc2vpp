@@ -27,12 +27,12 @@ import io.fd.hc2vpp.routing.helpers.SchemaContextTestHelper;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceIp6NdRaPrefix;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceIp6NdRaPrefixReply;
-import io.fd.vpp.jvpp.core.types.Address;
-import io.fd.vpp.jvpp.core.types.AddressFamily;
-import io.fd.vpp.jvpp.core.types.AddressUnion;
-import io.fd.vpp.jvpp.core.types.Ip6Address;
+import io.fd.jvpp.core.dto.SwInterfaceIp6NdRaPrefix;
+import io.fd.jvpp.core.dto.SwInterfaceIp6NdRaPrefixReply;
+import io.fd.jvpp.core.types.Address;
+import io.fd.jvpp.core.types.AddressFamily;
+import io.fd.jvpp.core.types.AddressUnion;
+import io.fd.jvpp.core.types.Ip6Address;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -94,8 +94,8 @@ public class PrefixCustomizerTest extends WriterCustomizerTest implements Schema
         verify(api).swInterfaceIp6NdRaPrefix(request);
     }
 
-    public io.fd.vpp.jvpp.core.types.Prefix getPrefix(byte[] ip6address, byte length) {
-        io.fd.vpp.jvpp.core.types.Prefix prefix = new io.fd.vpp.jvpp.core.types.Prefix();
+    public io.fd.jvpp.core.types.Prefix getPrefix(byte[] ip6address, byte length) {
+        io.fd.jvpp.core.types.Prefix prefix = new io.fd.jvpp.core.types.Prefix();
         Address address = new Address();
         address.af = AddressFamily.ADDRESS_IP6;
         Ip6Address ip6Address = new Ip6Address();

@@ -18,7 +18,7 @@ package io.fd.hc2vpp.v3po.interfacesstate.cache;
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.jvpp.core.dto.SwInterfaceDetails;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

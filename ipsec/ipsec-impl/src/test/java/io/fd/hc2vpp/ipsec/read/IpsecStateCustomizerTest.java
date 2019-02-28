@@ -16,9 +16,9 @@
 
 package io.fd.hc2vpp.ipsec.read;
 
-import static io.fd.vpp.jvpp.core.types.IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_AES_CBC_128;
-import static io.fd.vpp.jvpp.core.types.IpsecIntegAlg.IPSEC_API_INTEG_ALG_SHA1_96;
-import static io.fd.vpp.jvpp.core.types.IpsecProto.IPSEC_API_PROTO_ESP;
+import static io.fd.jvpp.core.types.IpsecCryptoAlg.IPSEC_API_CRYPTO_ALG_AES_CBC_128;
+import static io.fd.jvpp.core.types.IpsecIntegAlg.IPSEC_API_INTEG_ALG_SHA1_96;
+import static io.fd.jvpp.core.types.IpsecProto.IPSEC_API_PROTO_ESP;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -29,12 +29,12 @@ import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.IpsecSaDetails;
-import io.fd.vpp.jvpp.core.dto.IpsecSaDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.IpsecSaDump;
-import io.fd.vpp.jvpp.core.types.IpsecSadEntry;
-import io.fd.vpp.jvpp.core.types.IpsecSadFlags;
-import io.fd.vpp.jvpp.core.types.Key;
+import io.fd.jvpp.core.dto.IpsecSaDetails;
+import io.fd.jvpp.core.dto.IpsecSaDetailsReplyDump;
+import io.fd.jvpp.core.dto.IpsecSaDump;
+import io.fd.jvpp.core.types.IpsecSadEntry;
+import io.fd.jvpp.core.types.IpsecSadFlags;
+import io.fd.jvpp.core.types.Key;
 import java.util.LinkedList;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;

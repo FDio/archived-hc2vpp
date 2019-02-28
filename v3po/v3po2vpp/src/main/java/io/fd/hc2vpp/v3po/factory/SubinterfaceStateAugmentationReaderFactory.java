@@ -31,7 +31,7 @@ import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.subinterface.span.rev170607.VppSubinterfaceSpanStateAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.subinterface.span.rev170607.VppSubinterfaceSpanStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.subinterface.span.rev170607.interfaces.state._interface.sub.interfaces.sub._interface.SpanState;

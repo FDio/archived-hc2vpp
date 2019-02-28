@@ -19,7 +19,7 @@ package io.fd.hc2vpp.lisp.translate.util;
 
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 
 public abstract class CheckedLispCustomizer extends FutureJVppCustomizer {

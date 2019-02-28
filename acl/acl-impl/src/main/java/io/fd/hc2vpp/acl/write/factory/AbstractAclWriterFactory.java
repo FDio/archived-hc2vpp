@@ -21,7 +21,7 @@ import com.google.inject.name.Named;
 import io.fd.hc2vpp.acl.AclModule;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
+import io.fd.jvpp.acl.future.FutureJVppAclFacade;
 
 /**
  * Created by jsrnicek on 12.12.2016.

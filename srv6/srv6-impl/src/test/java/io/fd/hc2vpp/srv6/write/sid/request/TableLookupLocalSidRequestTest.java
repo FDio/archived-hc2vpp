@@ -16,13 +16,13 @@
 
 package io.fd.hc2vpp.srv6.write.sid.request;
 
-import static io.fd.vpp.jvpp.Assertions.assertEquals;
+import static io.fd.jvpp.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import io.fd.hc2vpp.srv6.Srv6IIds;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.SrLocalsidAddDel;
+import io.fd.jvpp.core.dto.SrLocalsidAddDel;
 import org.junit.Test;
 
 public class TableLookupLocalSidRequestTest extends LocalSidRequestTest {

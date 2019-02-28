@@ -19,7 +19,7 @@ package io.fd.hc2vpp.acl.util.ace.extractor;
 import com.google.common.collect.ImmutableMap;
 import io.fd.hc2vpp.acl.util.protocol.IpProtocolReader;
 import io.fd.hc2vpp.acl.util.protocol.ProtoPreBindRuleProducer;
-import io.fd.vpp.jvpp.acl.types.AclRule;
+import io.fd.jvpp.acl.types.AclRule;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;

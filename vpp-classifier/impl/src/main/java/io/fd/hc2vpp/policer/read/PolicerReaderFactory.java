@@ -21,7 +21,7 @@ import com.google.inject.Inject;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.PolicersState;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.policer.rev170315.PolicersStateBuilder;

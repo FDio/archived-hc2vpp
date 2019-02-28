@@ -18,7 +18,7 @@ package io.fd.hc2vpp.common.translate.util;
 
 import static org.junit.Assert.assertEquals;
 
-import io.fd.vpp.jvpp.core.types.FibMplsLabel;
+import io.fd.jvpp.core.types.FibMplsLabel;
 import org.junit.Test;
 
 public class MplsLabelTranslatorTest implements MplsLabelTranslator {

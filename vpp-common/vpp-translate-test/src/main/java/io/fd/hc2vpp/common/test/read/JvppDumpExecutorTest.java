@@ -22,10 +22,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.hc2vpp.common.test.util.FutureProducer;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
+import io.fd.jvpp.VppInvocationException;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;

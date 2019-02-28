@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.it.jvpp.benchmark.classify;
 
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import io.fd.jvpp.core.dto.ClassifyAddDelTable;
 
 interface ClassifyTableProvider {
     ClassifyAddDelTable next();

@@ -24,10 +24,10 @@ import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDump
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.vpp.jvpp.core.dto.OneEidTableDetails;
-import io.fd.vpp.jvpp.core.dto.OneEidTableDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.OneEidTableDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.OneEidTableDetails;
+import io.fd.jvpp.core.dto.OneEidTableDetailsReplyDump;
+import io.fd.jvpp.core.dto.OneEidTableDump;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.dp.subtable.grouping.local.mappings.LocalMapping;

@@ -19,8 +19,8 @@ package io.fd.hc2vpp.srv6.write.encap.source.request;
 import io.fd.hc2vpp.srv6.util.JVppRequest;
 import io.fd.hc2vpp.srv6.write.DeleteRequest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.SrSetEncapSource;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.SrSetEncapSource;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class EncapsulationSourceDeleteRequest extends JVppRequest implements DeleteRequest {

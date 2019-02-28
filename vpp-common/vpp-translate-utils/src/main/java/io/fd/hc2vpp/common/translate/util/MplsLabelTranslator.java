@@ -18,7 +18,7 @@ package io.fd.hc2vpp.common.translate.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.fd.vpp.jvpp.core.types.FibMplsLabel;
+import io.fd.jvpp.core.types.FibMplsLabel;
 import javax.annotation.Nonnull;
 
 /**

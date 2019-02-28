@@ -23,7 +23,7 @@ import static org.junit.Assert.fail;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.translate.write.trait.SubtableWriterTestCase;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.VppCallbackException;
+import io.fd.jvpp.VppCallbackException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.eid.table.grouping.EidTable;

@@ -21,13 +21,13 @@ import io.fd.hc2vpp.docs.api.*
 import io.fd.hc2vpp.docs.core.ClassPathTypeIndex
 import io.fd.hc2vpp.docs.core.CoverageGenerator
 import io.fd.hc2vpp.docs.core.YangTypeLinkIndex
-import io.fd.vpp.jvpp.acl.future.FutureJVppAcl
-import io.fd.vpp.jvpp.core.future.FutureJVppCore
-import io.fd.vpp.jvpp.ioamexport.future.FutureJVppIoamexport
-import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot
-import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh
-import io.fd.vpp.jvpp.nat.future.FutureJVppNat
+import io.fd.jvpp.acl.future.FutureJVppAcl
+import io.fd.jvpp.core.future.FutureJVppCore
+import io.fd.jvpp.ioamexport.future.FutureJVppIoamexport
+import io.fd.jvpp.ioampot.future.FutureJVppIoampot
+import io.fd.jvpp.ioamtrace.future.FutureJVppIoamtrace
+import io.fd.jvpp.nat.future.FutureJVppNat
+import io.fd.jvpp.nsh.future.FutureJVppNsh
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files

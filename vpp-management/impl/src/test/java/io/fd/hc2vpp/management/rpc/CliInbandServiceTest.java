@@ -22,8 +22,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import io.fd.hc2vpp.common.test.util.FutureProducer;
-import io.fd.vpp.jvpp.core.dto.CliInbandReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.CliInbandReply;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.management.rev170315.CliInbandInput;

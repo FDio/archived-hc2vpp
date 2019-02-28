@@ -21,9 +21,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.LocatorDumpParams;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.vpp.jvpp.core.dto.OneLocatorDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.OneLocatorDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.OneLocatorDetailsReplyDump;
+import io.fd.jvpp.core.dto.OneLocatorDump;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 
 /**

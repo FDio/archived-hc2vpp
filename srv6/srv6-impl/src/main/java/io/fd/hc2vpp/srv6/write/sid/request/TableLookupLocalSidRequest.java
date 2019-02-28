@@ -16,8 +16,8 @@
 
 package io.fd.hc2vpp.srv6.write.sid.request;
 
-import io.fd.vpp.jvpp.core.dto.SrLocalsidAddDel;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.SrLocalsidAddDel;
+import io.fd.jvpp.core.future.FutureJVppCore;
 
 /**
  * Request for Local SID using table lookup functions

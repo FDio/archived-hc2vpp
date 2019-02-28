@@ -28,7 +28,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetails;
+import io.fd.jvpp.nat.dto.Nat44StaticMappingDetails;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;

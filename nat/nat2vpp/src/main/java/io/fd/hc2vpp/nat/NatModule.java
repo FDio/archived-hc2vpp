@@ -31,7 +31,7 @@ import io.fd.hc2vpp.nat.write.ifc.IfcNatWriterFactory;
 import io.fd.hc2vpp.nat.write.ifc.SubIfcNatWriterFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.future.FutureJVppNatFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -20,9 +20,9 @@ import static io.fd.hc2vpp.docs.core.mock.binding.MockBindingModule.noOpProxy;
 
 import com.google.inject.Provider;
 import io.fd.hc2vpp.acl.AclModule;
-import io.fd.vpp.jvpp.JVpp;
-import io.fd.vpp.jvpp.JVppRegistry;
-import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
+import io.fd.jvpp.JVpp;
+import io.fd.jvpp.JVppRegistry;
+import io.fd.jvpp.acl.future.FutureJVppAclFacade;
 import java.io.IOException;
 
 /**

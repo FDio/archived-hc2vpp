@@ -25,8 +25,8 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.OneEnableDisable;
-import io.fd.vpp.jvpp.core.dto.OneEnableDisableReply;
+import io.fd.jvpp.core.dto.OneEnableDisable;
+import io.fd.jvpp.core.dto.OneEnableDisableReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.Lisp;

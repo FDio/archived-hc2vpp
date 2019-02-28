@@ -27,8 +27,8 @@ import static org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013
 import static org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.MapRequestMode.SourceDestination;
 
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.OneMapRequestMode;
-import io.fd.vpp.jvpp.core.dto.OneMapRequestModeReply;
+import io.fd.jvpp.core.dto.OneMapRequestMode;
+import io.fd.jvpp.core.dto.OneMapRequestModeReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;

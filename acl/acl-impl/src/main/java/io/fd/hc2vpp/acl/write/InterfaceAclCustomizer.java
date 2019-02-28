@@ -28,7 +28,7 @@ import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
+import io.fd.jvpp.acl.future.FutureJVppAclFacade;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;

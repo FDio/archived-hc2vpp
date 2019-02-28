@@ -22,14 +22,14 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
-import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.hc2vpp.vppnsh.impl.config.VppNshWriterFactory;
 import io.fd.hc2vpp.vppnsh.impl.oper.VppNshReaderFactory;
 import io.fd.hc2vpp.vppnsh.impl.util.JVppNshProvider;
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNshFacade;
+import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.jvpp.nsh.future.FutureJVppNsh;
+import io.fd.jvpp.nsh.future.FutureJVppNshFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

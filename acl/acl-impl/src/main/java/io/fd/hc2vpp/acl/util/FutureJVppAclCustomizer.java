@@ -18,7 +18,7 @@ package io.fd.hc2vpp.acl.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
+import io.fd.jvpp.acl.future.FutureJVppAclFacade;
 import javax.annotation.Nonnull;
 
 /**

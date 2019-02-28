@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
-import io.fd.vpp.jvpp.acl.dto.AclAddReplace;
+import io.fd.jvpp.acl.dto.AclAddReplace;
 import java.util.Arrays;
 import org.junit.Test;
 

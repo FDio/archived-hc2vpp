@@ -19,7 +19,7 @@ package io.fd.hc2vpp.v3po.interfacesstate.cache;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.inject.Named;
 
 public class InterfaceCacheDumpManagerProvider implements Provider<InterfaceCacheDumpManager> {

@@ -22,7 +22,7 @@ import static io.fd.hc2vpp.acl.util.protocol.ProtoPreBindRuleProducer.TCP_INDEX;
 import static io.fd.hc2vpp.acl.util.protocol.ProtoPreBindRuleProducer.UDP_INDEX;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.fd.vpp.jvpp.acl.types.AclRule;
+import io.fd.jvpp.acl.types.AclRule;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppIcmpAceAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppIcmpAceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.VppTcpAceAugmentation;

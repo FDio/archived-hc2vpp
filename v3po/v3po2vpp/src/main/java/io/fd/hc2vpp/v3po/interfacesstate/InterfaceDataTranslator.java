@@ -24,7 +24,7 @@ import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.jvpp.core.dto.SwInterfaceDetails;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.stream.Collector;

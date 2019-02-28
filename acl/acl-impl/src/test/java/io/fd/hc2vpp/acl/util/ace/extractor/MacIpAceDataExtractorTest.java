@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import io.fd.hc2vpp.common.test.util.CommonTests;
-import io.fd.vpp.jvpp.acl.types.MacipAclRule;
+import io.fd.jvpp.acl.types.MacipAclRule;
 import java.util.Arrays;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.Accept;

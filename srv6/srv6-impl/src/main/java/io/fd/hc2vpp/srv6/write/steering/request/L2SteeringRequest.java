@@ -19,8 +19,8 @@ package io.fd.hc2vpp.srv6.write.steering.request;
 import io.fd.hc2vpp.srv6.write.DeleteRequest;
 import io.fd.hc2vpp.srv6.write.WriteRequest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.SrSteeringAddDel;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.SrSteeringAddDel;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**

@@ -26,9 +26,9 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
-import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetails;
-import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.OneEidTableMapDump;
+import io.fd.jvpp.core.dto.OneEidTableMapDetails;
+import io.fd.jvpp.core.dto.OneEidTableMapDetailsReplyDump;
+import io.fd.jvpp.core.dto.OneEidTableMapDump;
 import java.util.Collections;
 import javax.annotation.Nonnull;
 import org.mockito.ArgumentCaptor;

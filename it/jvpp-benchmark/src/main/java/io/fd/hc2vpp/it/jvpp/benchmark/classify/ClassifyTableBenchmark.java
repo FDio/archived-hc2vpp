@@ -17,10 +17,10 @@
 package io.fd.hc2vpp.it.jvpp.benchmark.classify;
 
 import io.fd.hc2vpp.it.jvpp.benchmark.util.JVppBenchmark;
-import io.fd.vpp.jvpp.JVppRegistry;
-import io.fd.vpp.jvpp.core.JVppCoreImpl;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCoreFacade;
+import io.fd.jvpp.JVppRegistry;
+import io.fd.jvpp.core.JVppCoreImpl;
+import io.fd.jvpp.core.dto.ClassifyAddDelTableReply;
+import io.fd.jvpp.core.future.FutureJVppCoreFacade;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import org.openjdk.jmh.annotations.Benchmark;

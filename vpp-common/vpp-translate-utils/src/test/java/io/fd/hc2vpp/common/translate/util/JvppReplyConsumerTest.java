@@ -24,9 +24,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.common.translate.util.ReadTimeoutException;
-import io.fd.hc2vpp.common.translate.util.WriteTimeoutException;
+import io.fd.jvpp.dto.JVppReply;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -34,7 +32,6 @@ import org.junit.Test;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.dto.JVppReply;
 
 public class JvppReplyConsumerTest implements JvppReplyConsumer {
 

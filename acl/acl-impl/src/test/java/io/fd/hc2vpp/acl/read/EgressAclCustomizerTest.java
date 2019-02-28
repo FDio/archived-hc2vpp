@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.vpp.jvpp.acl.dto.AclInterfaceListDetailsReplyDump;
+import io.fd.jvpp.acl.dto.AclInterfaceListDetailsReplyDump;
 import javax.annotation.Nonnull;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev181001.acls.attachment.points._interface.Egress;

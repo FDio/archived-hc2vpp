@@ -25,9 +25,9 @@ import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.SubtableDump
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.SubtableDumpParams;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.OneEidTableMapDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.OneEidTableMapDetailsReplyDump;
+import io.fd.jvpp.core.dto.OneEidTableMapDump;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 
 /**

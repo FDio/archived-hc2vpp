@@ -28,7 +28,7 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.jvpp.core.dto.SwInterfaceDetails;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.Test;

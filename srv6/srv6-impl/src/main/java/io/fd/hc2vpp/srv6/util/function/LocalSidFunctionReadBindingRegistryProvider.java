@@ -27,7 +27,7 @@ import io.fd.hc2vpp.srv6.util.function.xconnect.EndDX2FunctionBinder;
 import io.fd.hc2vpp.srv6.util.function.xconnect.EndDX4FunctionBinder;
 import io.fd.hc2vpp.srv6.util.function.xconnect.EndDX6FunctionBinder;
 import io.fd.hc2vpp.srv6.util.function.xconnect.EndXFunctionBinder;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.inject.Named;
 
 public class LocalSidFunctionReadBindingRegistryProvider implements Provider<LocalSidFunctionReadBindingRegistry> {

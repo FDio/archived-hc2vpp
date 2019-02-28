@@ -24,9 +24,9 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.GpeAddDelIface;
-import io.fd.vpp.jvpp.core.dto.GpeAddDelIfaceReply;
-import io.fd.vpp.jvpp.core.dto.GpeAddDelNativeFwdRpathReply;
+import io.fd.jvpp.core.dto.GpeAddDelIface;
+import io.fd.jvpp.core.dto.GpeAddDelIfaceReply;
+import io.fd.jvpp.core.dto.GpeAddDelNativeFwdRpathReply;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

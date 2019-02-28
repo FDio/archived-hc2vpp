@@ -17,7 +17,7 @@
 package io.fd.hc2vpp.acl.util.protocol;
 
 import com.google.common.base.Preconditions;
-import io.fd.vpp.jvpp.acl.types.AclRule;
+import io.fd.jvpp.acl.types.AclRule;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.ValueRange;

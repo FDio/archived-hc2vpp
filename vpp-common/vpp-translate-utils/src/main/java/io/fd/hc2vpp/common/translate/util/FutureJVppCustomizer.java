@@ -18,8 +18,8 @@ package io.fd.hc2vpp.common.translate.util;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Abstract utility to hold the vppApi reference.

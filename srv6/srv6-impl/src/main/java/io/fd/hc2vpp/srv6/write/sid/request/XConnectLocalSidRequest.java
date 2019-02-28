@@ -17,8 +17,8 @@
 package io.fd.hc2vpp.srv6.write.sid.request;
 
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import io.fd.vpp.jvpp.core.dto.SrLocalsidAddDel;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.dto.SrLocalsidAddDel;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 
 /**

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import io.fd.hc2vpp.common.test.util.CommonTests;
-import io.fd.vpp.jvpp.acl.types.AclRule;
+import io.fd.jvpp.acl.types.AclRule;
 import java.util.Arrays;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.acl.rev181022.AcceptAndReflect;

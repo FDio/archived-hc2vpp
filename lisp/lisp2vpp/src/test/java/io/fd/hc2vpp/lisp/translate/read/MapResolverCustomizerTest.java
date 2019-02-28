@@ -23,8 +23,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.OneMapResolverDetails;
-import io.fd.vpp.jvpp.core.dto.OneMapResolverDetailsReplyDump;
+import io.fd.jvpp.core.dto.OneMapResolverDetails;
+import io.fd.jvpp.core.dto.OneMapResolverDetailsReplyDump;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;

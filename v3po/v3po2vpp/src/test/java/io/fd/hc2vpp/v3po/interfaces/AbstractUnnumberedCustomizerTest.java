@@ -22,8 +22,8 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetUnnumbered;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetUnnumberedReply;
+import io.fd.jvpp.core.dto.SwInterfaceSetUnnumbered;
+import io.fd.jvpp.core.dto.SwInterfaceSetUnnumberedReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.unnumbered.interfaces.rev180103.unnumbered.config.attributes.Unnumbered;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.unnumbered.interfaces.rev180103.unnumbered.config.attributes.UnnumberedBuilder;

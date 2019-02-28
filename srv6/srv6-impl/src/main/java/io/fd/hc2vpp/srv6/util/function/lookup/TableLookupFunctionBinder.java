@@ -22,7 +22,7 @@ import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionReadBinder;
 import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionWriteBinder;
 import io.fd.hc2vpp.srv6.write.sid.request.TableLookupLocalSidRequest;
 import io.fd.honeycomb.translate.write.WriteContext;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.AddressFamilyIdentity;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.Ipv4;

@@ -27,7 +27,7 @@ import io.fd.hc2vpp.srv6.write.sid.request.NoProtocolLocalSidRequest;
 import io.fd.hc2vpp.srv6.write.sid.request.TableLookupLocalSidRequest;
 import io.fd.hc2vpp.srv6.write.sid.request.XConnectLocalSidRequest;
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.vpp.jvpp.core.dto.SrLocalsidsDetails;
+import io.fd.jvpp.core.dto.SrLocalsidsDetails;
 import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;

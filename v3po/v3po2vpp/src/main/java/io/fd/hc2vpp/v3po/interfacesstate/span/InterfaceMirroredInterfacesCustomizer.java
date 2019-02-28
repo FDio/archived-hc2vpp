@@ -21,7 +21,7 @@ import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;

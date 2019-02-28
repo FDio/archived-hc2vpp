@@ -17,7 +17,7 @@
 package io.fd.hc2vpp.bgp.inet;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
+import io.fd.jvpp.core.dto.IpAddDelRoute;
 
 interface RouteRequestProducer extends ByteDataTranslator {
     int MPLS_LABEL_INVALID = 0x100000;

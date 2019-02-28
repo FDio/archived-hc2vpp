@@ -26,7 +26,7 @@ import io.fd.hc2vpp.ipsec.read.IpsecReaderFactory;
 import io.fd.hc2vpp.ipsec.write.IpsecWriterFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import io.fd.vpp.jvpp.ikev2.future.FutureJVppIkev2Facade;
+import io.fd.jvpp.ikev2.future.FutureJVppIkev2Facade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

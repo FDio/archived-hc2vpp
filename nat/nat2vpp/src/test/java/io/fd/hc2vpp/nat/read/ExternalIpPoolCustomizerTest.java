@@ -28,11 +28,11 @@ import static org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nat.rev180
 
 import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.nat.dto.Nat44AddressDetails;
-import io.fd.vpp.jvpp.nat.dto.Nat44AddressDetailsReplyDump;
-import io.fd.vpp.jvpp.nat.dto.Nat64PoolAddrDetails;
-import io.fd.vpp.jvpp.nat.dto.Nat64PoolAddrDetailsReplyDump;
-import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.dto.Nat44AddressDetails;
+import io.fd.jvpp.nat.dto.Nat44AddressDetailsReplyDump;
+import io.fd.jvpp.nat.dto.Nat64PoolAddrDetails;
+import io.fd.jvpp.nat.dto.Nat64PoolAddrDetailsReplyDump;
+import io.fd.jvpp.nat.future.FutureJVppNatFacade;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.LongStream;

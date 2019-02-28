@@ -23,9 +23,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterFallbackThresholdReply;
-import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterStateReply;
-import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterTtlReply;
+import io.fd.jvpp.core.dto.ShowOneMapRegisterFallbackThresholdReply;
+import io.fd.jvpp.core.dto.ShowOneMapRegisterStateReply;
+import io.fd.jvpp.core.dto.ShowOneMapRegisterTtlReply;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.lisp.feature.data.grouping.LispFeatureDataBuilder;

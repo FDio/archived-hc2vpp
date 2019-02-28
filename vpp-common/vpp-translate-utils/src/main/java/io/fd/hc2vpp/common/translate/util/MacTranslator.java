@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Splitter;
-import io.fd.vpp.jvpp.core.types.MacAddress;
+import io.fd.jvpp.core.types.MacAddress;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;

@@ -22,7 +22,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowOnePitrReply;
+import io.fd.jvpp.core.dto.ShowOnePitrReply;
 import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;

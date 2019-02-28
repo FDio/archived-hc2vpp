@@ -19,7 +19,7 @@ package io.fd.hc2vpp.bgp.inet;
 import com.google.inject.Inject;
 import io.fd.honeycomb.translate.bgp.RibWriter;
 import io.fd.honeycomb.translate.bgp.RouteWriterFactory;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 
 final class InetRouteWriterFactory implements RouteWriterFactory {

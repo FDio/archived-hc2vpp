@@ -18,7 +18,7 @@ package io.fd.hc2vpp.vppioam.impl.util;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
-import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
+import io.fd.jvpp.ioampot.future.FutureJVppIoampot;
 import javax.annotation.Nonnull;
 
 /**

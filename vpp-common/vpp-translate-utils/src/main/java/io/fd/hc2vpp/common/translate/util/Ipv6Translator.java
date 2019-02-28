@@ -21,11 +21,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.net.InetAddresses;
-import io.fd.vpp.jvpp.core.types.Address;
-import io.fd.vpp.jvpp.core.types.AddressFamily;
-import io.fd.vpp.jvpp.core.types.AddressUnion;
-import io.fd.vpp.jvpp.core.types.Ip6Address;
-import io.fd.vpp.jvpp.core.types.Prefix;
+import io.fd.jvpp.core.types.Address;
+import io.fd.jvpp.core.types.AddressFamily;
+import io.fd.jvpp.core.types.AddressUnion;
+import io.fd.jvpp.core.types.Ip6Address;
+import io.fd.jvpp.core.types.Prefix;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
