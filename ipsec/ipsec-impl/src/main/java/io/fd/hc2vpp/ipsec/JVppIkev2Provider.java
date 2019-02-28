@@ -21,13 +21,9 @@ import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.vpp.jvpp.JVppRegistry;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.ikev2.JVppIkev2Impl;
-import io.fd.vpp.jvpp.ikev2.dto.Ikev2PluginGetVersion;
-import io.fd.vpp.jvpp.ikev2.dto.Ikev2PluginGetVersionReply;
 import io.fd.vpp.jvpp.ikev2.future.FutureJVppIkev2Facade;
 import java.io.IOException;
-import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,20 +47,12 @@ class JVppIkev2Provider extends ProviderTrait<FutureJVppIkev2Facade> implements 
     @Override
     protected FutureJVppIkev2Facade create() {
         try {
-            return reportVersionAndGet(initIkev2Api(shutdownHandler));
+            final FutureJVppIkev2Facade futureFacade =
+                    new FutureJVppIkev2Facade(registry, initIkev2Api(shutdownHandler));
+            LOG.info("Ikev2 plugin successfully loaded.");
+            return futureFacade;
         } catch (IOException e) {
             throw new IllegalStateException("Unable to open VPP management connection", e);
-        } catch (TimeoutException | VppBaseCallException e) {
-            throw new IllegalStateException("Unable to load Ikev2 plugin version", e);
         }
-    }
-
-    private FutureJVppIkev2Facade reportVersionAndGet(final JVppIkev2Impl jvppIkev2)
-            throws IOException, TimeoutException, VppBaseCallException {
-        final FutureJVppIkev2Facade futureFacade = new FutureJVppIkev2Facade(registry, jvppIkev2);
-        final Ikev2PluginGetVersionReply pluginVersion =
-                getReply(futureFacade.ikev2PluginGetVersion(new Ikev2PluginGetVersion()).toCompletableFuture());
-        LOG.info("Ikev2 plugin successfully loaded[version {}.{}]", pluginVersion.major, pluginVersion.minor);
-        return futureFacade;
     }
 }
