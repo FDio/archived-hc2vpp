@@ -17,7 +17,7 @@ function install_jvpp_jar {
 
   mvn install:install-file \
     -Dfile=$jarfile \
-    -DgroupId=io.fd.vpp \
+    -DgroupId=io.fd.jvpp \
     -DartifactId=$artifactId \
     -Dversion=$version \
     -Dpackaging=jar
