@@ -102,7 +102,7 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         flags2.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY);
         flags2.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_EXTENDED_SEQ_NUM);
         flags2.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL);
-        ;
+
         IpsecSadFlags flags3 = new IpsecSadFlags();
         flags3.setOptionsValue(7);
 
@@ -110,6 +110,20 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         assertEquals(flags, flags2);
         assertEquals(7, flags.getOptionsValue());
         assertEquals(flags, flags3);
+
+        assertEquals(false, flags.remove(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_NONE));
+        assertEquals(false, flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_NONE));
+
+        flags.removeAll(flags2.getOptions());
+        assertEquals(0,flags.getOptionsValue());
+        assertEquals(true, flags.contains(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_NONE));
+        assertEquals(1,flags.getOptions().size());
+        flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL);
+        assertEquals(1,flags.getOptions().size());
+
+        flags2.clear();
+        assertEquals(0,flags2.getOptionsValue());
+        assertEquals(true, flags2.contains(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_NONE));
     }
 
     @Test
