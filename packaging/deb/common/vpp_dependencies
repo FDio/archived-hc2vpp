@@ -1,6 +1,6 @@
 #!/bin/bash
 # defines vpp and vpp-plugin-core dependencies for debian packages
 # using range
-echo "vpp (>= 19.04), vpp (<< 19.05), vpp-plugin-core (>= 19.04), vpp-plugin-core (<< 19.05)"
+echo "vpp (>= 19.04), vpp (<< 19.05), vpp-plugin-core (>= 19.04), vpp-plugin-core (<< 19.05), vpp-api-java (>= 19.04), vpp-api-java (<< 19.05)"
 # or specific vpp version
 #echo "vpp (= 19.04-rc1), vpp-plugin-core (= 19.04-rc1)"
