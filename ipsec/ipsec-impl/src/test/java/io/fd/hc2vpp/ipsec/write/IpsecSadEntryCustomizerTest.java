@@ -96,11 +96,11 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         IpsecSadFlags flags = new IpsecSadFlags();
         flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL);
         flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY);
-        flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_EXTENDED_SEQ_NUM);
+        flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_ESN);
 
         IpsecSadFlags flags2 = new IpsecSadFlags();
         flags2.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_ANTI_REPLAY);
-        flags2.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_EXTENDED_SEQ_NUM);
+        flags2.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_USE_ESN);
         flags2.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL);
 
         IpsecSadFlags flags3 = new IpsecSadFlags();
