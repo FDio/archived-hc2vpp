@@ -22,7 +22,7 @@ import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.hc2vpp.common.context.ContextsReaderFactory;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 
 /**
  * Mirror of org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.context.impl.rev141210.ContextReaderModule

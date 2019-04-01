@@ -104,7 +104,7 @@ public class PolicyReadRequest extends JVppRequest
     @Nonnull
     public List<PolicyKey> readAllKeys(@Nonnull InstanceIdentifier<Policy> id, @Nonnull ReadContext ctx)
             throws ReadFailedException {
-        return dumpManager.getDump(id, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY).srPoliciesDetails.stream()
+        return dumpManager.getDump(id, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY).srPoliciesDetails.stream()
                 .map(srPoliciesDetails -> arrayToIpv6AddressNoZone(srPoliciesDetails.bsid.addr))
                 .map(bsid -> parsePolicyKey(ctx, bsid))
                 .collect(Collectors.toList());
@@ -122,7 +122,7 @@ public class PolicyReadRequest extends JVppRequest
         Ipv6Address bsid =
                 policyCtx.getPolicyBsid(key.getColor(), key.getEndpoint().getIpv6Address(), ctx.getMappingContext());
 
-        dumpManager.getDump(id, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY).srPoliciesDetails.stream()
+        dumpManager.getDump(id, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY).srPoliciesDetails.stream()
                 .filter(srPoliciesDetails -> arrayToIpv6AddressNoZone(srPoliciesDetails.bsid.addr).getValue()
                         .equals(bsid.getValue()))
                 .findFirst()
@@ -212,7 +212,7 @@ public class PolicyReadRequest extends JVppRequest
 
     public List<NamedSegmentListKey> readNamedSegmentListKeys(final InstanceIdentifier<NamedSegmentList> id,
                                                               final ReadContext ctx) throws ReadFailedException {
-        return dumpManager.getDump(id, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY).srPoliciesDetails.stream()
+        return dumpManager.getDump(id, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY).srPoliciesDetails.stream()
                 .map(srPoliciesDetails -> {
                     String bsid = arrayToIpv6AddressNoZone(srPoliciesDetails.bsid.addr).getValue();
                     return Arrays.stream(srPoliciesDetails.sidLists).map(srv6SidList -> srv6SidList.weight)
@@ -237,7 +237,7 @@ public class PolicyReadRequest extends JVppRequest
         Preconditions.checkNotNull(bsid, "Weight/Bsid not resolved for Iid: {}", id);
 
         builder.setSegments(new SegmentsBuilder().build());
-        dumpManager.getDump(id, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY).srPoliciesDetails.stream()
+        dumpManager.getDump(id, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY).srPoliciesDetails.stream()
                 .filter(srPoliciesDetails -> arrayToIpv6AddressNoZone(srPoliciesDetails.bsid.addr).getValue()
                         .equals(bsid))
                 .forEach(srPoliciesDetails -> Arrays.stream(srPoliciesDetails.sidLists)

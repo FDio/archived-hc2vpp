@@ -108,7 +108,7 @@ public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUs
 
         final SwInterfaceVhostUserDetailsReplyDump dump =
                 vhostDumpManager.getDump(id, ctx.getModificationCache())
-                        .or(new SwInterfaceVhostUserDetailsReplyDump());
+                        .orElse(new SwInterfaceVhostUserDetailsReplyDump());
 
         // Relying here that parent InterfaceCustomizer was invoked first to fill in the context with initial ifc mapping
         final SwInterfaceVhostUserDetails swInterfaceVhostUserDetails = dump.swInterfaceVhostUserDetails.stream()

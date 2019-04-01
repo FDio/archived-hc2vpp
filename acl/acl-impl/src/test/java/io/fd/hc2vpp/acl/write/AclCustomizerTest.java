@@ -23,7 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.acl.AclIIds;
 import io.fd.hc2vpp.acl.AclTestSchemaContext;
 import io.fd.hc2vpp.acl.util.AclContextManager;
@@ -224,7 +224,7 @@ public class AclCustomizerTest extends WriterCustomizerTest implements AclTestSc
     @Test
     public void deleteCurrentAttributesIcmpIpv4(@InjectTestData(resourcePath = "/acl/standard/standard-acl-icmp.json")
                                                         Acls standardAcls) throws Exception {
-        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.absent());
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.empty());
         final int aclIndex = 4;
         when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         aclCustomizer.deleteCurrentAttributes(validId, standardAcls.getAcl().get(0), writeContext);
@@ -237,7 +237,7 @@ public class AclCustomizerTest extends WriterCustomizerTest implements AclTestSc
     public void deleteCurrentAttributesIcmpIpv6(
             @InjectTestData(resourcePath = "/acl/standard/standard-acl-icmp-v6.json")
                     Acls standardAcls) throws Exception {
-        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.absent());
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.empty());
         final int aclIndex = 4;
         when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         aclCustomizer.deleteCurrentAttributes(validId, standardAcls.getAcl().get(0), writeContext);
@@ -249,7 +249,7 @@ public class AclCustomizerTest extends WriterCustomizerTest implements AclTestSc
     @Test
     public void deleteCurrentAttributesTcp(@InjectTestData(resourcePath = "/acl/standard/standard-acl-tcp.json")
                                                    Acls standardAcls) throws Exception {
-        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.absent());
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.empty());
         final int aclIndex = 4;
         when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         aclCustomizer.deleteCurrentAttributes(validId, standardAcls.getAcl().get(0), writeContext);
@@ -261,7 +261,7 @@ public class AclCustomizerTest extends WriterCustomizerTest implements AclTestSc
     @Test
     public void deleteCurrentAttributesUdp(@InjectTestData(resourcePath = "/acl/standard/standard-acl-udp.json")
                                                    Acls standardAcls) throws Exception {
-        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.absent());
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.empty());
         final int aclIndex = 4;
         when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         aclCustomizer.deleteCurrentAttributes(validId, standardAcls.getAcl().get(0), writeContext);

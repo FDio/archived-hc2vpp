@@ -50,7 +50,7 @@ public class L2SteeringRequest extends SteeringRequest
     @Nonnull
     public List<InterfaceKey> readAllKeys(@Nonnull InstanceIdentifier<Interface> identifier, @Nonnull ReadContext ctx)
             throws ReadFailedException {
-        return dumpManager.getDump(identifier, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY)
+        return dumpManager.getDump(identifier, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY)
                 .srSteeringPolDetails.stream()
                 .filter(srSteeringPolDetails -> ((int) srSteeringPolDetails.trafficType) == L2_TRAFFIC_TYPE)
                 .map(srSteeringPolDetails -> srSteeringPolDetails.swIfIndex)
@@ -65,7 +65,7 @@ public class L2SteeringRequest extends SteeringRequest
                 ifcNamingContext.getIndex(identifier.firstKeyOf(Interface.class).getInputInterface(),
                         ctx.getMappingContext());
 
-        dumpManager.getDump(identifier, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY)
+        dumpManager.getDump(identifier, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY)
                 .srSteeringPolDetails.stream()
                 .filter(srSteeringPolDetails -> ((int) srSteeringPolDetails.trafficType) == L2_TRAFFIC_TYPE)
                 .filter(srSteeringPolDetails -> srSteeringPolDetails.swIfIndex == index)

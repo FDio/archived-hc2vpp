@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.acl.read;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.FutureJVppAclCustomizer;
 import io.fd.hc2vpp.acl.util.ace.AceConverter;

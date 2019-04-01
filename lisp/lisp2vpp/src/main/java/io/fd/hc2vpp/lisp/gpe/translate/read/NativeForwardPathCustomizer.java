@@ -170,13 +170,13 @@ public class NativeForwardPathCustomizer extends FutureJVppCustomizer
                                                      final ModificationCache modificationCache,
                                                      final DumpCacheManager<GpeNativeFwdRpathsGetReply, Integer> dumpCacheManager)
             throws ReadFailedException {
-        return dumpCacheManager.getDump(id, modificationCache, 1).or(DEFAULT_DUMP);
+        return dumpCacheManager.getDump(id, modificationCache, 1).orElse(DEFAULT_DUMP);
     }
 
     private static GpeNativeFwdRpathsGetReply v6Dump(final @Nonnull InstanceIdentifier<?> id,
                                                      final ModificationCache modificationCache,
                                                      final DumpCacheManager<GpeNativeFwdRpathsGetReply, Integer> dumpCacheManager)
             throws ReadFailedException {
-        return dumpCacheManager.getDump(id, modificationCache, 0).or(DEFAULT_DUMP);
+        return dumpCacheManager.getDump(id, modificationCache, 0).orElse(DEFAULT_DUMP);
     }
 }

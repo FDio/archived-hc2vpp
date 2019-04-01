@@ -105,7 +105,7 @@ public class TapV2Customizer extends FutureJVppCustomizer
 
         LOG.debug("Reading attributes for tapV2 interface: {}", key.getName());
         final SwInterfaceTapV2DetailsReplyDump reply = tapV2DumpManager.getDump(id, ctx.getModificationCache())
-                .or(new SwInterfaceTapV2DetailsReplyDump());
+                .orElse(new SwInterfaceTapV2DetailsReplyDump());
 
         final Optional<SwInterfaceTapV2Details> detail = reply.swInterfaceTapV2Details.stream()
                 .filter(d -> d.swIfIndex == index)

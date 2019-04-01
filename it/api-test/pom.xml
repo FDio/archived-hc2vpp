@@ -119,5 +119,11 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-data-impl</artifactId>
+            <version>${odl.yangtools.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

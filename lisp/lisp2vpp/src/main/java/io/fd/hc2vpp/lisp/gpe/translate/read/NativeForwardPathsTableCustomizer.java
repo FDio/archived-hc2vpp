@@ -143,7 +143,7 @@ public class NativeForwardPathsTableCustomizer extends FutureJVppCustomizer impl
     private Stream<Integer> v4FibsStream(final InstanceIdentifier<NativeForwardPathsTable> id,
                                          final ReadContext ctx) throws ReadFailedException {
 
-        return dumpCacheManagerV4.getDump(id, ctx.getModificationCache()).or(DEFAULT_REPLY_V4)
+        return dumpCacheManagerV4.getDump(id, ctx.getModificationCache()).orElse(DEFAULT_REPLY_V4)
                 .ipFibDetails.stream()
                 .map(ipFibDetails -> ipFibDetails.tableId);
     }
@@ -151,7 +151,7 @@ public class NativeForwardPathsTableCustomizer extends FutureJVppCustomizer impl
     private Stream<Integer> v6FibsStream(final InstanceIdentifier<NativeForwardPathsTable> id,
                                          final ReadContext ctx) throws ReadFailedException {
 
-        return dumpCacheManagerV6.getDump(id, ctx.getModificationCache()).or(DEFAULT_REPLY_V6)
+        return dumpCacheManagerV6.getDump(id, ctx.getModificationCache()).orElse(DEFAULT_REPLY_V6)
                 .ip6FibDetails.stream()
                 .map(ip6FibDetails -> ip6FibDetails.tableId);
     }

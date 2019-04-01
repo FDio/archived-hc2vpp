@@ -19,7 +19,7 @@ package io.fd.hc2vpp.routing.write;
 import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_INDEX;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import io.fd.hc2vpp.fib.management.FibManagementIIds;
 import io.fd.hc2vpp.routing.Ipv6RouteData;

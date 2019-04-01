@@ -18,7 +18,6 @@ package io.fd.hc2vpp.lisp.gpe.translate.read;
 
 import static java.lang.String.format;
 
-import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -44,6 +43,7 @@ import io.fd.jvpp.core.types.GpeLocator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
@@ -244,7 +244,7 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
 
     private Stream<Integer> activeVnis(final InstanceIdentifier<GpeEntry> id,
                                        final ModificationCache cache) throws ReadFailedException {
-        final int[] vnis = activeVnisDumpManager.getDump(id, cache).or(() -> {
+        final int[] vnis = activeVnisDumpManager.getDump(id, cache).orElseGet(() -> {
             final GpeFwdEntryVnisGetReply reply = new GpeFwdEntryVnisGetReply();
             reply.vnis = new int[0];
             return reply;

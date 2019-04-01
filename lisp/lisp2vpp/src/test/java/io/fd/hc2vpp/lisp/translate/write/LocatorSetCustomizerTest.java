@@ -26,7 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -36,6 +35,8 @@ import io.fd.jvpp.core.dto.OneLocatorSetDetails;
 import io.fd.jvpp.core.dto.OneLocatorSetDetailsReplyDump;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -76,12 +77,12 @@ public class LocatorSetCustomizerTest extends LispWriterCustomizerTest {
                 lispStateCheckService);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = NoSuchElementException.class)
     public void testWriteCurrentAttributesNullData() throws WriteFailedException {
         customizer.writeCurrentAttributes(null, null, writeContext);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = NoSuchElementException.class)
     public void testWriteCurrentAttributesBadData() throws WriteFailedException {
         customizer.writeCurrentAttributes(null, mock(LocatorSet.class), writeContext);
     }
@@ -138,7 +139,7 @@ public class LocatorSetCustomizerTest extends LispWriterCustomizerTest {
 
     @Test
     public void testDeleteCurrentAttributes() throws InterruptedException, ExecutionException, WriteFailedException {
-        when(writeContext.readAfter(EID_TABLE_ID)).thenReturn(Optional.absent());
+        when(writeContext.readAfter(EID_TABLE_ID)).thenReturn(Optional.empty());
         verifySuccessfullDelete(LOCATOR_SET_TO_DELETE);
     }
 

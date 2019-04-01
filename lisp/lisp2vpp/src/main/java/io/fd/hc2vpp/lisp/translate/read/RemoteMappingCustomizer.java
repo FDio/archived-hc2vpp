@@ -22,7 +22,6 @@ import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDump
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.FilterType;
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.MappingsDumpParamsBuilder;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
@@ -53,6 +52,7 @@ import io.fd.jvpp.core.dto.OneLocatorDetailsReplyDump;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.MapReplyAction;
@@ -248,7 +248,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
             reply = locatorsDumpManager.getDump(locatorIfaceIdentifier, cache,
                     new LocatorDumpParamsBuilder().setLocatorSetIndex(details.locatorSetIndex).build());
 
-            bindPositiveMapping(builder, reply.or(new OneLocatorDetailsReplyDump()));
+            bindPositiveMapping(builder, reply.orElse(new OneLocatorDetailsReplyDump()));
         }
     }
 

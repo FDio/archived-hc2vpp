@@ -17,7 +17,6 @@
 
 package io.fd.hc2vpp.acl.read;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Streams;
 import io.fd.hc2vpp.acl.util.FutureJVppAclCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -33,7 +32,9 @@ import io.fd.jvpp.acl.dto.MacipAclInterfaceListDetailsReplyDump;
 import io.fd.jvpp.acl.dto.MacipAclInterfaceListDump;
 import io.fd.jvpp.acl.future.FutureJVppAclFacade;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
@@ -98,13 +99,15 @@ public class InterfaceAclCustomizer extends FutureJVppAclCustomizer implements
         final Optional<MacipAclInterfaceListDetailsReplyDump> macIpIfcDumpReply =
                 macipAclInterfaceListDumpManager.getDump(instanceIdentifier, readContext.getModificationCache());
 
-        Stream<InterfaceKey> stdAclIfcKeys = stdIfcDumpReply.asSet().stream()
+        Stream<InterfaceKey> stdAclIfcKeys =
+                stdIfcDumpReply.map(Collections::singleton).orElse(Collections.emptySet()).stream()
                 .map(dump -> dump.aclInterfaceListDetails)
                 .flatMap(Collection::stream)
                 .filter(aclInterfaceListDetails -> aclInterfaceListDetails.acls.length != 0)
                 .map(details -> getInterfaceKey(readContext, details.swIfIndex));
 
-        Stream<InterfaceKey> macIpAclIfcKeys = macIpIfcDumpReply.asSet().stream()
+        Stream<InterfaceKey> macIpAclIfcKeys =
+                macIpIfcDumpReply.map(Collections::singleton).orElse(Collections.emptySet()).stream()
                 .map(dump -> dump.macipAclInterfaceListDetails)
                 .flatMap(Collection::stream)
                 .map(details -> getInterfaceKey(readContext, details.swIfIndex));

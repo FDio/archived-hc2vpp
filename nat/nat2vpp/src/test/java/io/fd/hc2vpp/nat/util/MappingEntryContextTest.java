@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.honeycomb.translate.MappingContext;
@@ -56,7 +56,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
 
     @Test
     public void testAdd() throws Exception {
-        when(mappingCtx.read(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
+        when(mappingCtx.read(any(InstanceIdentifier.class))).thenReturn(Optional.empty());
         final long natId = 7;
         final long entryId = 99;
         final MappingEntry entry = getEntry(natId, "192.168.1.5/32", "17.14.4.6/32");
@@ -116,7 +116,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
         final long entryId = 12;
         final Nat44StaticMappingDetails details = getDetails(entryId, "192.168.1.5", "17.14.4.6");
         final List<Nat44StaticMappingDetails> someDetails = Lists.newArrayList(details);
-        when(mappingCtx.read(MappingEntryContext.getTableId(natId))).thenReturn(Optional.absent());
+        when(mappingCtx.read(MappingEntryContext.getTableId(natId))).thenReturn(Optional.empty());
 
         ctx.findDetailsNat44(someDetails, natId, entryId, mappingCtx);
     }
@@ -150,7 +150,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
         final MappingEntry newEntry = getEntry(newEntryId, "192.168.1.99/32", "17.14.4.99/32");
         final Nat44StaticMappingDetails newDetails = getDetails(newEntryId, "192.168.1.99", "17.14.4.99");
         when(mappingCtx.read(MappingEntryContext.getId(natId, MappingEntryContext.entryToKey(newEntry))))
-                .thenReturn(Optional.absent());
+                .thenReturn(Optional.empty());
 
         when(mappingCtx.read(MappingEntryContext.getTableId(natId)))
                 .thenReturn(Optional.of(new MappingTableBuilder()

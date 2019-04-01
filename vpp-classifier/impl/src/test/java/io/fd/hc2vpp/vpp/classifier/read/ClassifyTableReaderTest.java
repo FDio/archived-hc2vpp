@@ -23,7 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -100,7 +100,7 @@ public class ClassifyTableReaderTest extends
 
         when(classifierContext.containsTable(TABLE_NAME_1, mappingContext)).thenReturn(true);
         when(classifierContext.getTableIndex(TABLE_NAME_1, mappingContext)).thenReturn(TABLE_INDEX_1);
-        when(classifierContext.getTableBaseNode(TABLE_NAME_1, mappingContext)).thenReturn(Optional.absent());
+        when(classifierContext.getTableBaseNode(TABLE_NAME_1, mappingContext)).thenReturn(Optional.empty());
 
         final ClassifyTableBuilder builder = mock(ClassifyTableBuilder.class);
         getCustomizer().readCurrentAttributes(getClassifyTableId(TABLE_NAME_1), builder, ctx);

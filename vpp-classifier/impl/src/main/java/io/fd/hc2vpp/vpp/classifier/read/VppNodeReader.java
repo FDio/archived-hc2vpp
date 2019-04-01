@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.vpp.classifier.read;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 import javax.annotation.Nonnull;
@@ -38,7 +38,7 @@ interface VppNodeReader {
         final PacketHandlingAction action = PacketHandlingAction.forValue(nodeIndex);
         if (action == null) {
             return vppClassifierContextManager.getNodeName(tableIndex, nodeIndex, ctx)
-                .transform(nodeName -> new VppNode(new VppNodeName(nodeName)));
+                    .map(nodeName -> new VppNode(new VppNodeName(nodeName)));
         }
         return Optional.of(new VppNode(action));
     }

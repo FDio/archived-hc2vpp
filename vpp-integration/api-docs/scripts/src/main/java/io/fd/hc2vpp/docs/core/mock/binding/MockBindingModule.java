@@ -25,7 +25,7 @@ import io.fd.jvpp.JVppRegistry;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 
 /**
  * Use to bypass jvpp registration, and infra modules

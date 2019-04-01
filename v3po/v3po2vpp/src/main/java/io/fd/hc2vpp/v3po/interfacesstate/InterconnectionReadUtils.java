@@ -84,7 +84,7 @@ final class InterconnectionReadUtils implements InterfaceDataTranslator {
         LOG.debug("Interface details for interface: {}, details: {}", ifaceName, iface);
 
         final BridgeDomainDetailsReplyDump dumpReply = bdDumpManager.getDump(id, ctx.getModificationCache())
-                .or(new BridgeDomainDetailsReplyDump());
+                .orElse(new BridgeDomainDetailsReplyDump());
         for (final BridgeDomainDetails bd : dumpReply.bridgeDomainDetails) {
             final Optional<BridgeDomainSwIf> bdIfAssignment = getBridgeDomainSwIf(ifaceId, bd);
             if (bdIfAssignment.isPresent()) {

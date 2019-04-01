@@ -21,7 +21,7 @@ import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_INDEX;
 import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_NAME;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -120,8 +120,8 @@ abstract class RouteCustomizerTest extends WriterCustomizerTest implements Routi
         when(writeContext.readAfter(TABLE_V6_IID)).thenReturn(Optional.of(
                 new TableBuilder().withKey(IPV6_TABLE_KEY).setAddressFamily(Ipv6.class)
                         .setTableId(IPV6_TABLE_KEY.getTableId()).build()));
-        when(writeContext.readAfter(INVALID_TABLE_V4_IID)).thenReturn(Optional.absent());
-        when(writeContext.readAfter(INVALID_TABLE_V6_IID)).thenReturn(Optional.absent());
+        when(writeContext.readAfter(INVALID_TABLE_V4_IID)).thenReturn(Optional.empty());
+        when(writeContext.readAfter(INVALID_TABLE_V6_IID)).thenReturn(Optional.empty());
 
     }
 }

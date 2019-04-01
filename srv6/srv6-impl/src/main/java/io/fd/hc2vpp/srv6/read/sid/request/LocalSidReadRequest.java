@@ -125,7 +125,7 @@ public class LocalSidReadRequest extends JVppRequest implements ReadRequest<Sid,
                 "Identifier does not have %s ", LocatorKey.class);
         String locator = key.getName();
 
-        return dumpManager.getDump(identifier, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY).srLocalsidsDetails
+        return dumpManager.getDump(identifier, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY).srLocalsidsDetails
                 .stream()
                 .filter(detail -> arrayToIpv6AddressNoZone(detail.addr.addr).getValue().contains(locator))
                 .map(srLocalsidsDetails -> extractOpCode(arrayToIpv6AddressNoZone(srLocalsidsDetails.addr.addr),
@@ -156,7 +156,7 @@ public class LocalSidReadRequest extends JVppRequest implements ReadRequest<Sid,
         Ipv6Address sidAddress =
                 parseSrv6SidAddress(locator.getValue(), locLength.toString(), sidKey.getOpcode().getValue());
 
-        dumpManager.getDump(identifier, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY).srLocalsidsDetails
+        dumpManager.getDump(identifier, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY).srLocalsidsDetails
                 .stream()
                 .filter(detail -> Arrays.equals(detail.addr.addr, ipv6AddressNoZoneToArray(sidAddress)))
                 .findFirst()

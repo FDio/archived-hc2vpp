@@ -19,7 +19,7 @@ package io.fd.hc2vpp.lisp.context.util;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.util.RWUtils;
 import java.util.stream.Collector;

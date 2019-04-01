@@ -19,7 +19,7 @@ package io.fd.hc2vpp.common.translate.util;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.util.RWUtils;
 import java.util.List;
@@ -97,7 +97,7 @@ public final class NamingContext implements AutoCloseable {
                                                           @Nonnull final MappingContext mappingContext) {
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
         if (!read.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         final List<Mapping> mappings = read.get().getMapping().stream()
@@ -109,7 +109,7 @@ public final class NamingContext implements AutoCloseable {
         } else if (mappings.size() == 1) {
             return Optional.of(mappings.get(0).getName());
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

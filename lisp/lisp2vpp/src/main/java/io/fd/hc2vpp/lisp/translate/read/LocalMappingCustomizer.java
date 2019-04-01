@@ -23,7 +23,7 @@ import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDump
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.MappingsDumpParamsBuilder;
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.QuantityType;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;

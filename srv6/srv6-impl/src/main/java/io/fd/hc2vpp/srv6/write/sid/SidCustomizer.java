@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.srv6.write.sid;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.googlecode.ipv6.IPv6NetworkMask;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;

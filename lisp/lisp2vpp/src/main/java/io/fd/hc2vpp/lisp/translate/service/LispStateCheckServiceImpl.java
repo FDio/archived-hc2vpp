@@ -55,14 +55,14 @@ public final class LispStateCheckServiceImpl implements LispStateCheckService, J
     public void checkLispEnabledBefore(@Nonnull final WriteContext ctx) {
         // no need to dump here, can be read directly from context
         checkState(ctx.readBefore(InstanceIdentifier.create(Lisp.class))
-                .or(STATIC_LISP_INSTANCE).isEnable(), "Lisp feature not enabled");
+                .orElse(STATIC_LISP_INSTANCE).isEnable(), "Lisp feature not enabled");
     }
 
     @Override
     public void checkLispEnabledAfter(@Nonnull final WriteContext ctx) {
         // no need to dump here, can be read directly from context
         checkState(ctx.readAfter(InstanceIdentifier.create(Lisp.class))
-                .or(STATIC_LISP_INSTANCE).isEnable(), "Lisp feature not enabled");
+                .orElse(STATIC_LISP_INSTANCE).isEnable(), "Lisp feature not enabled");
     }
 
     @Override
@@ -70,7 +70,7 @@ public final class LispStateCheckServiceImpl implements LispStateCheckService, J
         // in this case it must be dumped
         try {
             return byteToBoolean(dumpManager.getDump(IDENTIFIER, ctx.getModificationCache())
-                    .or(DEFAULT_REPLY).featureStatus);
+                    .orElse(DEFAULT_REPLY).featureStatus);
         } catch (ReadFailedException e) {
             throw new IllegalStateException("Unable to read Lisp Feature status", e);
         }

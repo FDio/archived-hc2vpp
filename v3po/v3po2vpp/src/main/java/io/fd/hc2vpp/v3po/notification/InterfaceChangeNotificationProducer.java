@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.v3po.notification;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;

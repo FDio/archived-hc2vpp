@@ -19,7 +19,7 @@ package io.fd.hc2vpp.lisp.util;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.mockito.Mockito.doReturn;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.MappingContext;
 import java.util.List;
@@ -109,7 +109,7 @@ public interface AdjacencyMappingContextTestHelper {
         final List<Mapping> list = Common.getMappingList(mappingContext, iid);
 
         doReturn(Optional.of(new MappingsBuilder().setMapping(list).build())).when(mappingContext).read(iid);
-        doReturn(Optional.absent()).when(mappingContext).read(mappingIid(name, namingContextName));
+        doReturn(Optional.empty()).when(mappingContext).read(mappingIid(name, namingContextName));
     }
 
     final class Common {

@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.acl.AclIIds;
 import io.fd.hc2vpp.acl.AclTestSchemaContext;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;

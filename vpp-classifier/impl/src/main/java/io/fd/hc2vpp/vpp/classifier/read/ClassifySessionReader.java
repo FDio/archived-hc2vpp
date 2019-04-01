@@ -18,7 +18,7 @@ package io.fd.hc2vpp.vpp.classifier.read;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInts;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
@@ -185,7 +185,7 @@ public class ClassifySessionReader extends FutureJVppCustomizer
             final List<ClassifySessionDetails> filteredSessions = details.stream()
                     .filter(singleDetail -> Arrays.equals(singleDetail.match, match)).collect(Collectors.toList());
             if (filteredSessions.isEmpty()) {
-                return Optional.absent();
+                return Optional.empty();
             } else if (filteredSessions.size() == 1) {
                 return Optional.of(filteredSessions.get(0));
             } else {
@@ -194,7 +194,7 @@ public class ClassifySessionReader extends FutureJVppCustomizer
                         filteredSessions.size()));
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Nonnull

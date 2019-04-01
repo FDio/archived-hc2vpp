@@ -19,7 +19,7 @@ package io.fd.hc2vpp.lisp.util;
 
 import static org.mockito.Mockito.doReturn;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.MappingContext;
 import java.util.List;
@@ -96,7 +96,7 @@ public interface EidMappingContextHelper {
         final List<Mapping> list = Common.getMappingList(mappingContext, iid);
 
         doReturn(Optional.of(new MappingsBuilder().setMapping(list).build())).when(mappingContext).read(iid);
-        doReturn(Optional.absent()).when(mappingContext).read(mappingIid(new MappingId(name), namingContextName));
+        doReturn(Optional.empty()).when(mappingContext).read(mappingIid(new MappingId(name), namingContextName));
     }
 
     final class Common {

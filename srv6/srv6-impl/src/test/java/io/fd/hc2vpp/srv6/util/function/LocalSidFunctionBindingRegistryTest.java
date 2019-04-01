@@ -18,7 +18,7 @@ package io.fd.hc2vpp.srv6.util.function;
 
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.fib.management.FibManagementIIds;
 import io.fd.hc2vpp.srv6.util.JvppRequestTest;

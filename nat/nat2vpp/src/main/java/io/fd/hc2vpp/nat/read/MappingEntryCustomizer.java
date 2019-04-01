@@ -86,7 +86,7 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
         final int natInstanceId = id.firstKeyOf(Instance.class).getId().intValue();
         final List<Nat44StaticMappingDetails> nat44Details =
                 nat44DumpManager.getDump(id, ctx.getModificationCache())
-                        .or(new Nat44StaticMappingDetailsReplyDump()).nat44StaticMappingDetails;
+                        .orElse(new Nat44StaticMappingDetailsReplyDump()).nat44StaticMappingDetails;
         final Optional<Nat44StaticMappingDetails> nat44StaticMappingDetails =
                 mappingEntryContext.findDetailsNat44(nat44Details, natInstanceId, idx, ctx.getMappingContext());
 
@@ -95,7 +95,7 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
         } else {
             final List<Nat64BibDetails> nat64Details =
                     nat64DumpManager.getDump(id, ctx.getModificationCache())
-                            .or(new Nat64BibDetailsReplyDump()).nat64BibDetails;
+                            .orElse(new Nat64BibDetailsReplyDump()).nat64BibDetails;
 
             final Optional<Nat64BibDetails> nat64StaticMappingDetails =
                     mappingEntryContext.findDetailsNat64(nat64Details, natInstanceId, idx, ctx.getMappingContext());
@@ -153,7 +153,7 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
 
         final List<MappingEntryKey> entryKeys =
                 nat44DumpManager.getDump(id, context.getModificationCache())
-                        .or(new Nat44StaticMappingDetailsReplyDump()).nat44StaticMappingDetails.stream()
+                        .orElse(new Nat44StaticMappingDetailsReplyDump()).nat44StaticMappingDetails.stream()
                         .filter(detail -> natInstanceId == detail.vrfId)
                         .map(detail -> mappingEntryContext
                                 .getStoredOrArtificialIndex(natInstanceId, detail, context.getMappingContext()))
@@ -163,7 +163,7 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
 
         final List<MappingEntryKey> nat64Keys =
                 nat64DumpManager.getDump(id, context.getModificationCache())
-                        .or(new Nat64BibDetailsReplyDump()).nat64BibDetails.stream()
+                        .orElse(new Nat64BibDetailsReplyDump()).nat64BibDetails.stream()
                         .filter(detail -> natInstanceId == detail.vrfId)
                         .map(detail -> mappingEntryContext
                                 .getStoredOrArtificialIndex(natInstanceId, detail, context.getMappingContext()))

@@ -18,7 +18,7 @@
 package io.fd.hc2vpp.acl.read;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import io.fd.hc2vpp.acl.util.AclContextManager;

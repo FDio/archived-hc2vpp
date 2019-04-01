@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.translate.util.ReferenceCheck;
@@ -35,6 +34,7 @@ import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.DpSubtableGrouping;
@@ -100,7 +100,7 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
         if (eidTableData.isPresent()) {
             // due to non-functional LeafRefValidation, it must be checked like this
             final List<VniTable> vniTables =
-                    Optional.fromNullable(eidTableData.get().getVniTable()).or(Collections.emptyList());
+                    Optional.ofNullable(eidTableData.get().getVniTable()).orElse(Collections.emptyList());
             checkReferenceExist(id, vrfReferences(vniTables, locatorSetName));
             checkReferenceExist(id, bdReferences(vniTables, locatorSetName));
         }

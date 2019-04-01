@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import java.util.Arrays;
 import java.util.List;
@@ -66,7 +66,7 @@ public class DisabledInterfacesManagerTest {
         doReturn(Optional.of(toIndex(1)))
                 .when(mappingContext)
                 .read(SPECIFIC_ID_1);
-        doReturn(Optional.absent())
+        doReturn(Optional.empty())
                 .when(mappingContext)
                 .read(SPECIFIC_ID_4);
     }

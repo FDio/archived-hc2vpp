@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
 import io.fd.hc2vpp.lisp.translate.read.trait.LocatorSetReader;

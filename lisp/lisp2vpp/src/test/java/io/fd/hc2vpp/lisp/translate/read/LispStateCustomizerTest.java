@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.common.test.read.InitializingReaderCustomizerTest;
 import io.fd.hc2vpp.common.test.util.NamingContextHelper;
@@ -131,9 +131,9 @@ public class LispStateCustomizerTest extends InitializingReaderCustomizerTest<Li
 
         when(mappingContext.read(namingContextId.child(Mappings.class)))
                 .thenReturn(Optional.of(new MappingsBuilder().setMapping(Arrays.asList(loc1Data, loc2Data)).build()));
-        when(mappingContext.read(loc1Key)).thenReturn(Optional.absent())
+        when(mappingContext.read(loc1Key)).thenReturn(Optional.empty())
                 .thenReturn(Optional.of(loc1Data)).thenReturn(Optional.of(loc1Data));
-        when(mappingContext.read(loc2Key)).thenReturn(Optional.absent())
+        when(mappingContext.read(loc2Key)).thenReturn(Optional.empty())
                 .thenReturn(Optional.of(loc2Data)).thenReturn(Optional.of(loc2Data));
 
 

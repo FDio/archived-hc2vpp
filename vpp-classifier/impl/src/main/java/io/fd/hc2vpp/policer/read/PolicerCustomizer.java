@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.policer.read;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.primitives.Longs;
 import com.google.common.primitives.UnsignedInts;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;

@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 
-import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -33,6 +32,7 @@ import io.fd.jvpp.core.dto.OneLocatorSetDetailsReplyDump;
 import io.fd.jvpp.core.dto.ShowOneStatus;
 import io.fd.jvpp.core.dto.ShowOneStatusReply;
 import io.fd.jvpp.core.future.FutureJVppCore;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.lisp.rev171013.Lisp;

@@ -18,7 +18,7 @@ package io.fd.hc2vpp.lisp.translate.read;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.SubtableDumpParams;
 import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;

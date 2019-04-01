@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.test.util.FutureProducer;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -58,7 +58,7 @@ public class LispStateCheckServiceImplTest implements FutureProducer {
 
     @Test(expected = IllegalStateException.class)
     public void testCheckLispEnabledBeforeNoConfig() throws Exception {
-        when(writeContext.readBefore(InstanceIdentifier.create(Lisp.class))).thenReturn(Optional.absent());
+        when(writeContext.readBefore(InstanceIdentifier.create(Lisp.class))).thenReturn(Optional.empty());
         impl.checkLispEnabledBefore(writeContext);
     }
 
@@ -79,7 +79,7 @@ public class LispStateCheckServiceImplTest implements FutureProducer {
 
     @Test(expected = IllegalStateException.class)
     public void testCheckLispEnabledAfterNoConfig() throws Exception {
-        when(writeContext.readAfter(InstanceIdentifier.create(Lisp.class))).thenReturn(Optional.absent());
+        when(writeContext.readAfter(InstanceIdentifier.create(Lisp.class))).thenReturn(Optional.empty());
         impl.checkLispEnabledAfter(writeContext);
     }
 

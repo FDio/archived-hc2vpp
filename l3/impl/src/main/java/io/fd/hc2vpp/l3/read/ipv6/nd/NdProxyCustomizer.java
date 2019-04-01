@@ -19,7 +19,7 @@ package io.fd.hc2vpp.l3.read.ipv6.nd;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;

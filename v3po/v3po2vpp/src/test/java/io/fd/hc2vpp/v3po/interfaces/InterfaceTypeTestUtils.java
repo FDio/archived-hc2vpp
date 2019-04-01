@@ -18,7 +18,7 @@ package io.fd.hc2vpp.v3po.interfaces;
 
 import static org.mockito.Mockito.doReturn;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.write.WriteContext;
 import org.mockito.Matchers;

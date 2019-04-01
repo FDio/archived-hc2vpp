@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.v3po;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.translate.MappingContext;
@@ -27,8 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.context.rev160909.DisabledInterfaces;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.context.rev160909.DisabledInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.context.rev160909.disabled.interfaces.DisabledInterfaceIndex;

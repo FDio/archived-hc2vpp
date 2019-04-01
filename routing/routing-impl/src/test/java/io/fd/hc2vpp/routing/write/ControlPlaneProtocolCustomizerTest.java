@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.fib.management.FibManagementIIds;
@@ -118,8 +118,8 @@ public class ControlPlaneProtocolCustomizerTest extends WriterCustomizerTest {
         when(writeContext.readAfter(vrfIidV6)).thenReturn(Optional.of(
                 new TableBuilder().withKey(keyV6).setAddressFamily(keyV6.getAddressFamily())
                         .setTableId(keyV6.getTableId()).setName("VRF-IPV6-1").build()));
-        when(writeContext.readAfter(invalidVrfIidV4)).thenReturn(Optional.absent());
-        when(writeContext.readAfter(invalidVrfIidV6)).thenReturn(Optional.absent());
+        when(writeContext.readAfter(invalidVrfIidV4)).thenReturn(Optional.empty());
+        when(writeContext.readAfter(invalidVrfIidV6)).thenReturn(Optional.empty());
     }
 
     @Test(expected = WriteFailedException.class)

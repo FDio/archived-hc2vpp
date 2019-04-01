@@ -18,7 +18,7 @@ package io.fd.hc2vpp.lisp.context.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.util.RWUtils;

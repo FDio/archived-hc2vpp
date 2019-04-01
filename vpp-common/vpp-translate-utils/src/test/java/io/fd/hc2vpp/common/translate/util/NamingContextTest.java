@@ -23,7 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
@@ -110,7 +110,7 @@ public class NamingContextTest implements InjectablesProcessor {
 
     @Test
     public void addNameNoMapings() throws Exception {
-        when(mappingContext.read(namingContextIid.child(Mappings.class))).thenReturn(Optional.absent());
+        when(mappingContext.read(namingContextIid.child(Mappings.class))).thenReturn(Optional.empty());
 
         namingContext.addName("name-0", mappingContext);
         verify(mappingContext, times(1))
@@ -125,7 +125,7 @@ public class NamingContextTest implements InjectablesProcessor {
 
     @Test(expected = IllegalArgumentException.class)
     public void getAndThrow() {
-        when(mappingContext.read(any())).thenReturn(Optional.absent());
+        when(mappingContext.read(any())).thenReturn(Optional.empty());
         namingContext
                 .getIndex("non-existing", mappingContext, () -> new IllegalArgumentException("Non existing index"));
     }
@@ -146,7 +146,7 @@ public class NamingContextTest implements InjectablesProcessor {
         final Mappings mappings = new MappingsBuilder().setMapping(Lists.newArrayList(mapping1)).build();
         when(mappingContext.read(namingContextIid.child(Mappings.class))).thenReturn(Optional.of(mappings));
 
-        assertEquals(Optional.absent(), namingContext.getNameIfPresent(0, mappingContext));
+        assertEquals(Optional.empty(), namingContext.getNameIfPresent(0, mappingContext));
     }
 
     @Test

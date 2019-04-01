@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.vpp.classifier.context;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

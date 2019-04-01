@@ -96,7 +96,7 @@ final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager {
                 identifier);
         final SwInterfaceDetailsReplyDump reply =
                 specificDumpManager.getDump(identifier, ctx.getModificationCache(), interfaceName)
-                        .or(new SwInterfaceDetailsReplyDump());
+                        .orElse(new SwInterfaceDetailsReplyDump());
 
         if (reply.swInterfaceDetails.isEmpty()) {
             return null;
@@ -113,7 +113,7 @@ final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager {
             LOG.debug("Performing dump[{}]", identifier);
             final SwInterfaceDetailsReplyDump dump =
                     fullDumpManager.getDump(identifier, cache)
-                            .or(new SwInterfaceDetailsReplyDump());
+                            .orElse(new SwInterfaceDetailsReplyDump());
 
             // naming context initialization must be done here, as it is uses getName in next step, therefore it would
             // create artificial mapping for every interface, because this happens before interface dump is processed

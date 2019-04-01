@@ -24,7 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
@@ -102,7 +102,7 @@ public class MultiNamingContextTest implements InjectablesProcessor {
                 .child(MultiNaming.class, new MultiNamingKey("context"));
 
         when(mappingContext.read(multiNamingContextIid.child(Mappings.class))).thenReturn(Optional.of(mappings));
-        when(mappingContext.read(parentKey(NON_EXISTING_PARENT))).thenReturn(Optional.absent());
+        when(mappingContext.read(parentKey(NON_EXISTING_PARENT))).thenReturn(Optional.empty());
         when(mappingContext.read(parentKey(PARENT_1))).thenReturn(Optional.of(filterForParent(PARENT_1)));
         when(mappingContext.read(parentKey(PARENT_2))).thenReturn(Optional.of(filterForParent(PARENT_2)));
         when(mappingContext.read(parentKey(PARENT_3))).thenReturn(Optional.of(filterForParent(PARENT_3)));

@@ -23,7 +23,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -178,7 +178,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
         defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
-        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.absent());
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.empty());
 
         whenBridgeDomainAddDelThenSuccess();
 
@@ -241,7 +241,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain("bd1");
         noMappingDefined(mappingContext, bdName, BD_CTX_NAME);
-        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.absent());
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.empty());
 
         try {
             customizer.deleteCurrentAttributes(bdIdentifierForName(bdName), bd, writeContext);
@@ -258,7 +258,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
         defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
-        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.absent());
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.empty());
 
         whenBridgeDomainAddDelThenFailure();
 

@@ -19,7 +19,7 @@ package io.fd.hc2vpp.srv6.util;
 
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.srv6.Srv6PolicyIIds;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import org.junit.Assert;

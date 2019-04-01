@@ -18,7 +18,7 @@ package io.fd.hc2vpp.lisp.translate.read;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
 import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;

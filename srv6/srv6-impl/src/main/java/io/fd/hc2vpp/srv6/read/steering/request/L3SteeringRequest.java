@@ -58,7 +58,7 @@ public class L3SteeringRequest extends SteeringRequest
     @Nonnull
     public List<PrefixKey> readAllKeys(@Nonnull InstanceIdentifier<Prefix> identifier, @Nonnull ReadContext ctx)
             throws ReadFailedException {
-        return dumpManager.getDump(identifier, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY)
+        return dumpManager.getDump(identifier, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY)
                 .srSteeringPolDetails.stream()
                 .filter(
                         srSteeringPolDetails -> ((int) srSteeringPolDetails.trafficType) !=
@@ -69,7 +69,7 @@ public class L3SteeringRequest extends SteeringRequest
 
     public List<IpPrefix> readAllIpPrefixes(@Nonnull InstanceIdentifier<Prefixes> identifier, @Nonnull ReadContext ctx)
             throws ReadFailedException {
-        return dumpManager.getDump(identifier, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY)
+        return dumpManager.getDump(identifier, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY)
                 .srSteeringPolDetails.stream()
                 .filter(
                         srSteeringPolDetails -> ((int) srSteeringPolDetails.trafficType) !=
@@ -83,7 +83,7 @@ public class L3SteeringRequest extends SteeringRequest
                              @Nonnull PrefixBuilder builder) throws ReadFailedException {
         checkValid();
         PrefixKey key = identifier.firstKeyOf(Prefix.class);
-        dumpManager.getDump(identifier, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY)
+        dumpManager.getDump(identifier, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY)
                 .srSteeringPolDetails.stream()
                 .filter(
                         srSteeringPolDetails -> ((int) srSteeringPolDetails.trafficType) !=

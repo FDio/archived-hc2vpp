@@ -18,7 +18,7 @@ package io.fd.hc2vpp.vpp.classifier.read;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInts;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;

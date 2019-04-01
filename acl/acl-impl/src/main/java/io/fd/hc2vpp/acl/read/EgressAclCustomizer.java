@@ -17,7 +17,7 @@
 
 package io.fd.hc2vpp.acl.read;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;

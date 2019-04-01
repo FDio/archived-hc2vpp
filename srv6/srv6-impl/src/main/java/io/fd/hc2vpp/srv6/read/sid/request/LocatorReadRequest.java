@@ -86,7 +86,7 @@ public class LocatorReadRequest extends JVppRequest implements ReadRequest<Locat
     public List<LocatorKey> readAllKeys(@Nonnull final InstanceIdentifier<Locator> identifier,
                                         @Nonnull final ReadContext ctx)
             throws ReadFailedException {
-        return dumpManager.getDump(identifier, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY).srLocalsidsDetails
+        return dumpManager.getDump(identifier, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY).srLocalsidsDetails
                 .stream()
                 .map(srLocalsidsDetails -> extractLocator(arrayToIpv6AddressNoZone(srLocalsidsDetails.addr.addr),
                         ctx.getMappingContext(), null).getValue())
@@ -102,7 +102,7 @@ public class LocatorReadRequest extends JVppRequest implements ReadRequest<Locat
                 "Identifier does not have %s ", LocatorKey.class);
         String locator = key.getName();
 
-        dumpManager.getDump(identifier, ctx.getModificationCache()).or(STATIC_EMPTY_REPLY).srLocalsidsDetails
+        dumpManager.getDump(identifier, ctx.getModificationCache()).orElse(STATIC_EMPTY_REPLY).srLocalsidsDetails
                 .stream()
                 .filter(detail -> arrayToIpv6AddressNoZone(detail.addr.addr).getValue().contains(locator))
                 .findFirst()

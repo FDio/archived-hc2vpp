@@ -18,7 +18,7 @@ package io.fd.hc2vpp.l3.utils.ip.read;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -112,7 +112,7 @@ public abstract class IpAddressReader extends IpReader {
                     .filter(singleDetail -> ip.equals(arrayToIpv4AddressNoZone(singleDetail.ip)))
                     .collect(RWUtils.singleItemCollector()));
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Nonnull
@@ -128,7 +128,7 @@ public abstract class IpAddressReader extends IpReader {
                     .filter(singleDetail -> ip.equals(arrayToIpv6AddressNoZone(singleDetail.ip)))
                     .collect(RWUtils.singleItemCollector()));
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Nonnull

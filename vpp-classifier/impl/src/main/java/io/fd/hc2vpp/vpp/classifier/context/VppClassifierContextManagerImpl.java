@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import io.fd.honeycomb.translate.MappingContext;
@@ -33,8 +33,8 @@ import java.util.stream.Collector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Named;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.context.rev170502.VppClassifierContext;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.context.rev170502.VppClassifierContextBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.context.rev170502.vpp.classifier.context.ClassifyTableContext;
@@ -124,9 +124,9 @@ public final class VppClassifierContextManagerImpl implements VppClassifierConte
     public Optional<String> getTableBaseNode(@Nonnull final String name, @Nonnull final MappingContext ctx) {
         final Optional<ClassifyTableContext> read = ctx.read(getMappingIid(name));
         if (read.isPresent()) {
-            return Optional.fromNullable(read.get().getClassifierNodeName());
+            return Optional.ofNullable(read.get().getClassifierNodeName());
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
@@ -146,15 +146,15 @@ public final class VppClassifierContextManagerImpl implements VppClassifierConte
     @Override
     public Optional<String> getNodeName(final int tableIndex, final int nodeIndex, @Nonnull final MappingContext ctx) {
         if (!containsName(tableIndex, ctx)) {
-            return Optional.absent();
+            return Optional.empty();
         }
         final String tableName = getTableName(tableIndex, ctx);
         final Optional<ClassifyTableContext> tableCtx = ctx.read(getMappingIid(tableName));
         final List<NodeContext> nodeContext = tableCtx.get().getNodeContext();
         if (nodeContext == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
-        return Optional.fromNullable(nodeContext.stream()
+        return Optional.ofNullable(nodeContext.stream()
             .filter(n -> n.getIndex().equals(nodeIndex))
             .findFirst()
             .map(nodes -> nodes.getName())

@@ -179,7 +179,7 @@ public class PolicyCustomizer extends FutureJVppCustomizer
         List<SidList> sidLists = new ArrayList<>();
 
         segmentLists.forEach(segmentList -> {
-            com.google.common.base.Optional<NamedSegmentList> namedSegmentListOptional = writeContext.readAfter(
+            java.util.Optional<NamedSegmentList> namedSegmentListOptional = writeContext.readAfter(
                     Srv6PolicyIIds.SR_TE_NSLS.child(NamedSegmentList.class,
                             new NamedSegmentListKey(segmentList.getName())));
 

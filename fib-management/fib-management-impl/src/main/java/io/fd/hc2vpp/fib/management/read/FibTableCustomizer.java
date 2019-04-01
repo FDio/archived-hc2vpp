@@ -57,13 +57,13 @@ class FibTableCustomizer implements InitializingListReaderCustomizer<Table, Tabl
     public List<TableKey> getAllIds(@Nonnull final InstanceIdentifier<Table> instanceIdentifier,
                                     @Nonnull final ReadContext readContext) throws ReadFailedException {
         return Stream.concat(ipv4DumpManager.getDump(instanceIdentifier, readContext.getModificationCache())
-                        .or(new IpFibDetailsReplyDump())
+                        .orElse(new IpFibDetailsReplyDump())
                         .ipFibDetails.stream()
                         .filter(ipFibDetails -> ipFibDetails.tableId >= 0)
                         .map(ipFibDetails -> new TableKey(Ipv4.class, new VniReference((long) ipFibDetails.tableId)))
                         .distinct(),
                 ipv6DumpManager.getDump(instanceIdentifier, readContext.getModificationCache())
-                        .or(new Ip6FibDetailsReplyDump())
+                        .orElse(new Ip6FibDetailsReplyDump())
                         .ip6FibDetails.stream()
                         .filter(ip6FibDetails -> ip6FibDetails.tableId >= 0)
                         .map(ipFibDetails -> new TableKey(Ipv6.class, new VniReference((long) ipFibDetails.tableId))))
@@ -90,7 +90,7 @@ class FibTableCustomizer implements InitializingListReaderCustomizer<Table, Tabl
 
         if (tableKey.getAddressFamily().equals(Ipv4.class)) {
             ipv4DumpManager.getDump(instanceIdentifier, readContext.getModificationCache())
-                    .or(new IpFibDetailsReplyDump())
+                    .orElse(new IpFibDetailsReplyDump())
                     .ipFibDetails.stream()
                     .filter(ipFibDetails -> ipFibDetails.tableId == tableKey.getTableId().getValue().intValue())
                     .findFirst().ifPresent(
@@ -98,7 +98,7 @@ class FibTableCustomizer implements InitializingListReaderCustomizer<Table, Tabl
 
         } else {
             ipv6DumpManager.getDump(instanceIdentifier, readContext.getModificationCache())
-                    .or(new Ip6FibDetailsReplyDump())
+                    .orElse(new Ip6FibDetailsReplyDump())
                     .ip6FibDetails.stream()
                     .filter(ipFibDetails -> ipFibDetails.tableId == tableKey.getTableId().getValue().intValue())
                     .findFirst().ifPresent(

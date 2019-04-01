@@ -17,7 +17,7 @@
 
 package io.fd.hc2vpp.srv6.util;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nonnull;

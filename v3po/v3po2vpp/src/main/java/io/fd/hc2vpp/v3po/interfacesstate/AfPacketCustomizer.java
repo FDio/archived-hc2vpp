@@ -98,7 +98,7 @@ public class AfPacketCustomizer implements InitializingReaderCustomizer<AfPacket
         }
 
         final AfPacketDetailsReplyDump dump = afPacketDumpManager.getDump(id, ctx.getModificationCache())
-            .or(new AfPacketDetailsReplyDump());
+            .orElse(new AfPacketDetailsReplyDump());
         // Relying here that parent InterfaceCustomizer was invoked first to fill in the context with initial ifc mapping
         final AfPacketDetails afPacketDetails = dump.afPacketDetails.stream()
             .filter(detail -> detail.swIfIndex == index)

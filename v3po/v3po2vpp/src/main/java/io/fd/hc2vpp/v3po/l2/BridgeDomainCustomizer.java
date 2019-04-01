@@ -119,7 +119,7 @@ public class BridgeDomainCustomizer extends FutureJVppCustomizer
         LOG.debug("deleteCurrentAttributes: id={}, dataBefore={}, ctx={}", id, dataBefore, ctx);
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
 
-        final com.google.common.base.Optional<Interfaces> after =
+        final java.util.Optional<Interfaces> after =
                 ctx.readAfter(InstanceIdentifier.create(Interfaces.class));
 
         if (after.isPresent()) {

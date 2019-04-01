@@ -65,11 +65,13 @@ final class ExternalIpPoolCustomizer implements
     ExternalIpPoolCustomizer(@Nonnull final FutureJVppNatFacade jvppNat) {
         checkNotNull(jvppNat, "jvppNat should not be null");
         this.nat44DumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<Nat44AddressDetailsReplyDump, Void>()
-                .withExecutor((id, params) -> getReplyForRead(jvppNat.nat44AddressDump(new Nat44AddressDump()).toCompletableFuture(), id))
+                .withExecutor((id, params) -> getReplyForRead(
+                        jvppNat.nat44AddressDump(new Nat44AddressDump()).toCompletableFuture(), id))
                 .acceptOnly(Nat44AddressDetailsReplyDump.class)
                 .build();
         this.nat64DumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<Nat64PoolAddrDetailsReplyDump, Void>()
-                .withExecutor((id, params) -> getReplyForRead(jvppNat.nat64PoolAddrDump(new Nat64PoolAddrDump()).toCompletableFuture(), id))
+                .withExecutor((id, params) -> getReplyForRead(
+                        jvppNat.nat64PoolAddrDump(new Nat64PoolAddrDump()).toCompletableFuture(), id))
                 .acceptOnly(Nat64PoolAddrDetailsReplyDump.class)
                 .build();
     }
@@ -94,7 +96,7 @@ final class ExternalIpPoolCustomizer implements
         final Long poolId = id.firstKeyOf(ExternalIpAddressPool.class).getPoolId();
         final List<Nat44AddressDetails> nat44Details =
                 nat44DumpMgr.getDump(id, ctx.getModificationCache())
-                        .or(new Nat44AddressDetailsReplyDump()).nat44AddressDetails;
+                        .orElse(new Nat44AddressDetailsReplyDump()).nat44AddressDetails;
         final int nat44PoolCount = nat44Details.size();
 
         // Uses ID<->address mapping as defined by getAllIds (nat44 mappings go before nat64):
@@ -104,7 +106,7 @@ final class ExternalIpPoolCustomizer implements
             setPoolType(builder, NatPoolType.Nat44);
         } else {
             final List<Nat64PoolAddrDetails> nat64Details = nat64DumpMgr.getDump(id, ctx.getModificationCache())
-                    .or(new Nat64PoolAddrDetailsReplyDump()).nat64PoolAddrDetails;
+                    .orElse(new Nat64PoolAddrDetailsReplyDump()).nat64PoolAddrDetails;
             final int nat64PoolCount = nat64Details.size();
             final int nat64PoolPosition = Math.toIntExact(poolId) - nat44PoolCount;
             if (nat64PoolPosition < nat64PoolCount) {
@@ -146,16 +148,14 @@ final class ExternalIpPoolCustomizer implements
         // That's why the write and read is not symmetrical in terms of data structure, instead,
         // this customizer also returns every single address as a 32 prefix and assigns an artificial key to them
 
-        long addressCount = nat44DumpMgr.getDump(id, ctx.getModificationCache())
-                .or(new Nat44AddressDetailsReplyDump()).nat44AddressDetails.stream()
-                .count();
+        long addressCount = (long) nat44DumpMgr.getDump(id, ctx.getModificationCache())
+                .orElse(new Nat44AddressDetailsReplyDump()).nat44AddressDetails.size();
 
         // The ietf-nat model groups address pools for Nat44 and Nat64 under the same list,
         // but VPP uses different APIs, so we need an other dump:
 
-        addressCount += nat64DumpMgr.getDump(id, ctx.getModificationCache())
-                .or(new Nat64PoolAddrDetailsReplyDump()).nat64PoolAddrDetails.stream()
-                .count();
+        addressCount += (long) nat64DumpMgr.getDump(id, ctx.getModificationCache())
+                .orElse(new Nat64PoolAddrDetailsReplyDump()).nat64PoolAddrDetails.size();
 
         final List<ExternalIpAddressPoolKey> ids = LongStream.range(0, addressCount)
                 .mapToObj(ExternalIpAddressPoolKey::new)

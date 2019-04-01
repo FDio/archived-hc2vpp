@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.l3.read.ipv4.subinterface;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.l3.utils.ip.read.IfaceDumpFilter;
 import io.fd.hc2vpp.l3.utils.ip.read.IpNeighbourReader;

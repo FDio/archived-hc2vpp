@@ -104,7 +104,7 @@ final class InterfacePolicerCustomizer extends FutureJVppCustomizer
     private Optional<Integer> readTableIndex(@Nonnull final InstanceIdentifier<Policer> id, final int ifcIndex,
                                              final byte type,
                                              final ModificationCache cache) throws ReadFailedException {
-        final com.google.common.base.Optional<PolicerClassifyDetailsReplyDump> dump =
+        final java.util.Optional<PolicerClassifyDetailsReplyDump> dump =
             dumpManager.getDump(id, cache, type);
         if (!dump.isPresent() || dump.get().policerClassifyDetails.isEmpty()) {
             return Optional.empty();

@@ -19,7 +19,7 @@ package io.fd.hc2vpp.v3po.interfaces;
 import static com.google.common.base.Preconditions.checkState;
 import static io.fd.hc2vpp.v3po.util.SubInterfaceUtils.subInterfaceFullNameConfig;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;

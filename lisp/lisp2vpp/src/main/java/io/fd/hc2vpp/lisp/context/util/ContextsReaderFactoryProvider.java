@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.translate.read.ReaderFactory;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 
 
 public class ContextsReaderFactoryProvider implements Provider<ReaderFactory> {

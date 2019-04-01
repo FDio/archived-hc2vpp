@@ -58,13 +58,13 @@ public final class GpeStateCheckServiceImpl implements GpeStateCheckService, Jvp
 
     @Override
     public void checkGpeEnabledBefore(@Nonnull final WriteContext writeContext) {
-        checkState(writeContext.readBefore(GPE_FEATURE_CONFIG_ID).or(DISABLED_GPE).isEnable(),
+        checkState(writeContext.readBefore(GPE_FEATURE_CONFIG_ID).orElse(DISABLED_GPE).isEnable(),
                 "Gpe feature is disabled");
     }
 
     @Override
     public void checkGpeEnabledAfter(@Nonnull final WriteContext writeContext) {
-        checkState(writeContext.readAfter(GPE_FEATURE_CONFIG_ID).or(DISABLED_GPE).isEnable(),
+        checkState(writeContext.readAfter(GPE_FEATURE_CONFIG_ID).orElse(DISABLED_GPE).isEnable(),
                 "Gpe feature is disabled");
     }
 
@@ -73,7 +73,7 @@ public final class GpeStateCheckServiceImpl implements GpeStateCheckService, Jvp
         try {
             return byteToBoolean(
                     dumpCacheManager.getDump(GPE_FEATURE_STATE_ID, readContext.getModificationCache())
-                            .or(DEFAULT_REPLY).gpeStatus);
+                            .orElse(DEFAULT_REPLY).gpeStatus);
         } catch (ReadFailedException e) {
             throw new IllegalStateException("Unable to read Gpe feature status", e);
         }

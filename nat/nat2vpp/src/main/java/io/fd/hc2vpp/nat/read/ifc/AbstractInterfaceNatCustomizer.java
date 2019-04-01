@@ -18,7 +18,6 @@ package io.fd.hc2vpp.nat.read.ifc;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -32,6 +31,7 @@ import io.fd.jvpp.nat.dto.Nat44InterfaceOutputFeatureDump;
 import io.fd.jvpp.nat.dto.Nat64InterfaceDetailsReplyDump;
 import io.fd.jvpp.nat.dto.Nat64InterfaceDump;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -95,7 +95,7 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
         final Optional<Nat44InterfaceDetailsReplyDump> dump =
                 preRoutingNat44DumpMgr.getDump(id, ctx.getModificationCache());
 
-        dump.or(new Nat44InterfaceDetailsReplyDump()).nat44InterfaceDetails.stream()
+        dump.orElse(new Nat44InterfaceDetailsReplyDump()).nat44InterfaceDetails.stream()
                 .filter(natIfcDetail -> natIfcDetail.swIfIndex == index)
                 .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.isInside))
                 .findAny()
@@ -108,7 +108,7 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
         final Optional<Nat64InterfaceDetailsReplyDump> dump =
                 preRoutingNat64DumpMgr.getDump(id, ctx.getModificationCache());
 
-        dump.or(new Nat64InterfaceDetailsReplyDump()).nat64InterfaceDetails.stream()
+        dump.orElse(new Nat64InterfaceDetailsReplyDump()).nat64InterfaceDetails.stream()
                 .filter(natIfcDetail -> natIfcDetail.swIfIndex == index)
                 .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.isInside))
                 .findAny()
@@ -121,7 +121,7 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
         final Optional<Nat44InterfaceOutputFeatureDetailsReplyDump> dump =
                 postRoutingNat44DumpMgr.getDump(id, ctx.getModificationCache());
 
-        dump.or(new Nat44InterfaceOutputFeatureDetailsReplyDump()).nat44InterfaceOutputFeatureDetails
+        dump.orElse(new Nat44InterfaceOutputFeatureDetailsReplyDump()).nat44InterfaceOutputFeatureDetails
                 .stream()
                 .filter(natIfcDetail -> natIfcDetail.swIfIndex == index)
                 .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.isInside))

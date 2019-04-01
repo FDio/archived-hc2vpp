@@ -20,7 +20,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.util.RWUtils;
@@ -62,7 +62,7 @@ public class InterfaceRoutingCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testWrite() throws WriteFailedException {
-        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
+        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.empty());
         final int vrfId = 123;
         when(api.swInterfaceSetTable(any())).thenReturn(future(new SwInterfaceSetTableReply()));
         customizer.writeCurrentAttributes(IID, routing(vrfId), writeContext);
@@ -71,7 +71,7 @@ public class InterfaceRoutingCustomizerTest extends WriterCustomizerTest {
 
     @Test(expected = WriteFailedException.class)
     public void testWriteFailed() throws WriteFailedException {
-        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
+        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.empty());
         when(api.swInterfaceSetTable(any())).thenReturn(failedFuture());
         customizer.writeCurrentAttributes(IID, routing(213), writeContext);
     }
@@ -124,14 +124,14 @@ public class InterfaceRoutingCustomizerTest extends WriterCustomizerTest {
 
     @Test(expected = WriteFailedException.class)
     public void testUpdateFailed() throws WriteFailedException {
-        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
+        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.empty());
         when(api.swInterfaceSetTable(any())).thenReturn(failedFuture());
         customizer.updateCurrentAttributes(IID, routing(123L), routing(321L), writeContext);
     }
 
     @Test
     public void testDelete() throws WriteFailedException {
-        when(writeContext.readAfter(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
+        when(writeContext.readAfter(any(InstanceIdentifier.class))).thenReturn(Optional.empty());
         when(api.swInterfaceSetTable(any())).thenReturn(future(new SwInterfaceSetTableReply()));
         customizer.deleteCurrentAttributes(IID, routing(123), writeContext);
         verify(api).swInterfaceSetTable(expectedRequest(0));
@@ -139,7 +139,7 @@ public class InterfaceRoutingCustomizerTest extends WriterCustomizerTest {
 
     @Test(expected = WriteFailedException.DeleteFailedException.class)
     public void testDeleteFailed() throws WriteFailedException {
-        when(writeContext.readAfter(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
+        when(writeContext.readAfter(any(InstanceIdentifier.class))).thenReturn(Optional.empty());
         when(api.swInterfaceSetTable(any())).thenReturn(failedFuture());
         customizer.deleteCurrentAttributes(IID, routing(123), writeContext);
     }

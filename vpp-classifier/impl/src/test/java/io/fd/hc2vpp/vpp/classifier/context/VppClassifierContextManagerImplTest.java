@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import java.util.Arrays;
 import org.junit.Before;
@@ -70,7 +70,7 @@ public class VppClassifierContextManagerImplTest {
 
     @Test
     public void testContainsTable() throws Exception {
-        when(ctx.read(TABLE_IID_0)).thenReturn(Optional.absent());
+        when(ctx.read(TABLE_IID_0)).thenReturn(Optional.empty());
         assertFalse(vppClassfierContext.containsTable(TABLE_NAME_0, ctx));
     }
 
@@ -124,7 +124,7 @@ public class VppClassifierContextManagerImplTest {
         final ClassifyTableContext tableCtx = table(TABLE_ID_0, TABLE_NAME_0, "aa");
         when(ctx.read(VPP_CLASSIFIER_CONTEXT_IID)).thenReturn(Optional.of(context(tableCtx)));
         when(ctx.read(TABLE_IID_0)).thenReturn(Optional.of(tableCtx));
-        assertEquals(Optional.absent(), vppClassfierContext.getNodeName(TABLE_ID_0, 123, ctx));
+        assertEquals(Optional.empty(), vppClassfierContext.getNodeName(TABLE_ID_0, 123, ctx));
     }
 
     @Test

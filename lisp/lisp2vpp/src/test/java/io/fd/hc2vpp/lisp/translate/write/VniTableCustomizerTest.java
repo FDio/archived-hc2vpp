@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import org.junit.Before;
 import org.junit.Test;
@@ -116,7 +116,7 @@ public class VniTableCustomizerTest extends LispWriterCustomizerTest {
     }
 
     private void whenReadBeforeReturnInvalid() {
-        when(writeContext.readBefore(validId)).thenReturn(Optional.absent());
+        when(writeContext.readBefore(validId)).thenReturn(Optional.empty());
     }
 
     private void whenReadAfterReturnValid() {
@@ -124,6 +124,6 @@ public class VniTableCustomizerTest extends LispWriterCustomizerTest {
     }
 
     private void whenReadAfterReturnInvalid() {
-        when(writeContext.readAfter(validId)).thenReturn(Optional.absent());
+        when(writeContext.readAfter(validId)).thenReturn(Optional.empty());
     }
 }

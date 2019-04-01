@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.routing.write.trait;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import com.google.common.collect.ImmutableSet.Builder;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
@@ -56,7 +55,8 @@ public interface RouteRequestProducer extends ByteDataTranslator, AddressTransla
     default boolean classifyTablePresent(final String classifyTableName,
                                          final VppClassifierContextManager classifierContextManager,
                                          final MappingContext mappingContext) {
-        return isNotEmpty(classifyTableName) &&
+
+        return classifyTableName != null && !classifyTableName.isEmpty() &&
                 classifierContextManager.containsTable(classifyTableName, mappingContext);
     }
 

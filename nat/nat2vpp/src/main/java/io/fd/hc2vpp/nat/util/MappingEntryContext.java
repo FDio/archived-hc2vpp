@@ -19,7 +19,7 @@ package io.fd.hc2vpp.nat.util;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.honeycomb.translate.MappingContext;
@@ -179,8 +179,8 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
                                                                                        @Nonnull final MappingContext mappingContext) {
         // Find mapping entry for Index
         final MappingEntry ctxMappingEntry = mappingContext.read(getTableId(natInstanceId))
-                .transform(MappingTable::getMappingEntry)
-                .or(Collections.emptyList())
+                .map(MappingTable::getMappingEntry)
+                .orElse(Collections.emptyList())
                 .stream()
                 .filter(entry -> entry.getIndex() == idx)
                 .findFirst()
@@ -201,8 +201,8 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
                                                                              @Nonnull final MappingContext mappingContext) {
         // Find mapping entry for Index
         final MappingEntry ctxMappingEntry = mappingContext.read(getTableId(natInstanceId))
-                .transform(MappingTable::getMappingEntry)
-                .or(Collections.emptyList())
+                .map(MappingTable::getMappingEntry)
+                .orElse(Collections.emptyList())
                 .stream()
                 .filter(entry -> entry.getIndex() == idx)
                 .findFirst()
@@ -222,8 +222,8 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
                                                         @Nonnull final Nat44StaticMappingDetails details,
                                                         @Nonnull final MappingContext mappingContext) {
         return mappingContext.read(getId(natInstanceId, entryToKey(details)))
-                .transform(MappingEntry::getIndex)
-                .or(() -> getArtificialId(details, natInstanceId, mappingContext));
+                .map(MappingEntry::getIndex)
+                .orElseGet(() -> getArtificialId(details, natInstanceId, mappingContext));
     }
 
     /**
@@ -233,8 +233,8 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
                                                         @Nonnull final Nat64BibDetails details,
                                                         @Nonnull final MappingContext mappingContext) {
         return mappingContext.read(getId(natInstanceId, entryToKey(details)))
-                .transform(MappingEntry::getIndex)
-                .or(() -> getArtificialId(details, natInstanceId, mappingContext));
+                .map(MappingEntry::getIndex)
+                .orElseGet(() -> getArtificialId(details, natInstanceId, mappingContext));
     }
 
     /**
@@ -243,8 +243,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
     public synchronized Optional<Long> getStoredIndex(final long natInstanceId,
                                                       @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.mapping.table.MappingEntry entry,
                                                       @Nonnull final MappingContext mappingContext) {
-        return mappingContext.read(getId(natInstanceId, entryToKey(entry)))
-                .transform(MappingEntry::getIndex);
+        return mappingContext.read(getId(natInstanceId, entryToKey(entry))).map(MappingEntry::getIndex);
     }
 
     private long getArtificialId(final Nat44StaticMappingDetails details, final Long natInstanceId,
@@ -267,8 +266,8 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
 
     private long findFreeIndex(final long natInstanceId, final MappingContext mappingContext) {
         return mappingContext.read(getTableId(natInstanceId))
-                .transform(MappingTable::getMappingEntry)
-                .or(Collections.emptyList())
+                .map(MappingTable::getMappingEntry)
+                .orElse(Collections.emptyList())
                 .stream()
                 .map(MappingEntry::getIndex)
                 .max(Comparator.naturalOrder())
