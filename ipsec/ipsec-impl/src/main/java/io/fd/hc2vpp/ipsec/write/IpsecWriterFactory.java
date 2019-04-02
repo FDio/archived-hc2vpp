@@ -18,7 +18,6 @@ package io.fd.hc2vpp.ipsec.write;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
-import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -69,15 +68,12 @@ public final class IpsecWriterFactory implements WriterFactory {
 
     private final FutureJVppCore vppApi;
     private final FutureJVppIkev2Facade vppIkev2Api;
-    private MultiNamingContext sadEntriesMapping;
 
     @Inject
     public IpsecWriterFactory(final FutureJVppCore vppApi,
-                              final FutureJVppIkev2Facade vppIkev2Api,
-                              final MultiNamingContext sadEntriesMappingContext) {
+                              final FutureJVppIkev2Facade vppIkev2Api) {
         this.vppApi = vppApi;
         this.vppIkev2Api = vppIkev2Api;
-        this.sadEntriesMapping = sadEntriesMappingContext;
     }
 
     @Override
@@ -101,7 +97,7 @@ public final class IpsecWriterFactory implements WriterFactory {
                 InstanceIdentifier.create(SadEntries.class).child(Esp.class).child(Encryption.class)
                         .child(DesCbc.class),
                 InstanceIdentifier.create(SadEntries.class).augmentation(IpsecSadEntriesAugmentation.class)),
-                new GenericListWriter<>(SAD_ENTRIES_ID, new IpsecSadEntryCustomizer(vppApi, sadEntriesMapping)));
+                new GenericListWriter<>(SAD_ENTRIES_ID, new IpsecSadEntryCustomizer(vppApi)));
         registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(Spd.class).child(SpdEntries.class),
                 InstanceIdentifier.create(Spd.class).child(SpdEntries.class)
                         .augmentation(IpsecSpdEntriesAugmentation.class)),

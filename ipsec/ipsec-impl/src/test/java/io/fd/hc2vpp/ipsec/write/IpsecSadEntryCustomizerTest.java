@@ -25,7 +25,6 @@ import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
-import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.hc2vpp.ipsec.helpers.SchemaContextTestHelper;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
@@ -40,7 +39,6 @@ import io.fd.jvpp.core.types.IpsecSadFlags;
 import io.fd.jvpp.core.types.Key;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipsec.rev181214.IkeEncryptionAlgorithmT;
@@ -82,12 +80,10 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
     private static final int SAD_ID = 10;
 
     private IpsecSadEntryCustomizer customizer;
-    @Mock
-    private MultiNamingContext namingCntext;
 
     @Override
     protected void setUpTest() throws Exception {
-        customizer = new IpsecSadEntryCustomizer(api, namingCntext);
+        customizer = new IpsecSadEntryCustomizer(api);
         when(api.ipsecSadEntryAddDel(any())).thenReturn(future(new IpsecSadEntryAddDelReply()));
     }
 
@@ -115,14 +111,14 @@ public class IpsecSadEntryCustomizerTest extends WriterCustomizerTest implements
         assertEquals(false, flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_NONE));
 
         flags.removeAll(flags2.getOptions());
-        assertEquals(0,flags.getOptionsValue());
+        assertEquals(0, flags.getOptionsValue());
         assertEquals(true, flags.contains(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_NONE));
-        assertEquals(1,flags.getOptions().size());
+        assertEquals(1, flags.getOptions().size());
         flags.add(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_IS_TUNNEL);
-        assertEquals(1,flags.getOptions().size());
+        assertEquals(1, flags.getOptions().size());
 
         flags2.clear();
-        assertEquals(0,flags2.getOptionsValue());
+        assertEquals(0, flags2.getOptionsValue());
         assertEquals(true, flags2.contains(IpsecSadFlags.IpsecSadFlagsOptions.IPSEC_API_SAD_FLAG_NONE));
     }
 

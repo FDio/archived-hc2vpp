@@ -21,7 +21,6 @@ import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -62,11 +61,9 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
         JvppReplyConsumer, ByteDataTranslator, Ipv6Translator, Ipv4Translator {
 
     private static final Logger LOG = LoggerFactory.getLogger(IpsecSadEntryCustomizer.class);
-    private MultiNamingContext sadEntryMapping;
 
-    IpsecSadEntryCustomizer(final FutureJVppCore vppApi, final MultiNamingContext sadEntryMapping) {
+    IpsecSadEntryCustomizer(final FutureJVppCore vppApi) {
         super(vppApi);
-        this.sadEntryMapping = sadEntryMapping;
     }
 
     @Override
@@ -136,14 +133,6 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
         final CompletionStage<IpsecSadEntryAddDelReply> ipsecSadEntryAddDellReplyFuture =
                 getFutureJVpp().ipsecSadEntryAddDel(request);
         getReplyForWrite(ipsecSadEntryAddDellReplyFuture.toCompletableFuture(), id);
-        if (adding) {
-            sadEntryMapping.addChild(dataAfter.key().getDirection().getName(), request.entry.sadId,
-                    String.valueOf(dataAfter.key().getSpi()), writeContext.getMappingContext());
-        } else {
-            sadEntryMapping
-                    .removeChild(dataAfter.key().getDirection().getName(), String.valueOf(dataAfter.key().getSpi()),
-                            writeContext.getMappingContext());
-        }
     }
 
     private void fillAhAuthentication(IpsecSadEntryAddDel request, Ah data) {
@@ -170,7 +159,7 @@ public class IpsecSadEntryCustomizer extends FutureJVppCustomizer
             request.entry.integrityKey.length = (byte) integKey.getBytes().length;
             request.entry.cryptoKey = new Key();
             request.entry.cryptoKey.data = null;
-            request.entry.cryptoKey.length = 0 ;
+            request.entry.cryptoKey.length = 0;
         }
     }
 

@@ -21,7 +21,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
-import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.hc2vpp.ipsec.read.IpsecReaderFactory;
 import io.fd.hc2vpp.ipsec.write.IpsecWriterFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
@@ -36,7 +35,6 @@ import org.slf4j.LoggerFactory;
 public class IpsecModule extends AbstractModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(IpsecModule.class);
-    private static final String SAD_ENTRIES_MAPPING = "sad-entries-mapping";
     private final Class<? extends Provider<FutureJVppIkev2Facade>> jvppIkev2ProviderClass;
 
     public IpsecModule() {
@@ -56,7 +54,6 @@ public class IpsecModule extends AbstractModule {
         // binds JVpp Ikev2 future facade
         bind(FutureJVppIkev2Facade.class).toProvider(jvppIkev2ProviderClass).in(Singleton.class);
 
-        bind(MultiNamingContext.class).toInstance(new MultiNamingContext(SAD_ENTRIES_MAPPING, 1));
         LOG.info("Injecting writers factories");
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
         writerFactoryBinder.addBinding().to(IpsecWriterFactory.class).in(Singleton.class);
