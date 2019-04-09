@@ -68,6 +68,7 @@
       io.fd.hc2vpp.mpls.MplsModule,
       io.fd.hc2vpp.srv6.Srv6Module,
       io.fd.hc2vpp.ipsec.IpsecModule
+      // io.fd.hc2vpp.samples.Module,
       <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
       // io.fd.hc2vpp.vppnsh.impl.VppNshModule,
       <!-- iOAM module by default disabled, because it needs ioam plugin (not part of vpp codebase.)-->
@@ -197,5 +198,11 @@
       <artifactId>ipsec-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
+<!--    To use samples uncomment following dependency and rebuild the project -->
+<!--    <dependency>-->
+<!--      <groupId>io.fd.hc2vpp.samples</groupId>-->
+<!--      <artifactId>samples-impl</artifactId>-->
+<!--      <version>${project.version}</version>-->
+<!--    </dependency>-->
   </dependencies>
 </project>

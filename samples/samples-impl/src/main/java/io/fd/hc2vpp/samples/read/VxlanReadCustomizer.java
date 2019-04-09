@@ -162,6 +162,7 @@ public final class VxlanReadCustomizer implements
 
         // Now translate all attributes into provided builder
         final Boolean isIpv6 = byteToBoolean(singleVxlanDetail.isIpv6);
+        builder.setId(vxlanName);
         builder.setSrc(arrayToIpAddress(isIpv6, singleVxlanDetail.srcAddress));
         builder.setDst(arrayToIpAddress(isIpv6, singleVxlanDetail.dstAddress));
         // There are additional attributes of a vxlan tunnel that wont be used here

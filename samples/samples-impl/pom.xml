@@ -10,14 +10,16 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>io.fd.hc2vpp.samples</groupId>
     <artifactId>samples-impl</artifactId>
     <name>${project.artifactId}</name>
     <version>1.19.08-SNAPSHOT</version>
+    <packaging>bundle</packaging>
 
     <dependencies>
         <!-- Api classes generated from yang model -->
         <dependency>
-            <groupId>io.fd.hc2vpp.common</groupId>
+            <groupId>io.fd.hc2vpp.samples</groupId>
             <artifactId>samples-api</artifactId>
             <version>${project.version}</version>
         </dependency>
