@@ -35,7 +35,7 @@ public class MethodDelegatingClassVisitor extends ClassVisitor {
                                         String reference,
                                         Set<PluginMethodReference> foundReferences,
                                         Set<String> allreadyProcessedLocalMethods) {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM7);
         this.currentClass = currentClass;
         this.methodName = methodName;
         this.reference = reference;

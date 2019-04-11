@@ -121,7 +121,7 @@ final class InterfaceChangeNotificationProducer implements ManagedNotificationPr
      * Get mapped name for the interface. Best effort only! The mapping might not yet be stored in context data tree
      * (write transaction is still in progress and context changes have not been committed yet, or VPP sends the
      * notification before it returns create request(that would store mapping)).
-     * <p/>
+     *
      * In case mapping is not available, index is used as name.
      */
     private InterfaceNameOrIndex getIfcName(final SwInterfaceEvent swInterfaceEventNotification) {

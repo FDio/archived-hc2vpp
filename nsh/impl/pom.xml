@@ -29,7 +29,7 @@
   <packaging>bundle</packaging>
 
   <properties>
-    <guice.version>4.1.0</guice.version>
+    <guice.version>4.2.2</guice.version>
     <guice.config.version>1.2.0</guice.config.version>
   </properties>
 
@@ -62,7 +62,7 @@
     </dependency>
     <dependency>
         <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-all</artifactId>
+        <artifactId>hamcrest</artifactId>
         <scope>test</scope>
     </dependency>
 

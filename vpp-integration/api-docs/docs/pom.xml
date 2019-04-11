@@ -26,6 +26,8 @@
     <name>${project.artifactId}</name>
 
     <properties>
+        <maven.groovy.version>1.6.2</maven.groovy.version>
+        <groovy.version>2.5.4</groovy.version>
         <!-- List of modules that are used to extract Writer/Reader factories, and therefore generate api documentation -->
         <api.docs.modules>
             io.fd.hc2vpp.docs.core.mock.binding.MockBindingModule,
@@ -78,15 +80,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.8.0</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>groovy-maven-plugin</artifactId>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>${maven.groovy.version}</version>
                 <executions>
                     <execution>
                         <id>generate-coverage-doc</id>
@@ -95,13 +98,24 @@
                             <goal>execute</goal>
                         </goals>
                         <configuration>
-                            <source>
-                                io.fd.hc2vpp.docs.scripts.ApiDocsIndexGenerator.generate(project, log)
-                            </source>
+                            <scripts>
+                              <script>
+                                <![CDATA[
+                                  import io.fd.hc2vpp.docs.scripts.ApiDocsIndexGenerator
+                                  ApiDocsIndexGenerator.generate(project, log)
+                                ]]>
+                              </script>
+                            </scripts>
                         </configuration>
                     </execution>
                 </executions>
                 <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-all</artifactId>
+                        <type>pom</type>
+                        <version>${groovy.version}</version>
+                    </dependency>
                     <dependency>
                         <groupId>io.fd.hc2vpp.docs</groupId>
                         <artifactId>scripts</artifactId>

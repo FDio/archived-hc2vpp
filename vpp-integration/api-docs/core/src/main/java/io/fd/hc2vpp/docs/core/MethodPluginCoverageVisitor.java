@@ -38,7 +38,7 @@ public class MethodPluginCoverageVisitor extends MethodVisitor {
     public MethodPluginCoverageVisitor(String currentClass, Set<PluginMethodReference> foundReferences,
                                        String reference,
                                        Set<String> allreadyProcessedLocal) {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM7);
         this.currentClass = currentClass;
         this.foundReferences = foundReferences;
         this.reference = reference;

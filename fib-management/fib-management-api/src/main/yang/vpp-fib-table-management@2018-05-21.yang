@@ -86,10 +86,10 @@ module vpp-fib-table-management {
                      In VPP this table is mapped to ip_table_add_del VPP API message:
                      Add/del table request
                          A table can be added multiple times, but need be deleted only once.
-                         @param is_ipv6 - V4 or V6 table
-                         @param table_id - table ID associated with the route
+                         param is_ipv6 - V4 or V6 table
+                         param table_id - table ID associated with the route
                                            This table ID will apply to both the unicats and mlticast FIBs
-                         @param name - A client provided name/tag for the table. If this is
+                         param name - A client provided name/tag for the table. If this is
                                        not set by the client, then VPP will generate something meaningfull";
                 leaf address-family {
                     type identityref {

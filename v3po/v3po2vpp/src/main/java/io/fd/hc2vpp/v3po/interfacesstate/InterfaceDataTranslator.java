@@ -71,7 +71,7 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
      * @param vppPhysAddress byte array of bytes in big endian order, constructing the network IF physical address.
      * @return String like "aa:bb:cc:dd:ee:ff"
      * @throws NullPointerException     if vppPhysAddress is null
-     * @throws IllegalArgumentException if vppPhysAddress.length < 6
+     * @throws IllegalArgumentException if vppPhysAddress.length &lt; 6
      */
     default String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress) {
         Objects.requireNonNull(vppPhysAddress, "Empty physical address bytes");
@@ -171,11 +171,15 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
     }
 
     /**
-     * Checks whether provided {@link SwInterfaceDetails} is detail of sub-interface<br> <li>subId == unique number of
-     * sub-interface within set of sub-interfaces of single interface <li>swIfIndex == unique index of
-     * interface/sub-interface within all interfaces <li>supSwIfIndex == unique index of parent interface <li>in case of
-     * interface , swIfIndex value equals supSwIfIndex <li>in case of subinterface, supSwIfIndex equals index of parent
-     * interface, swIfIndex is index of subinterface itselt
+     * Checks whether provided {@link SwInterfaceDetails} is detail of sub-interface<br>
+     *     <ul>
+     *         <li>subId == unique number of sub-interface within set of sub-interfaces of single interface</li>
+     *         <li>swIfIndex == unique index of interface/sub-interface within all interfaces</li>
+     *         <li>supSwIfIndex == unique index of parent interface</li>
+     *         <li>in case of interface , swIfIndex value equals supSwIfIndex</li>
+     *         <li>in case of subinterface, supSwIfIndex equals index of parent interface, swIfIndex is index of
+     *             subinterface itselt</li>
+     *     </ul>
      */
     default boolean isSubInterface(@Nonnull final SwInterfaceDetails elt) {
         //cant check by subId != 0, because you can pick 0 as value
@@ -183,11 +187,15 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
     }
 
     /**
-     * Checks whether provided {@link SwInterfaceDetails} is detail of interface<br> <li>subId == unique number of
-     * subinterface within set of subinterfaces of single interface <li>swIfIndex == unique index of
-     * interface/subinterface within all interfaces <li>supSwIfIndex == unique index of parent interface <li>in case of
-     * interface , swIfIndex value equals supSwIfIndex <li>in case of subinterface, supSwIfIndex equals index of parent
-     * interface, swIfIndex is index of subinterface itselt
+     * Checks whether provided {@link SwInterfaceDetails} is detail of interface<br>
+     *     <ul>
+     *         <li>subId == unique number of subinterface within set of subinterfaces of single interface</li>
+     *         <li>swIfIndex == unique index of interface/subinterface within all interfaces</li>
+     *         <li>supSwIfIndex == unique index of parent interface</li>
+     *         <li>in case of interface , swIfIndex value equals supSwIfIndex</li>
+     *         <li>in case of subinterface, supSwIfIndex equals index of parent interface, swIfIndex is index
+     *             of subinterface itselt</li>
+     *     </ul>
      */
     default boolean isRegularInterface(@Nonnull final SwInterfaceDetails elt) {
         return !isSubInterface(elt);

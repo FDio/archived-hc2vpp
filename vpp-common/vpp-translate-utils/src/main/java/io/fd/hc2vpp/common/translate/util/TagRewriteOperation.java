@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 /**
  * Defines vlan tag rewrite config options for VPP.
- * <p/>
+ *
  * TODO HONEYCOMB-184 corresponding enum (defined in l2_vtr.h) should be defined in vpe.api
  * (does vpp's IDL support enum type definition?)
  * which would allow to generate this class in jvpp

@@ -33,6 +33,7 @@ public interface FutureProducer {
      *
      * @param result returned when {@link CompletableFuture#get()} is invoked
      * @param <T>    the result type of returned future
+     * @return {@link CompletableFuture} with desired result
      */
     default <T> CompletableFuture<T> future(@Nonnull final T result) {
         final CompletableFuture<T> future = new CompletableFuture<>();
@@ -45,6 +46,7 @@ public interface FutureProducer {
      *
      * @param exception to be thrown when {@link CompletableFuture#get()} is invoked
      * @param <T>       the result type of returned future
+     * @return {@link CompletableFuture} with provided {@link Exception} as a result
      */
     default <T> CompletableFuture<T> failedFuture(@Nonnull final Exception exception) {
         final CompletableFuture<T> future = new CompletableFuture<>();
@@ -56,6 +58,7 @@ public interface FutureProducer {
      * Returns {@link CompletableFuture} with VppCallbackException(retval = -1) as a cause.
      *
      * @param <T> the result type of returned future
+     * @return {@link CompletableFuture} with VppCallbackException(retval = -1) as a cause
      */
     default <T> CompletableFuture<T> failedFuture() {
         return failedFuture(new VppCallbackException("test-call", "test error msg", 1 /* ctxId */, -1 /* retval */));

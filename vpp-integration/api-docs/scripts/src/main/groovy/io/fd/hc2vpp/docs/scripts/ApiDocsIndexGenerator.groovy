@@ -70,7 +70,7 @@ class ApiDocsIndexGenerator {
                 .map { moduleName -> moduleName.trim() }
                 .map { moduleName ->
             log.info "Loading class $moduleName"
-            loader.loadClass(moduleName).newInstance()
+            loader.loadClass(moduleName).getDeclaredConstructor().newInstance()
         }
         .collect(toList())
 
@@ -82,6 +82,7 @@ class ApiDocsIndexGenerator {
         ClassPathTypeIndex classPathIndex = new ClassPathTypeIndex(projectRoot)
 
         log.info "Generating VPP API to YANG mapping"
+
         PLUGIN_CLASSES.stream()
                 .forEach { pluginClass ->
             log.info "Generating mapping for ${pluginClass}"

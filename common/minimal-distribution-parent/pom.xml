@@ -64,7 +64,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.10</version>
+                    <version>3.1.1</version>
                     <executions>
                         <execution>
                             <id>unpack-configuration</id>
@@ -83,8 +83,8 @@
                 <!-- Generate shell script -->
                 <!-- Extract modules started by distribution -->
                 <plugin>
-                    <groupId>org.codehaus.gmaven</groupId>
-                    <artifactId>groovy-maven-plugin</artifactId>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
                     <executions>
                         <execution>
                             <id>start-scripts-generation</id>
@@ -93,9 +93,14 @@
                                 <goal>execute</goal>
                             </goals>
                             <configuration>
-                                <source>
-                                    io.fd.honeycomb.common.scripts.StartupScriptGenerator.generate(project, properties, log)
-                                </source>
+                                <scripts>
+                                    <script>
+                                        <![CDATA[
+                                            import io.fd.honeycomb.common.scripts.StartupScriptGenerator
+                                            StartupScriptGenerator.generate(project, properties, log)
+                                        ]]>
+                                    </script>
+                                </scripts>
                             </configuration>
                         </execution>
                         <execution>
@@ -107,9 +112,14 @@
                                 <goal>execute</goal>
                             </goals>
                             <configuration>
-                                <source>
-                                    io.fd.honeycomb.common.scripts.ModulesListGenerator.generate(project, properties, log)
-                                </source>
+                                <scripts>
+                                    <script>
+                                        <![CDATA[
+                                            import io.fd.honeycomb.common.scripts.ModulesListGenerator
+                                            ModulesListGenerator.generate(project, log)
+                                        ]]>
+                                    </script>
+                                </scripts>
                             </configuration>
                         </execution>
                         <execution>
@@ -119,9 +129,14 @@
                                 <goal>execute</goal>
                             </goals>
                             <configuration>
-                                <source>
-                                    io.fd.honeycomb.common.scripts.ModuleYangIndexGenerator.pairDistributionModulesWithYangModules(project, log)
-                                </source>
+                                <scripts>
+                                    <script>
+                                        <![CDATA[
+                                            import io.fd.honeycomb.common.scripts.ModuleYangIndexGenerator
+                                            ModuleYangIndexGenerator.pairDistributionModulesWithYangModules(project, log)
+                                        ]]>
+                                    </script>
+                                </scripts>
                             </configuration>
                         </execution>
                     </executions>
@@ -170,5 +185,15 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

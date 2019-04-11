@@ -61,6 +61,11 @@ public abstract class JvppDumpExecutorTest<T extends EntityDumpExecutor<?, ?>> i
     /**
      * Return pre-stubed mock that will throw {@link TimeoutException},
      * while performing desired method
+     *
+     * @return pre-stubed mock that will throw {@link TimeoutException}
+     * @throws InterruptedException when the operation is interrupted
+     * @throws ExecutionException when execution fails
+     * @throws TimeoutException when timeout occurs
      */
     protected FutureJVppCore doThrowTimeoutExceptionWhen()
             throws InterruptedException, ExecutionException, TimeoutException {
@@ -76,6 +81,8 @@ public abstract class JvppDumpExecutorTest<T extends EntityDumpExecutor<?, ?>> i
     /**
      * Return pre-stubed mock that will throw {@link VppInvocationException},
      * while performing desired method
+     *
+     * @return pre-stubed mock that will throw {@link VppInvocationException}
      */
     protected FutureJVppCore doThrowFailExceptionWhen() {
         return doReturn(failedFuture()).when(api);
@@ -84,6 +91,9 @@ public abstract class JvppDumpExecutorTest<T extends EntityDumpExecutor<?, ?>> i
     /**
      * Return pre-stubed mock that will return specified result
      * while performing desired method
+     *
+     * @param replyDump type of reply dump
+     * @return pre-stubed mock that will return specified result
      */
     protected <U> FutureJVppCore doReturnResponseWhen(U replyDump) {
         return doReturn(future(replyDump)).when(api);

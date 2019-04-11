@@ -57,6 +57,8 @@ public abstract class WriterCustomizerTest implements FutureProducer,
 
     /**
      * Optional setup for subclasses. Invoked after parent initialization.
+     *
+     * @throws Exception unspecified exception while setting up tests
      */
     protected void setUpTest() throws Exception {
         // this method would normally trigger this warning while compiling:

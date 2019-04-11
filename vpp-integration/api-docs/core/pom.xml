@@ -33,8 +33,8 @@
     <properties>
         <mockito-core.version>2.2.9</mockito-core.version>
         <junit.version>4.11</junit.version>
-        <guice.version>4.1.0</guice.version>
-        <asm.version>5.2</asm.version>
+        <guice.version>4.2.2</guice.version>
+        <asm.version>7.0</asm.version>
         <asciidoctorj.version>1.5.4</asciidoctorj.version>
         <slf4j-simple.version>1.7.25</slf4j-simple.version>
         <jvpp.version>19.04-SNAPSHOT</jvpp.version>
