@@ -9,7 +9,7 @@ function install_jvpp_jar {
   jarfile=$1
   version=$2
 
-  # Filename (includes version suffix), e.g. jvpp-core-19.04
+  # Filename (includes version suffix), e.g. jvpp-core-19.08
   basefile=$(basename -s .jar "$jarfile")
 
   # Remove version suffix

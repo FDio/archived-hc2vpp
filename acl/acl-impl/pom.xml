@@ -30,7 +30,7 @@
     <version>1.19.08-SNAPSHOT</version>
 
     <properties>
-        <jvpp.acl.version>19.04-SNAPSHOT</jvpp.acl.version>
+        <jvpp.acl.version>19.08-SNAPSHOT</jvpp.acl.version>
     </properties>
 
     <dependencies>

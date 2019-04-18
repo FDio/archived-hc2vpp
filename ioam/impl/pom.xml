@@ -30,8 +30,8 @@
   <packaging>bundle</packaging>
 
   <properties>
-    <ioam.version>19.04-SNAPSHOT</ioam.version>
-    <jvpp.version>19.04-SNAPSHOT</jvpp.version>
+    <ioam.version>19.08-SNAPSHOT</ioam.version>
+    <jvpp.version>19.08-SNAPSHOT</jvpp.version>
   </properties>
 
   <dependencies>
