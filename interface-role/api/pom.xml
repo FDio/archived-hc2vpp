@@ -5,14 +5,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>api-parent</artifactId>
-        <version>1.19.04-SNAPSHOT</version>
+        <version>1.19.04-RC1</version>
         <relativePath>../../common/api-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.hc2vpp.iface.role</groupId>
     <artifactId>api</artifactId>
-    <version>1.19.04-SNAPSHOT</version>
+    <version>1.19.04-RC1</version>
     <name>${project.artifactId}</name>
 
     <dependencies>
