@@ -37,12 +37,15 @@ import io.fd.jvpp.core.dto.GreTunnelDetails;
 import io.fd.jvpp.core.dto.GreTunnelDetailsReplyDump;
 import io.fd.jvpp.core.dto.GreTunnelDump;
 import io.fd.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.jvpp.core.types.Address;
+import io.fd.jvpp.core.types.GreTunnel;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VppInterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VppInterfaceStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.Gre;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.GreBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -78,11 +81,12 @@ public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> imp
 
         final GreTunnelDetailsReplyDump value = new GreTunnelDetailsReplyDump();
         final GreTunnelDetails greTunnelDetails = new GreTunnelDetails();
-        greTunnelDetails.isIpv6 = 0;
-        greTunnelDetails.dstAddress = ipv4AddressNoZoneToArray("1.2.3.4");
-        greTunnelDetails.srcAddress = ipv4AddressNoZoneToArray("1.2.3.5");
-        greTunnelDetails.outerFibId = 55;
-        greTunnelDetails.swIfIndex = 0;
+        greTunnelDetails.tunnel = new GreTunnel();
+        greTunnelDetails.tunnel.isIpv6 = 0;
+        greTunnelDetails.tunnel.dst = ipv4AddressToAddress(new Ipv4Address("1.2.3.4"));
+        greTunnelDetails.tunnel.src = ipv4AddressToAddress(new Ipv4Address("1.2.3.5"));
+        greTunnelDetails.tunnel.outerFibId = 55;
+        greTunnelDetails.tunnel.swIfIndex = 0;
         value.greTunnelDetails = Lists.newArrayList(greTunnelDetails);
 
         doReturn(future(value)).when(api).greTunnelDump(any(GreTunnelDump.class));

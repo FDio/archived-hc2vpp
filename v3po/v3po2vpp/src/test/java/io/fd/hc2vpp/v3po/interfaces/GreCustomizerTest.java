@@ -32,8 +32,8 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.jvpp.VppBaseCallException;
 import io.fd.jvpp.VppInvocationException;
-import io.fd.jvpp.core.dto.GreAddDelTunnel;
-import io.fd.jvpp.core.dto.GreAddDelTunnelReply;
+import io.fd.jvpp.core.dto.GreTunnelAddDel;
+import io.fd.jvpp.core.dto.GreTunnelAddDelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VppInterfaceAugmentation;
@@ -73,33 +73,33 @@ public class GreCustomizerTest extends WriterCustomizerTest implements AddressTr
     }
 
     private void whenGreAddDelTunnelThenSuccess() {
-        final GreAddDelTunnelReply reply = new GreAddDelTunnelReply();
+        final GreTunnelAddDelReply reply = new GreTunnelAddDelReply();
         reply.swIfIndex = IFACE_ID;
-        doReturn(future(reply)).when(api).greAddDelTunnel(any(GreAddDelTunnel.class));
+        doReturn(future(reply)).when(api).greTunnelAddDel(any(GreTunnelAddDel.class));
     }
 
     private void whenGreAddDelTunnelThenFailure() {
-        doReturn(failedFuture()).when(api).greAddDelTunnel(any(GreAddDelTunnel.class));
+        doReturn(failedFuture()).when(api).greTunnelAddDel(any(GreTunnelAddDel.class));
     }
 
-    private GreAddDelTunnel verifyGreAddDelTunnelWasInvoked(final Gre gre) throws VppInvocationException {
-        ArgumentCaptor<GreAddDelTunnel> argumentCaptor = ArgumentCaptor.forClass(GreAddDelTunnel.class);
-        verify(api).greAddDelTunnel(argumentCaptor.capture());
-        final GreAddDelTunnel actual = argumentCaptor.getValue();
-        assertEquals(0, actual.isIpv6);
-        assertArrayEquals(ipAddressToArray(gre.getSrc()), actual.srcAddress);
-        assertArrayEquals(ipAddressToArray(gre.getDst()), actual.dstAddress);
-        assertEquals(gre.getOuterFibId().intValue(), actual.outerFibId);
+    private GreTunnelAddDel verifyGreAddDelTunnelWasInvoked(final Gre gre) throws VppInvocationException {
+        ArgumentCaptor<GreTunnelAddDel> argumentCaptor = ArgumentCaptor.forClass(GreTunnelAddDel.class);
+        verify(api).greTunnelAddDel(argumentCaptor.capture());
+        final GreTunnelAddDel actual = argumentCaptor.getValue();
+        assertEquals(0, actual.tunnel.isIpv6);
+        assertArrayEquals(ipAddressToArray(gre.getSrc()), actual.tunnel.src.un.getIp4().ip4Address);
+        assertArrayEquals(ipAddressToArray(gre.getDst()), actual.tunnel.dst.un.getIp4().ip4Address);
+        assertEquals(gre.getOuterFibId().intValue(), actual.tunnel.outerFibId);
         return actual;
     }
 
     private void verifyGreAddWasInvoked(final Gre gre) throws VppInvocationException {
-        final GreAddDelTunnel actual = verifyGreAddDelTunnelWasInvoked(gre);
+        final GreTunnelAddDel actual = verifyGreAddDelTunnelWasInvoked(gre);
         assertEquals(ADD_GRE, actual.isAdd);
     }
 
     private void verifyGreDeleteWasInvoked(final Gre gre) throws VppInvocationException {
-        final GreAddDelTunnel actual = verifyGreAddDelTunnelWasInvoked(gre);
+        final GreTunnelAddDel actual = verifyGreAddDelTunnelWasInvoked(gre);
         assertEquals(DEL_GRE, actual.isAdd);
     }
 

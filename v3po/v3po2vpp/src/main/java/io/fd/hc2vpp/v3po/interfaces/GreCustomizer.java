@@ -24,8 +24,8 @@ import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.jvpp.core.dto.GreAddDelTunnel;
-import io.fd.jvpp.core.dto.GreAddDelTunnelReply;
+import io.fd.jvpp.core.dto.GreTunnelAddDel;
+import io.fd.jvpp.core.dto.GreTunnelAddDelReply;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
@@ -48,16 +48,26 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
         this.interfaceContext = interfaceContext;
     }
 
-    private static GreAddDelTunnel getGreTunnelRequest(final byte isAdd, final IpAddressNoZone srcAddr,
+    private static GreTunnelAddDel getGreTunnelRequest(final byte isAdd, final IpAddressNoZone srcAddr,
                                                        final IpAddressNoZone dstAddr, final int outerFibId,
                                                        final byte isIpv6) {
-        final GreAddDelTunnel greAddDelTunnel = new GreAddDelTunnel();
-        greAddDelTunnel.isAdd = isAdd;
-        greAddDelTunnel.srcAddress = AddressTranslator.INSTANCE.ipAddressToArray(srcAddr);
-        greAddDelTunnel.dstAddress = AddressTranslator.INSTANCE.ipAddressToArray(dstAddr);
-        greAddDelTunnel.outerFibId = outerFibId;
-        greAddDelTunnel.isIpv6 = isIpv6;
-        return greAddDelTunnel;
+        final GreTunnelAddDel greTunnelAddDel = new GreTunnelAddDel();
+        greTunnelAddDel.isAdd = isAdd;
+        greTunnelAddDel.tunnel = new io.fd.jvpp.core.types.GreTunnel();
+        if (isIpv6==0) {
+            greTunnelAddDel.tunnel.src =
+                    AddressTranslator.INSTANCE.ipv4AddressNoZoneToAddress(srcAddr.getIpv4AddressNoZone());
+            greTunnelAddDel.tunnel.dst =
+                    AddressTranslator.INSTANCE.ipv4AddressNoZoneToAddress(dstAddr.getIpv4AddressNoZone());
+        } else {
+            greTunnelAddDel.tunnel.src =
+                    AddressTranslator.INSTANCE.ipv6AddressToAddress(srcAddr.getIpv6AddressNoZone());
+            greTunnelAddDel.tunnel.dst =
+                    AddressTranslator.INSTANCE.ipv6AddressToAddress(dstAddr.getIpv6AddressNoZone());
+        }
+        greTunnelAddDel.tunnel.outerFibId = outerFibId;
+        greTunnelAddDel.tunnel.isIpv6 = isIpv6;
+        return greTunnelAddDel;
     }
 
     @Override
@@ -90,11 +100,11 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
         int outerFibId = gre.getOuterFibId().intValue();
 
         LOG.debug("Setting gre tunnel for interface: {}. Gre: {}", swIfName, gre);
-        final CompletionStage<GreAddDelTunnelReply> greAddDelTunnelReplyCompletionStage =
-            getFutureJVpp().greAddDelTunnel(getGreTunnelRequest((byte) 1 /* is add */, gre.getSrc(),
+        final CompletionStage<GreTunnelAddDelReply> greAddDelTunnelReplyCompletionStage =
+            getFutureJVpp().greTunnelAddDel(getGreTunnelRequest((byte) 1 /* is add */, gre.getSrc(),
                 gre.getDst(), outerFibId, isIpv6));
 
-        final GreAddDelTunnelReply reply =
+        final GreTunnelAddDelReply reply =
                 getReplyForCreate(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id, gre);
         LOG.debug("Gre tunnel set successfully for: {}, gre: {}", swIfName, gre);
         if (interfaceContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
@@ -135,8 +145,8 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
         int outerFibId = gre.getOuterFibId().intValue();
 
         LOG.debug("Deleting gre tunnel for interface: {}. Gre: {}", swIfName, gre);
-        final CompletionStage<GreAddDelTunnelReply> greAddDelTunnelReplyCompletionStage =
-            getFutureJVpp().greAddDelTunnel(getGreTunnelRequest((byte) 0 /* is add */, gre.getSrc(),
+        final CompletionStage<GreTunnelAddDelReply> greAddDelTunnelReplyCompletionStage =
+            getFutureJVpp().greTunnelAddDel(getGreTunnelRequest((byte) 0 /* is add */, gre.getSrc(),
                 gre.getDst(), outerFibId, isIpv6));
 
         getReplyForDelete(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);

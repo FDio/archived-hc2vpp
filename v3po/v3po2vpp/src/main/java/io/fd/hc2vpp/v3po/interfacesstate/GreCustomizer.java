@@ -112,14 +112,18 @@ public class GreCustomizer extends FutureJVppCustomizer
         LOG.trace("Gre tunnel: {} attributes returned from VPP: {}", key.getName(), reply);
 
         final GreTunnelDetails swInterfaceGreDetails = reply.greTunnelDetails.get(0);
-        if (swInterfaceGreDetails.isIpv6 == 1) {
-            builder.setDst(new IpAddressNoZone(arrayToIpv6AddressNoZone(swInterfaceGreDetails.dstAddress)));
-            builder.setSrc(new IpAddressNoZone(arrayToIpv6AddressNoZone(swInterfaceGreDetails.srcAddress)));
+        if (swInterfaceGreDetails.tunnel.isIpv6 == 1) {
+            builder.setDst(new IpAddressNoZone(
+                    arrayToIpv4AddressNoZone(swInterfaceGreDetails.tunnel.dst.un.getIp6().ip6Address)));
+            builder.setSrc(new IpAddressNoZone(
+                    arrayToIpv6AddressNoZone(swInterfaceGreDetails.tunnel.src.un.getIp6().ip6Address)));
         } else {
-            builder.setDst(new IpAddressNoZone(arrayToIpv4AddressNoZone(swInterfaceGreDetails.dstAddress)));
-            builder.setSrc(new IpAddressNoZone(arrayToIpv4AddressNoZone(swInterfaceGreDetails.srcAddress)));
+            builder.setDst(new IpAddressNoZone(
+                    arrayToIpv4AddressNoZone(swInterfaceGreDetails.tunnel.dst.un.getIp4().ip4Address)));
+            builder.setSrc(new IpAddressNoZone(
+                    arrayToIpv4AddressNoZone(swInterfaceGreDetails.tunnel.src.un.getIp4().ip4Address)));
         }
-        builder.setOuterFibId((long) swInterfaceGreDetails.outerFibId);
+        builder.setOuterFibId((long) swInterfaceGreDetails.tunnel.outerFibId);
         LOG.debug("Gre tunnel: {}, id: {} attributes read as: {}", key.getName(), index, builder);
     }
 
