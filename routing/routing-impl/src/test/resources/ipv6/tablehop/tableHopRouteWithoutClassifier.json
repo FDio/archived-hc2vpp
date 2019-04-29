@@ -1,0 +1,14 @@
+{
+  "static-routes": {
+    "ipv6": {
+      "route": [
+        {
+          "destination-prefix": "2001:0db8:0a0b:12f0:0000:0000:0000:0001/64",
+          "next-hop": {
+            "secondary-vrf": 0
+          }
+        }
+      ]
+    }
+  }
+}
