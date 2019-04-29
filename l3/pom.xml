@@ -21,7 +21,7 @@
     <parent>
         <artifactId>hc2vpp-parent</artifactId>
         <groupId>io.fd.hc2vpp.common</groupId>
-        <version>1.19.04-RC2</version>
+        <version>1.19.04-SNAPSHOT</version>
         <relativePath>../common/hc2vpp-parent</relativePath>
     </parent>
     <packaging>pom</packaging>

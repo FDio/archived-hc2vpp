@@ -7,14 +7,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>hc2vpp-parent</artifactId>
-        <version>1.19.04-RC2</version>
+        <version>1.19.04-SNAPSHOT</version>
         <relativePath>../hc2vpp-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>api-parent</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.19.04-RC2</version>
+    <version>1.19.04-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>

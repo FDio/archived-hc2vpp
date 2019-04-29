@@ -6,7 +6,7 @@
 DIR_NAME=$(dirname $0)
 VERSION=`$DIR_NAME/version`
 
-# echo "${VERSION}-SNAPSHOT"
+echo "${VERSION}-SNAPSHOT"
 # echo "${VERSION}-RC1"
-echo "${VERSION}-RC2"
+# echo "${VERSION}-RC2"
 # echo "${VERSION}"
