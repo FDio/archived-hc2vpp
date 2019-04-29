@@ -30,7 +30,7 @@
         <groovy.eclipse.compiler.version>3.3.0-01</groovy.eclipse.compiler.version>
         <groovy.eclipse.batch.version>2.5.6-02</groovy.eclipse.batch.version>
 
-        <jvpp.version>19.04-SNAPSHOT</jvpp.version>
+        <jvpp.version>19.04</jvpp.version>
         <junit.version>4.11</junit.version>
         <reflections.version>0.9.11</reflections.version>
         <sonar.skip>true</sonar.skip>
