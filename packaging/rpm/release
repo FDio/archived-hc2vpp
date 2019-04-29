@@ -12,8 +12,8 @@
 #
 # echo RC1~$BUILD_NUMBER
 # echo RC1
-echo RC2~$BUILD_NUMBER
-# echo RC2
+# echo RC2~$BUILD_NUMBER
+echo RC2
 #
 # Release snapshot (1.19.04~XXX, 1.19.04.1~XXX, ...)
 # echo RELEASE~$BUILD_NUMBER
