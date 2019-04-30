@@ -60,7 +60,7 @@ Vcs-Browser: https://git.fd.io/cgit/hc2vpp/tree/
 Package: honeycomb
 Architecture: all
 Depends: ${VPP_DEPENDENCIES}, openjdk-8-jre-headless
-Suggests: vpp-nsh-plugin
+Suggests:
 Description: Honeycomb agent for VPP
 EOT
 

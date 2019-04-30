@@ -3,7 +3,7 @@
 # Snapshot version (do not use on stable branch)
 #
 #
-echo $(expr $BUILD_NUMBER)
+echo $(expr $BUILD_NUMBER + 0)
 #
 # Stable versions
 #
