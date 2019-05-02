@@ -16,7 +16,9 @@
 
 package io.fd.hc2vpp.v3po;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
@@ -29,16 +31,31 @@ import io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceStateAugmentationReaderFactory;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManagerProvider;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceStatisticsManager;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceStatisticsManagerProvider;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.JVppStatsProvider;
 import io.fd.hc2vpp.v3po.notification.InterfaceChangeNotificationProducerProvider;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.jvpp.stats.future.FutureJVppStatsFacade;
+import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class V3poModule extends AbstractModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(V3poModule.class);
+    private final Class<? extends Provider<FutureJVppStatsFacade>> jvppStatsProviderClass;
+
+    public V3poModule() {
+        this(JVppStatsProvider.class);
+    }
+
+    @VisibleForTesting
+    protected V3poModule(@Nonnull final Class<? extends Provider<FutureJVppStatsFacade>> jvppStatsProviderClass) {
+        this.jvppStatsProviderClass = jvppStatsProviderClass;
+    }
 
     @Override
     protected void configure() {
@@ -54,6 +71,11 @@ public class V3poModule extends AbstractModule {
                 .toInstance(new NamingContext("bridge-domain-", "bridge-domain-context"));
 
         bind(InterfaceCacheDumpManager.class).toProvider(InterfaceCacheDumpManagerProvider.class).in(Singleton.class);
+
+        // Statistics
+        bind(InterfaceStatisticsManager.class).toProvider(InterfaceStatisticsManagerProvider.class)
+                .in(Singleton.class);
+        bind(FutureJVppStatsFacade.class).toProvider(jvppStatsProviderClass).in(Singleton.class);
 
         // Context utility for deleted interfaces
         bind(DisabledInterfacesManager.class).toInstance(new DisabledInterfacesManager());

@@ -28,7 +28,7 @@ import io.fd.jvpp.core.dto.SwInterfaceSetL2Bridge;
 import io.fd.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
 import io.fd.jvpp.core.types.L2PortType;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.l2.config.attributes.interconnection.BridgeBasedBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.l2.config.attributes.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.SubinterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.SubInterfaces;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterface;

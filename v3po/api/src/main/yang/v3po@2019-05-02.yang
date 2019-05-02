@@ -48,6 +48,12 @@ module v3po {
      See the License for the specific language governing permissions and
      limitations under the License.";
 
+  revision "2019-05-02" {
+    description
+      "Revision changes:
+       - added boolean flag for enabling/disabling statistics collection";
+  }
+
   revision "2019-01-28" {
     description
       "Revision changes:
@@ -855,6 +861,16 @@ module v3po {
 
     container span {
       uses span-state-attributes;
+    }
+  }
+
+  augment /if:interfaces {
+      ext:augment-identifier "vpp-interfaces-stats-augmentation";
+    container statistics{
+      leaf enabled {
+        type boolean;
+        default false;
+      }
     }
   }
 

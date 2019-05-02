@@ -27,6 +27,7 @@ import io.fd.hc2vpp.v3po.interfaces.GreCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.InterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.InterfaceRoutingCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.InterfaceUnnumberedCustomizer;
+import io.fd.hc2vpp.v3po.interfaces.InterfacesStatisticsCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.L2Customizer;
 import io.fd.hc2vpp.v3po.interfaces.LoopbackCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.TapV2Customizer;
@@ -35,6 +36,7 @@ import io.fd.hc2vpp.v3po.interfaces.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VxlanGpeCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.pbb.PbbRewriteCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.span.MirroredInterfaceCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceStatisticsManager;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -43,20 +45,22 @@ import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.Set;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.unnumbered.interfaces.rev180103.InterfaceUnnumberedAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.unnumbered.interfaces.rev180103.unnumbered.config.attributes.Unnumbered;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.AfPacket;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Ethernet;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Gre;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.L2;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Loopback;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Routing;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Span;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.TapV2;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.VhostUser;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Vxlan;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.VxlanGpe;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.span.attributes.MirroredInterfaces;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.span.attributes.mirrored.interfaces.MirroredInterface;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfacesStatsAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.Statistics;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.AfPacket;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Ethernet;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Gre;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.L2;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Loopback;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Routing;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Span;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.TapV2;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.VhostUser;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Vxlan;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.VxlanGpe;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.span.attributes.MirroredInterfaces;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.span.attributes.mirrored.interfaces.MirroredInterface;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.PbbRewriteInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.interfaces._interface.PbbRewrite;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -65,8 +69,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class InterfacesWriterFactory implements WriterFactory {
 
-    public static final InstanceIdentifier<Interface> IFC_ID =
-            InstanceIdentifier.create(Interfaces.class).child(Interface.class);
+    public static final InstanceIdentifier<Interfaces> IFCS_ID = InstanceIdentifier.create(Interfaces.class);
+    public static final InstanceIdentifier<Interface> IFC_ID = IFCS_ID.child(Interface.class);
     public static final InstanceIdentifier<VppInterfaceAugmentation> VPP_IFC_AUG_ID =
             IFC_ID.augmentation(VppInterfaceAugmentation.class);
     public static final InstanceIdentifier<L2> L2_ID = VPP_IFC_AUG_ID.child(L2.class);
@@ -75,21 +79,26 @@ public final class InterfacesWriterFactory implements WriterFactory {
     private final NamingContext bdNamingContext;
     private final NamingContext ifcNamingContext;
     private final DisabledInterfacesManager ifcDisableContext;
+    private final InterfaceStatisticsManager statisticsManager;
 
     @Inject
     public InterfacesWriterFactory(final FutureJVppCore vppJvppIfcDependency,
                                    @Named("bridge-domain-context") final NamingContext bridgeDomainContextDependency,
                                    @Named("interface-context") final NamingContext interfaceContextDependency,
-                                   final DisabledInterfacesManager ifcDisableContext) {
+                                   final DisabledInterfacesManager ifcDisableContext,
+                                   final InterfaceStatisticsManager statisticsManager) {
         this.jvpp = vppJvppIfcDependency;
         this.bdNamingContext = bridgeDomainContextDependency;
         this.ifcNamingContext = interfaceContextDependency;
         this.ifcDisableContext = ifcDisableContext;
+        this.statisticsManager = statisticsManager;
     }
 
     @Override
     public void init(final ModifiableWriterRegistryBuilder registry) {
         // Interfaces
+        registry.add(new GenericWriter<>(IFCS_ID.augmentation(VppInterfacesStatsAugmentation.class)
+                .child(Statistics.class), new InterfacesStatisticsCustomizer(statisticsManager)));
         //  Interface =
         registry.add(new GenericListWriter<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcNamingContext)));
         //   VppInterfaceAugmentation
@@ -131,14 +140,15 @@ public final class InterfacesWriterFactory implements WriterFactory {
                 ifcId);
 
         final Set<InstanceIdentifier<?>> specificIfcTypes =
-            Sets.newHashSet(vhostId, afpacketId, vxlanId, vxlanGpeId, tapV2Id, loopbackId);
+                Sets.newHashSet(vhostId, afpacketId, vxlanId, vxlanGpeId, tapV2Id, loopbackId);
 
         // Ethernet =
         registry.add(new GenericWriter<>(VPP_IFC_AUG_ID.child(Ethernet.class),
-            new EthernetCustomizer(jvpp, ifcNamingContext)));
+                new EthernetCustomizer(jvpp, ifcNamingContext)));
         // Routing(Execute only after specific interface customizers) =
         registry.addAfter(
-                new GenericWriter<>(VPP_IFC_AUG_ID.child(Routing.class), new InterfaceRoutingCustomizer(jvpp, ifcNamingContext)),
+                new GenericWriter<>(VPP_IFC_AUG_ID.child(Routing.class),
+                        new InterfaceRoutingCustomizer(jvpp, ifcNamingContext)),
                 specificIfcTypes);
         // L2(Execute only after subinterface (and all other ifc types) =
         registry.addAfter(new GenericWriter<>(L2_ID, new L2Customizer(jvpp, ifcNamingContext, bdNamingContext)),
@@ -151,13 +161,13 @@ public final class InterfacesWriterFactory implements WriterFactory {
                 .child(MirroredInterfaces.class)
                 .child(MirroredInterface.class);
         registry.addAfter(new GenericWriter<>(mirroredIfcId, new MirroredInterfaceCustomizer(jvpp, ifcNamingContext,
-                        id -> id.firstKeyOf(Interface.class).getName())), ifcId);
+                id -> id.firstKeyOf(Interface.class).getName())), ifcId);
 
         // Unnumbered =
         final InstanceIdentifier<Unnumbered> unnumberedId =
-            IFC_ID.augmentation(InterfaceUnnumberedAugmentation.class).child(Unnumbered.class);
+                IFC_ID.augmentation(InterfaceUnnumberedAugmentation.class).child(Unnumbered.class);
         registry.addAfter(new GenericWriter<>(unnumberedId, new InterfaceUnnumberedCustomizer(jvpp, ifcNamingContext)),
-            ifcId);
+                ifcId);
     }
 
     private void addPbbAugmentationWriters(final InstanceIdentifier<Interface> ifcId,

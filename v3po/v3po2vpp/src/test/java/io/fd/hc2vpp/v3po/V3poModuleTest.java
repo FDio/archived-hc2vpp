@@ -21,10 +21,12 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
@@ -36,6 +38,7 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.stats.future.FutureJVppStatsFacade;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;
@@ -77,7 +80,8 @@ public class V3poModuleTest {
     @Before
     public void setUp() {
         initMocks(this);
-        Guice.createInjector(new V3poModule(), BoundFieldModule.of(this)).injectMembers(this);
+        Guice.createInjector(new V3poModule(MockJVppStatsProvider.class), BoundFieldModule.of(this))
+                .injectMembers(this);
     }
 
     @Test
@@ -100,5 +104,11 @@ public class V3poModuleTest {
         assertNotNull(registryBuilder.build());
     }
 
+    private static final class MockJVppStatsProvider implements Provider<FutureJVppStatsFacade> {
 
+        @Override
+        public FutureJVppStatsFacade get() {
+            return mock(FutureJVppStatsFacade.class);
+        }
+    }
 }

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b7fd7461-3b63-40ed-9aee-dd9668109865",
+		"_postman_id": "f5f60790-000e-4a74-ae07-725cfaeaa0f6",
 		"name": "Honeycomb V3PO RESTCONF calls",
 		"description": "Common mgmt operations on VPP core using Honeycomb REST interface",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -141,7 +141,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"bridge-domain\": [\r\n        {\r\n            \"name\": \"testBD\",\r\n            \"flood\": \"true\",\r\n            \"forward\": \"false\",\r\n            \"learn\": \"false\",\r\n            \"unknown-unicast-flood\": \"false\",\r\n            \"arp-termination\": \"false\"\r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/v3po:bridge-domains/bridge-domain/testBD",
@@ -178,7 +178,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"bridge-domain\": [\r\n        {\r\n            \"name\": \"testBD\",\r\n            \"flood\": \"true\",\r\n            \"forward\": \"false\",\r\n            \"learn\": \"false\",\r\n            \"unknown-unicast-flood\": \"false\",\r\n            \"arp-termination\": \"false\"\r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/v3po:bridge-domains-state/bridge-domain/testBD",
@@ -614,7 +614,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/naming-context:contexts",
@@ -649,7 +649,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/v3po-context:disabled-interfaces",
@@ -684,7 +684,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/vpp-classifier-context:vpp-classifier-context",
@@ -760,7 +760,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0",
@@ -797,7 +797,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/GigabitEthernet0%2F8%2F0",
@@ -990,7 +990,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"interface\": [\r\n        {\r\n            \"name\": \"local0\",\r\n            \"description\": \"for testing purposes\",\r\n            \"type\": \"iana-if-type:ethernetCsmacd\",\r\n            \"enabled\": \"true\",\r\n            \"pbb-rewrite\":{\r\n            \t\"destination-address\":\"aa:aa:aa:aa:aa:aa\",\r\n            \t\"source-address\":\"bb:bb:bb:bb:bb:bb\",\r\n            \t\"b-vlan-tag-vlan-id\":\"26\",\r\n            \t\"i-tag-isid\":\"27\",\r\n            \t\"interface-operation\":\"translate-2-1\"\r\n            }\r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0",
@@ -1067,7 +1067,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \n        \"interface\":{\n            \"name\":\"GigabitEthernet0/8/0\",\n            \"type\": \"iana-if-type:ethernetCsmacd\",\n            \"enabled\":\"true\",\n            \"ipv4\":{\n                \"neighbor\":{\n                    \"ip\":\"172.16.0.2\",\n                    \"link-layer-address\":\"00:01:11:00:02:02\"\n                }\n            }\n        }\n}\n"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/ipv4/neighbor/172.16.0.2",
@@ -1187,7 +1187,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/local0",
@@ -1340,7 +1340,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/local0/ipv4",
@@ -1377,7 +1377,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/ipv4",
@@ -1594,6 +1594,86 @@
 								"span"
 							]
 						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "STATISTICS",
+			"item": [
+				{
+					"name": "Enable statistics collection",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"statistics\": {\r\n    \t\"enabled\": \"true\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/statistics",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"statistics"
+							]
+						},
+						"description": "Enables/Disables statistics collection"
+					},
+					"response": []
+				},
+				{
+					"name": "List TapV2 interface statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/tap-v2/statistics/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"ietf-interfaces:interfaces-state",
+								"interface",
+								"tap-v2",
+								"statistics",
+								""
+							]
+						},
+						"description": "Lists statistics of selected interface. In this case it is TapV2 interface."
 					},
 					"response": []
 				}
@@ -2482,7 +2562,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+					"raw": ""
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/",
@@ -2518,7 +2598,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+					"raw": ""
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/",

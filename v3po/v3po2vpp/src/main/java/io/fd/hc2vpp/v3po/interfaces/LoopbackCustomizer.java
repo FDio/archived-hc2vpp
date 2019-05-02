@@ -27,7 +27,7 @@ import io.fd.jvpp.core.dto.CreateLoopbackReply;
 import io.fd.jvpp.core.dto.DeleteLoopback;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces._interface.Loopback;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Loopback;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -47,7 +47,7 @@ public final class LoopbackCustomizer extends AbstractInterfaceTypeCustomizer<Lo
 
     @Override
     protected Class<? extends InterfaceType> getExpectedInterfaceType() {
-        return org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.Loopback.class;
+        return org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.Loopback.class;
     }
 
     @Override

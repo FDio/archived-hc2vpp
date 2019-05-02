@@ -27,8 +27,8 @@ import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.l2.state.attributes.interconnection.BridgeBased;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.l2.state.attributes.interconnection.XconnectBased;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.l2.state.attributes.interconnection.BridgeBased;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.l2.state.attributes.interconnection.XconnectBased;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
@@ -95,13 +95,13 @@ public class SubInterfaceL2Customizer
         if (readValue.getInterconnection() instanceof XconnectBased) {
             XconnectBased state = (XconnectBased) readValue.getInterconnection();
             builder.setInterconnection(
-                    new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.l2.config.attributes.interconnection.XconnectBasedBuilder()
+                    new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.l2.config.attributes.interconnection.XconnectBasedBuilder()
                             .setXconnectOutgoingInterface(state.getXconnectOutgoingInterface())
                             .build());
         } else {
             BridgeBased state = (BridgeBased) readValue.getInterconnection();
             builder.setInterconnection(
-                    new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.l2.config.attributes.interconnection.BridgeBasedBuilder()
+                    new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.l2.config.attributes.interconnection.BridgeBasedBuilder()
                             .setBridgeDomain(state.getBridgeDomain())
                             .setBridgedVirtualInterface(state.isBridgedVirtualInterface())
                             .setSplitHorizonGroup(state.getSplitHorizonGroup())

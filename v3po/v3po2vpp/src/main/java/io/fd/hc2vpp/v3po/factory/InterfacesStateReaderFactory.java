@@ -26,12 +26,14 @@ import io.fd.hc2vpp.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.GreCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.InterfaceRoutingCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.InterfaceStatisticsCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.L2Customizer;
 import io.fd.hc2vpp.v3po.interfacesstate.TapV2Customizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanGpeCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceStatisticsManager;
 import io.fd.hc2vpp.v3po.interfacesstate.pbb.PbbRewriteStateCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.span.InterfaceMirroredInterfacesCustomizer;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
@@ -40,36 +42,40 @@ import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.jvpp.core.future.FutureJVppCore;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VppInterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.VppInterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.AfPacket;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.Ethernet;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.Gre;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.L2;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.Routing;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.Span;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.SpanBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.TapV2;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.VhostUser;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.Vxlan;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.interfaces.state._interface.VxlanGpe;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.span.state.attributes.MirroredInterfaces;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190128.span.state.attributes.mirrored.interfaces.MirroredInterface;
+import io.fd.jvpp.stats.future.FutureJVppStatsFacade;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfaceStateAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfaceStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.state._interface.AfPacket;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.state._interface.Ethernet;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.state._interface.Gre;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.state._interface.L2;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.state._interface.Routing;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.state._interface.Span;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.state._interface.SpanBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.state._interface.TapV2;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.state._interface.VhostUser;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.state._interface.Vxlan;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.state._interface.VxlanGpe;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.span.state.attributes.MirroredInterfaces;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.span.state.attributes.mirrored.interfaces.MirroredInterface;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.PbbRewriteStateInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.PbbRewriteStateInterfaceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.interfaces.state._interface.PbbRewriteState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state._interface.Statistics;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class InterfacesStateReaderFactory implements ReaderFactory {
 
+    private final FutureJVppStatsFacade jvppStats;
     private final NamingContext ifcNamingCtx;
     private final NamingContext bdNamingCtx;
     private final DisabledInterfacesManager ifcDisableContext;
     private final InterfaceCacheDumpManager ifaceDumpManager;
     private final FutureJVppCore jvpp;
+    private final InterfaceStatisticsManager statisticsManager;
 
     static final InstanceIdentifier<InterfacesState> IFC_STATE_ID =
             InstanceIdentifier.create(InterfacesState.class);
@@ -77,15 +83,19 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
 
     @Inject
     public InterfacesStateReaderFactory(final FutureJVppCore jvpp,
+                                        final FutureJVppStatsFacade jvppStats,
                                         @Named("interface-context") final NamingContext ifcNamingCtx,
                                         @Named("bridge-domain-context") final NamingContext bdNamingCtx,
                                         final DisabledInterfacesManager ifcDisableContext,
-                                        final InterfaceCacheDumpManager ifaceDumpManager) {
+                                        final InterfaceCacheDumpManager ifaceDumpManager,
+                                        final InterfaceStatisticsManager statisticsManager) {
         this.jvpp = jvpp;
+        this.jvppStats = jvppStats;
         this.ifcNamingCtx = ifcNamingCtx;
         this.bdNamingCtx = bdNamingCtx;
         this.ifcDisableContext = ifcDisableContext;
         this.ifaceDumpManager = ifaceDumpManager;
+        this.statisticsManager = statisticsManager;
     }
 
     @Override
@@ -96,6 +106,9 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         registry.add(new GenericInitListReader<>(IFC_ID,
                 new InterfaceCustomizer(ifcNamingCtx, ifcDisableContext, ifaceDumpManager)));
 
+        // Interface Statistics
+        registry.add(new GenericReader<>(IFC_ID.child(Statistics.class),
+                new InterfaceStatisticsCustomizer(ifcNamingCtx, jvppStats, statisticsManager)));
         // v3po.yang
         initVppIfcAugmentationReaders(registry, IFC_ID);
 
