@@ -37,6 +37,7 @@ import io.fd.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.jvpp.core.dto.SwInterfaceDetailsReplyDump;
 import io.fd.jvpp.core.dto.SwInterfaceDump;
 import io.fd.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.types.InterfaceIndex;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -189,6 +190,8 @@ public class InterfaceCacheDumpManagerImplTest implements NamingContextHelper, F
 
     private static SwInterfaceDump specificRequest(final String ifaceName) {
         final SwInterfaceDump specificRequest = new SwInterfaceDump();
+        specificRequest.swIfIndex = new InterfaceIndex();
+        specificRequest.swIfIndex.interfaceindex =~0;
         specificRequest.nameFilterValid = 1;
         specificRequest.nameFilter = ifaceName.getBytes();
         return specificRequest;
@@ -196,6 +199,8 @@ public class InterfaceCacheDumpManagerImplTest implements NamingContextHelper, F
 
     private static SwInterfaceDump fullRequest() {
         final SwInterfaceDump fullRequest = new SwInterfaceDump();
+        fullRequest.swIfIndex = new InterfaceIndex();
+        fullRequest.swIfIndex.interfaceindex = ~0;
         fullRequest.nameFilterValid = 0;
         fullRequest.nameFilter = "".getBytes();
         return fullRequest;

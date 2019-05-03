@@ -32,6 +32,7 @@ import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.jvpp.core.dto.SwInterfaceDump;
+import io.fd.jvpp.core.types.InterfaceIndex;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -101,6 +102,8 @@ public class InterfaceCustomizerTest extends ListReaderCustomizerTest<Interface,
         getCustomizer().readCurrentAttributes(id, builder, ctx);
 
         final SwInterfaceDump request = new SwInterfaceDump();
+        request.swIfIndex = new InterfaceIndex();
+        request.swIfIndex.interfaceindex =~0;
         request.nameFilter = IFACE0_NAME.getBytes();
         request.nameFilterValid = 1;
 
@@ -124,6 +127,8 @@ public class InterfaceCustomizerTest extends ListReaderCustomizerTest<Interface,
         getCustomizer().readCurrentAttributes(id, builder, ctx);
 
         final SwInterfaceDump request = new SwInterfaceDump();
+        request.swIfIndex = new InterfaceIndex();
+        request.swIfIndex.interfaceindex =~0;
         request.nameFilter = SUB_IFACE_NAME.getBytes();
         request.nameFilterValid = 1;
 
@@ -156,6 +161,8 @@ public class InterfaceCustomizerTest extends ListReaderCustomizerTest<Interface,
         final List<InterfaceKey> actualIds = getCustomizer().getAllIds(id, ctx);
 
         final SwInterfaceDump request = new SwInterfaceDump();
+        request.swIfIndex = new InterfaceIndex();
+        request.swIfIndex.interfaceindex = ~0;
         request.nameFilter = "".getBytes();
         request.nameFilterValid = 0;
 

@@ -31,6 +31,7 @@ import io.fd.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.jvpp.core.dto.SwInterfaceDetailsReplyDump;
 import io.fd.jvpp.core.dto.SwInterfaceDump;
 import io.fd.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.types.InterfaceIndex;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
@@ -173,6 +174,8 @@ final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager {
             final FutureJVppCore api) {
         return (identifier, params) -> {
             final SwInterfaceDump request = new SwInterfaceDump();
+            request.swIfIndex = new InterfaceIndex();
+            request.swIfIndex.interfaceindex = ~0;
             request.nameFilter = "".getBytes();
             request.nameFilterValid = 0;
 
@@ -186,6 +189,8 @@ final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager {
             final FutureJVppCore api) {
         return (identifier, ifaceName) -> {
             final SwInterfaceDump request = new SwInterfaceDump();
+            request.swIfIndex = new InterfaceIndex();
+            request.swIfIndex.interfaceindex =~0;
             request.nameFilter = ifaceName.getBytes();
             request.nameFilterValid = 1;
 
