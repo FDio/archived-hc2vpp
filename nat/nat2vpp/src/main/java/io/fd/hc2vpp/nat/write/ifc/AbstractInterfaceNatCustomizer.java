@@ -28,6 +28,8 @@ import io.fd.jvpp.nat.dto.Nat44InterfaceAddDelFeature;
 import io.fd.jvpp.nat.dto.Nat44InterfaceAddDelOutputFeature;
 import io.fd.jvpp.nat.dto.Nat64AddDelInterface;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.InterfaceIndex;
+import io.fd.jvpp.nat.types.NatConfigFlags;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816.InterfaceNatVppFeatureAttributes;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -89,9 +91,17 @@ abstract class AbstractInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAt
             throws WriteFailedException {
         checkArgument(!isNat64Supported(natAttributes), "Post routing Nat64 is not supported by VPP");
         final Nat44InterfaceAddDelOutputFeature request = new Nat44InterfaceAddDelOutputFeature();
-        request.isAdd = booleanToByte(enable);
-        request.isInside = getType().isInside;
-        request.swIfIndex = ifcIndex;
+        request.isAdd = enable;
+        if (request.flags == null) {
+            request.flags = new NatConfigFlags();
+        }
+        if (getType() == NatType.INBOUND) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_INSIDE);
+        } else if (getType() == NatType.OUTBOUND) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_OUTSIDE);
+        }
+        request.swIfIndex = new InterfaceIndex();
+        request.swIfIndex.interfaceindex = ifcIndex;
         getReplyForWrite(jvppNat.nat44InterfaceAddDelOutputFeature(request).toCompletableFuture(), id);
     }
 
@@ -114,18 +124,34 @@ abstract class AbstractInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAt
     private void preRoutingNat44(@Nonnull final InstanceIdentifier<D> id, final int ifcIndex, final boolean enable)
             throws WriteFailedException {
         final Nat44InterfaceAddDelFeature request = new Nat44InterfaceAddDelFeature();
-        request.isAdd = booleanToByte(enable);
-        request.isInside = getType().isInside;
-        request.swIfIndex = ifcIndex;
+        request.isAdd = enable;
+        if (request.flags == null) {
+            request.flags = new NatConfigFlags();
+        }
+        if (getType() == NatType.INBOUND) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_INSIDE);
+        } else if (getType() == NatType.OUTBOUND) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_OUTSIDE);
+        }
+        request.swIfIndex = new InterfaceIndex();
+        request.swIfIndex.interfaceindex = ifcIndex;
         getReplyForWrite(jvppNat.nat44InterfaceAddDelFeature(request).toCompletableFuture(), id);
     }
 
     private void preRoutingNat64(@Nonnull final InstanceIdentifier<D> id, final int ifcIndex, final boolean enable)
             throws WriteFailedException {
         final Nat64AddDelInterface request = new Nat64AddDelInterface();
-        request.isAdd = booleanToByte(enable);
-        request.isInside = getType().isInside;
-        request.swIfIndex = ifcIndex;
+        request.isAdd = enable;
+        if (request.flags == null) {
+            request.flags = new NatConfigFlags();
+        }
+        if (getType() == NatType.INBOUND) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_INSIDE);
+        } else if (getType() == NatType.OUTBOUND) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_OUTSIDE);
+        }
+        request.swIfIndex = new InterfaceIndex();
+        request.swIfIndex.interfaceindex = ifcIndex;
         getReplyForWrite(jvppNat.nat64AddDelInterface(request).toCompletableFuture(), id);
     }
 

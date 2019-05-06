@@ -31,6 +31,7 @@ import io.fd.jvpp.nat.dto.Nat44InterfaceOutputFeatureDump;
 import io.fd.jvpp.nat.dto.Nat64InterfaceDetailsReplyDump;
 import io.fd.jvpp.nat.dto.Nat64InterfaceDump;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.NatConfigFlags;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -96,8 +97,8 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
                 preRoutingNat44DumpMgr.getDump(id, ctx.getModificationCache());
 
         dump.orElse(new Nat44InterfaceDetailsReplyDump()).nat44InterfaceDetails.stream()
-                .filter(natIfcDetail -> natIfcDetail.swIfIndex == index)
-                .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.isInside))
+                .filter(natIfcDetail -> natIfcDetail.swIfIndex.interfaceindex == index)
+                .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.flags))
                 .findAny()
                 .ifPresent(natIfcDetail -> vppAttributesBuilder.enableNat44(builder));
         // do not modify builder is feature is absent (inbound/outbound are presence containers)
@@ -109,8 +110,8 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
                 preRoutingNat64DumpMgr.getDump(id, ctx.getModificationCache());
 
         dump.orElse(new Nat64InterfaceDetailsReplyDump()).nat64InterfaceDetails.stream()
-                .filter(natIfcDetail -> natIfcDetail.swIfIndex == index)
-                .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.isInside))
+                .filter(natIfcDetail -> natIfcDetail.swIfIndex.interfaceindex == index)
+                .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.flags))
                 .findAny()
                 .ifPresent(natIfcDetail -> vppAttributesBuilder.enableNat64(builder));
         // do not modify builder is feature is absent (inbound/outbound are presence containers)
@@ -123,8 +124,8 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
 
         dump.orElse(new Nat44InterfaceOutputFeatureDetailsReplyDump()).nat44InterfaceOutputFeatureDetails
                 .stream()
-                .filter(natIfcDetail -> natIfcDetail.swIfIndex == index)
-                .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.isInside))
+                .filter(natIfcDetail -> natIfcDetail.swIfIndex.interfaceindex == index)
+                .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.flags))
                 .findAny()
                 .ifPresent(natIfcDetail -> vppAttributesBuilder.enablePostRouting(builder));
         // do not modify builder is feature is absent (inbound/outbound are presence containers)
@@ -136,5 +137,5 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
 
     abstract Logger getLog();
 
-    abstract boolean isExpectedNatType(final int isInside);
+    abstract boolean isExpectedNatType(final NatConfigFlags flags);
 }

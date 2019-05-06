@@ -20,6 +20,7 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.NatConfigFlags;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816.NatInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.Nat;
@@ -50,8 +51,8 @@ final class InterfaceOutboundNatCustomizer extends AbstractInterfaceNatCustomize
     }
 
     @Override
-    boolean isExpectedNatType(final int isInside) {
-        return isInside == 0;
+    boolean isExpectedNatType(final NatConfigFlags flags) {
+        return flags.contains(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_OUTSIDE);
     }
 
     @Nonnull

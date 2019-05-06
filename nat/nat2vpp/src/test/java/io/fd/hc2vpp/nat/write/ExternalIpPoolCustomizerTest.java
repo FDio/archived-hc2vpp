@@ -33,6 +33,7 @@ import io.fd.jvpp.nat.dto.Nat44AddDelAddressRangeReply;
 import io.fd.jvpp.nat.dto.Nat64AddDelPoolAddrRange;
 import io.fd.jvpp.nat.dto.Nat64AddDelPoolAddrRangeReply;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.Ip4Address;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -117,17 +118,21 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
 
     private Nat44AddDelAddressRange getExpectedRequestNat44(final boolean isAdd) {
         final Nat44AddDelAddressRange expectedRequest = new Nat44AddDelAddressRange();
-        expectedRequest.isAdd = booleanToByte(isAdd);
-        expectedRequest.firstIpAddress = new byte[] {(byte) 192, (byte) 168, 1, 0};
-        expectedRequest.lastIpAddress = new byte[] {(byte) 192, (byte) 168, 1, (byte) 255};
+        expectedRequest.isAdd = isAdd;
+        expectedRequest.firstIpAddress = new Ip4Address();
+        expectedRequest.firstIpAddress.ip4Address = new byte[]{(byte) 192, (byte) 168, 1, 0};
+        expectedRequest.lastIpAddress = new Ip4Address();
+        expectedRequest.lastIpAddress.ip4Address = new byte[]{(byte) 192, (byte) 168, 1, (byte) 255};
         return expectedRequest;
     }
 
     private Nat64AddDelPoolAddrRange getExpectedRequestNat64(final boolean isAdd) {
         final Nat64AddDelPoolAddrRange expectedRequest = new Nat64AddDelPoolAddrRange();
-        expectedRequest.isAdd = booleanToByte(isAdd);
-        expectedRequest.startAddr = new byte[] {(byte) 192, (byte) 168, 1, 0};
-        expectedRequest.endAddr = new byte[] {(byte) 192, (byte) 168, 1, (byte) 255};
+        expectedRequest.isAdd = isAdd;
+        expectedRequest.startAddr = new Ip4Address();
+        expectedRequest.startAddr.ip4Address = new byte[]{(byte) 192, (byte) 168, 1, 0};
+        expectedRequest.endAddr = new Ip4Address();
+        expectedRequest.endAddr.ip4Address = new byte[]{(byte) 192, (byte) 168, 1, (byte) 255};
         return expectedRequest;
     }
 }

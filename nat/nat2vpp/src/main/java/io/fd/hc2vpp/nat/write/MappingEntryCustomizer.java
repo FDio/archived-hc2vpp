@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.nat.write;
 
-import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
@@ -28,6 +27,9 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.jvpp.nat.dto.Nat44AddDelStaticMapping;
 import io.fd.jvpp.nat.dto.Nat64AddDelStaticBib;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.InterfaceIndex;
+import io.fd.jvpp.nat.types.NatConfigFlags;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -133,15 +135,20 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
                                                  final boolean isAdd)
             throws WriteFailedException.CreateFailedException {
         final Nat44AddDelStaticMapping request = new Nat44AddDelStaticMapping();
-        request.isAdd = booleanToByte(isAdd);
+        request.isAdd = isAdd;
         // VPP uses int, model long
         request.vrfId = natInstanceId.intValue();
 
         final Ipv4Prefix internalAddress = mappingEntry.getInternalSrcAddress().getIpv4Prefix();
-        request.addrOnly = 1;
-        request.localIpAddress = ipv4AddressPrefixToArray(internalAddress);
-        request.externalIpAddress = ipv4AddressPrefixToArray(mappingEntry.getExternalSrcAddress().getIpv4Prefix());
-        request.externalSwIfIndex = -1; // external ip address is ignored if externalSwIfIndex is given
+        if (request.flags == null) {
+            request.flags = new NatConfigFlags();
+        }
+        request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_ADDR_ONLY);
+        request.localIpAddress = ipv4AddressPrefixToNatIp4Address(internalAddress);
+        request.externalIpAddress =
+                ipv4AddressPrefixToNatIp4Address(mappingEntry.getExternalSrcAddress().getIpv4Prefix());
+        request.externalSwIfIndex = new InterfaceIndex();
+        request.externalSwIfIndex.interfaceindex = -1; // external ip address is ignored if externalSwIfIndex is given
         request.protocol = -1;
         final Short protocol = mappingEntry.getTransportProtocol();
         if (protocol != null) {
@@ -151,7 +158,7 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
         final Integer internalPortNumber = getPortNumber(mappingEntry.getInternalSrcPort());
         final Integer externalPortNumber = getPortNumber(mappingEntry.getExternalSrcPort());
         if (internalPortNumber != null && externalPortNumber != null) {
-            request.addrOnly = 0;
+            request.flags.remove(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_ADDR_ONLY);
             request.localPort = internalPortNumber.shortValue();
             request.externalPort = externalPortNumber.shortValue();
         }
@@ -164,13 +171,13 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
                                                  final boolean isAdd)
             throws WriteFailedException.CreateFailedException {
         final Nat64AddDelStaticBib request = new Nat64AddDelStaticBib();
-        request.isAdd = booleanToByte(isAdd);
+        request.isAdd = isAdd;
         // VPP uses int, model long
         request.vrfId = natInstanceId.intValue();
 
         final Ipv6Prefix internalAddress = mappingEntry.getInternalSrcAddress().getIpv6Prefix();
-        request.iAddr = ipv6AddressPrefixToArray(internalAddress);
-        request.oAddr = ipv4AddressPrefixToArray(mappingEntry.getExternalSrcAddress().getIpv4Prefix());
+        request.iAddr = ipv6AddressPrefixToNatIp6Address(internalAddress);
+        request.oAddr = ipv4AddressPrefixToNatIp4Address(mappingEntry.getExternalSrcAddress().getIpv4Prefix());
         request.proto = -1;
         final Short protocol = mappingEntry.getTransportProtocol();
         if (protocol != null) {

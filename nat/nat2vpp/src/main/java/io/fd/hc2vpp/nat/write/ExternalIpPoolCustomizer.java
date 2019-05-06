@@ -89,9 +89,9 @@ final class ExternalIpPoolCustomizer implements ListWriterCustomizer<ExternalIpA
         final Nat44AddDelAddressRange request = new Nat44AddDelAddressRange();
         final Ipv4AddressRange range = Ipv4AddressRange.fromPrefix(externalIpPool);
         LOG.trace("Handling NAT44 address range: {}", range);
-        request.isAdd = booleanToByte(isAdd);
-        request.firstIpAddress = ipv4AddressNoZoneToArray(range.getStart());
-        request.lastIpAddress = ipv4AddressNoZoneToArray(range.getEnd());
+        request.isAdd = isAdd;
+        request.firstIpAddress = ipv4AddressNoZoneToNatIp4Address(range.getStart());
+        request.lastIpAddress = ipv4AddressNoZoneToNatIp4Address(range.getEnd());
         return request;
     }
 
@@ -99,9 +99,9 @@ final class ExternalIpPoolCustomizer implements ListWriterCustomizer<ExternalIpA
         final Nat64AddDelPoolAddrRange request = new Nat64AddDelPoolAddrRange();
         final Ipv4AddressRange range = Ipv4AddressRange.fromPrefix(externalIpPool);
         LOG.trace("Handling NAT64 address range: {}", range);
-        request.isAdd = booleanToByte(isAdd);
-        request.startAddr = ipv4AddressNoZoneToArray(range.getStart());
-        request.endAddr = ipv4AddressNoZoneToArray(range.getEnd());
+        request.isAdd = isAdd;
+        request.startAddr = ipv4AddressNoZoneToNatIp4Address(range.getStart());
+        request.endAddr = ipv4AddressNoZoneToNatIp4Address(range.getEnd());
         return request;
     }
 }

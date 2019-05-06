@@ -56,6 +56,20 @@ public interface Ipv4Translator extends ByteDataTranslator {
     }
 
     /**
+     * Creates {@link io.fd.jvpp.nat.types.Ip4Address} address from address part of {@link Ipv4Prefix}
+     *
+     * @return {@link io.fd.jvpp.nat.types.Ip4Address}
+     */
+    default io.fd.jvpp.nat.types.Ip4Address ipv4AddressPrefixToNatIp4Address(@Nonnull final Ipv4Prefix ipv4Prefix) {
+        checkNotNull(ipv4Prefix, "Cannot convert null prefix");
+
+        io.fd.jvpp.nat.types.Ip4Address address = new io.fd.jvpp.nat.types.Ip4Address();
+        address.ip4Address = ipv4AddressPrefixToArray(ipv4Prefix);
+
+        return address;
+    }
+
+    /**
      * Extracts {@link Ipv4Prefix} prefix
      */
     default byte extractPrefix(Ipv4Prefix data) {
@@ -86,6 +100,17 @@ public interface Ipv4Translator extends ByteDataTranslator {
      */
     default byte[] ipv4AddressNoZoneToArray(final Ipv4AddressNoZone ipv4Addr) {
         return ipv4AddressNoZoneToArray(ipv4Addr.getValue());
+    }
+
+    /**
+     * Transform Ipv4 address to a {@link io.fd.jvpp.nat.types.Ip4Address} acceptable by VPP.
+     *
+     * @return {@link io.fd.jvpp.nat.types.Ip4Address}
+     */
+    default io.fd.jvpp.nat.types.Ip4Address ipv4AddressNoZoneToNatIp4Address(final Ipv4AddressNoZone ipv4Addr) {
+        io.fd.jvpp.nat.types.Ip4Address ip4Address = new io.fd.jvpp.nat.types.Ip4Address();
+        ip4Address.ip4Address = ipv4AddressNoZoneToArray(ipv4Addr.getValue());
+        return ip4Address;
     }
 
     /**

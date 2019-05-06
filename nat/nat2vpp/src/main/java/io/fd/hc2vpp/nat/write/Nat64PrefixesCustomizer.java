@@ -76,9 +76,8 @@ final class Nat64PrefixesCustomizer
 
         final Ipv6Prefix nat64Prefix = data.getNat64Prefix();
         final Nat64AddDelPrefix request = new Nat64AddDelPrefix();
-        request.prefix = ipv6AddressPrefixToArray(nat64Prefix);
-        request.prefixLen = extractPrefix(nat64Prefix);
-        request.isAdd = booleanToByte(isAdd);
+        request.prefix = ipv6AddressPrefixToNatIp6Prefix(nat64Prefix);
+        request.isAdd = isAdd;
         request.vrfId = vrfId;
         getReplyForWrite(jvppNat.nat64AddDelPrefix(request).toCompletableFuture(), id);
     }

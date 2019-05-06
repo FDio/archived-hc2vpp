@@ -53,6 +53,11 @@
             <artifactId>jvpp-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.fd.jvpp</groupId>
+            <artifactId>jvpp-nat</artifactId>
+            <version>${jvpp.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-inet-types-2013-07-15</artifactId>
         </dependency>

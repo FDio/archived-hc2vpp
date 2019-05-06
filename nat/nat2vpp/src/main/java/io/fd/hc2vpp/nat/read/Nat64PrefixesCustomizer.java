@@ -111,7 +111,7 @@ final class Nat64PrefixesCustomizer
     }
 
     private Ipv6Prefix readPrefix(final Nat64PrefixDetails details) {
-        return toIpv6Prefix(details.prefix, UnsignedBytes.toInt(details.prefixLen));
+        return toIpv6Prefix(details.prefix.prefix.ip6Address, UnsignedBytes.toInt(details.prefix.len));
     }
 
     private final class Nat64PrefixesExecutor implements EntityDumpExecutor<Map<Long, Nat64PrefixDetails>, Void> {

@@ -30,6 +30,9 @@ import io.fd.jvpp.nat.dto.Nat44StaticMappingDetails;
 import io.fd.jvpp.nat.dto.Nat44StaticMappingDetailsReplyDump;
 import io.fd.jvpp.nat.dto.Nat64BibDetails;
 import io.fd.jvpp.nat.dto.Nat64BibDetailsReplyDump;
+import io.fd.jvpp.nat.types.Ip4Address;
+import io.fd.jvpp.nat.types.Ip6Address;
+import io.fd.jvpp.nat.types.NatConfigFlags;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -214,26 +217,33 @@ public class MappingEntryCustomizerTest
         Nat44StaticMappingDetailsReplyDump replyDump = new Nat44StaticMappingDetailsReplyDump();
 
         Nat44StaticMappingDetails detailsOne = new Nat44StaticMappingDetails();
-        detailsOne.addrOnly = 1;
-        detailsOne.localIpAddress = new byte[]{-64, -88, 2, 1};
+        detailsOne.flags = new NatConfigFlags();
+        detailsOne.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_ADDR_ONLY);
+        detailsOne.localIpAddress = new Ip4Address();
+        detailsOne.localIpAddress.ip4Address = new byte[]{-64, -88, 2, 1};
         detailsOne.localPort = 1234;
-        detailsOne.externalIpAddress = new byte[]{-64, -88, 2, 8};
+        detailsOne.externalIpAddress = new Ip4Address();
+        detailsOne.externalIpAddress.ip4Address = new byte[]{-64, -88, 2, 8};
         detailsOne.externalPort = 5874;
         detailsOne.vrfId = NatInstanceCustomizer.DEFAULT_VRF_ID.getId().byteValue();
 
         Nat44StaticMappingDetails detailsTwo = new Nat44StaticMappingDetails();
-        detailsTwo.addrOnly = 0;
-        detailsTwo.localIpAddress = new byte[]{-64, -88, 2, 3};
+        detailsTwo.flags = new NatConfigFlags();
+        detailsTwo.localIpAddress = new Ip4Address();
+        detailsTwo.localIpAddress.ip4Address = new byte[]{-64, -88, 2, 3};
         detailsTwo.localPort = (short) 60000;
-        detailsTwo.externalIpAddress = new byte[]{-64, -88, 2, 5};
+        detailsTwo.externalIpAddress = new Ip4Address();
+        detailsTwo.externalIpAddress.ip4Address = new byte[]{-64, -88, 2, 5};
         detailsTwo.externalPort = (short) 65535;
         detailsTwo.vrfId = 2;
 
         Nat44StaticMappingDetails detailsThree = new Nat44StaticMappingDetails();
-        detailsThree.addrOnly = 0;
-        detailsThree.localIpAddress = new byte[]{-64, -88, 2, 2};
+        detailsThree.flags = new NatConfigFlags();
+        detailsThree.localIpAddress = new Ip4Address();
+        detailsThree.localIpAddress.ip4Address = new byte[]{-64, -88, 2, 2};
         detailsThree.localPort = 1274;
-        detailsThree.externalIpAddress = new byte[]{-64, -88, 3, 8};
+        detailsThree.externalIpAddress = new Ip4Address();
+        detailsThree.externalIpAddress.ip4Address = new byte[]{-64, -88, 3, 8};
         detailsThree.externalPort = 6874;
         detailsThree.vrfId = NatInstanceCustomizer.DEFAULT_VRF_ID.getId().byteValue();
 
@@ -245,32 +255,40 @@ public class MappingEntryCustomizerTest
         Nat64BibDetailsReplyDump replyDump = new Nat64BibDetailsReplyDump();
 
         Nat64BibDetails detailsOne = new Nat64BibDetails();
-        detailsOne.isStatic = 1;
-        detailsOne.iAddr =
+        detailsOne.flags = new NatConfigFlags();
+        detailsOne.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_STATIC);
+        detailsOne.iAddr = new Ip6Address();
+        detailsOne.iAddr.ip6Address =
                 new byte[]{0x20, 0x01, 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, 0, 0, 0, 0, (byte) 0x8a, 0x2e, 0x03,
                         0x70, 0x73, 0x01};
         detailsOne.iPort = 1234;
-        detailsOne.oAddr = new byte[]{-64, -88, 64, 1};
+        detailsOne.oAddr = new Ip4Address();
+        detailsOne.oAddr.ip4Address = new byte[]{-64, -88, 64, 1};
         detailsOne.oPort = 5874;
         detailsOne.vrfId = NatInstanceCustomizer.DEFAULT_VRF_ID.getId().byteValue();
 
         Nat64BibDetails detailsTwo = new Nat64BibDetails();
-        detailsTwo.isStatic = 0;
-        detailsTwo.iAddr =
+        detailsTwo.flags = new NatConfigFlags();
+        detailsTwo.iAddr = new Ip6Address();
+        detailsTwo.iAddr.ip6Address =
                 new byte[]{0x20, 0x01, 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, 0, 0, 0, 0, (byte) 0x8a, 0x2e, 0x03,
                         0x70, 0x73, 0x02};
         detailsTwo.iPort = (short) 60000;
-        detailsTwo.oAddr = new byte[]{-64, -88, 64, 2};
+        detailsTwo.oAddr = new Ip4Address();
+        detailsTwo.oAddr.ip4Address = new byte[]{-64, -88, 64, 2};
         detailsTwo.oPort = (short) 65535;
         detailsTwo.vrfId = 2;
 
         Nat64BibDetails detailsThree = new Nat64BibDetails();
-        detailsThree.isStatic = 1;
-        detailsThree.iAddr =
+        detailsThree.flags = new NatConfigFlags();
+        detailsThree.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_STATIC);
+        detailsThree.iAddr = new Ip6Address();
+        detailsThree.iAddr.ip6Address =
                 new byte[]{0x20, 0x01, 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, 0, 0, 0, 0, (byte) 0x8a, 0x2e, 0x03,
                         0x70, 0x73, 0x03};
         detailsThree.iPort = 1274;
-        detailsThree.oAddr = new byte[]{-64, -88, 64, 3};
+        detailsThree.oAddr = new Ip4Address();
+        detailsThree.oAddr.ip4Address = new byte[]{-64, -88, 64, 3};
         detailsThree.oPort = 6874;
         detailsThree.vrfId = NatInstanceCustomizer.DEFAULT_VRF_ID.getId().byteValue();
 

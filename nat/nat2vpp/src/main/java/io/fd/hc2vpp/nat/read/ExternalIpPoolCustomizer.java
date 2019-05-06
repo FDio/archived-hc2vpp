@@ -102,7 +102,7 @@ final class ExternalIpPoolCustomizer implements
         // Uses ID<->address mapping as defined by getAllIds (nat44 mappings go before nat64):
         if (poolId < nat44PoolCount) {
             final Nat44AddressDetails detail = nat44Details.get(Math.toIntExact(poolId));
-            readPoolIp(builder, detail.ipAddress);
+            readPoolIp(builder, detail.ipAddress.ip4Address);
             setPoolType(builder, NatPoolType.Nat44);
         } else {
             final List<Nat64PoolAddrDetails> nat64Details = nat64DumpMgr.getDump(id, ctx.getModificationCache())
@@ -111,7 +111,7 @@ final class ExternalIpPoolCustomizer implements
             final int nat64PoolPosition = Math.toIntExact(poolId) - nat44PoolCount;
             if (nat64PoolPosition < nat64PoolCount) {
                 final Nat64PoolAddrDetails detail = nat64Details.get(nat64PoolPosition);
-                readPoolIp(builder, detail.address);
+                readPoolIp(builder, detail.address.ip4Address);
                 setPoolType(builder, NatPoolType.Nat64);
             } else {
                 // Address pool for given ID is missing (legal state).

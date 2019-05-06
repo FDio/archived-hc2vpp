@@ -32,6 +32,10 @@ import io.fd.jvpp.nat.dto.Nat44AddDelStaticMappingReply;
 import io.fd.jvpp.nat.dto.Nat64AddDelStaticBib;
 import io.fd.jvpp.nat.dto.Nat64AddDelStaticBibReply;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.InterfaceIndex;
+import io.fd.jvpp.nat.types.Ip4Address;
+import io.fd.jvpp.nat.types.Ip6Address;
+import io.fd.jvpp.nat.types.NatConfigFlags;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -73,7 +77,7 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
             throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, extractMappingEntry(data), writeContext);
         final Nat44AddDelStaticMapping expectedRequest = getExpectedNat44Request();
-        expectedRequest.isAdd = 1;
+        expectedRequest.isAdd = true;
         verify(jvppNat).nat44AddDelStaticMapping(expectedRequest);
     }
 
@@ -83,7 +87,7 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
             throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, extractMappingEntry(data), writeContext);
         final Nat64AddDelStaticBib expectedRequest = getExpectedNat64Request();
-        expectedRequest.isAdd = 1;
+        expectedRequest.isAdd = true;
         verify(jvppNat).nat64AddDelStaticBib(expectedRequest);
     }
 
@@ -96,7 +100,7 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         final Nat64AddDelStaticBib expectedDeleteRequest = getExpectedNat64Request();
         verify(jvppNat).nat64AddDelStaticBib(expectedDeleteRequest);
         final Nat64AddDelStaticBib expectedUpdateRequest = getExpectedNat64UpdateRequest();
-        expectedUpdateRequest.isAdd = 1;
+        expectedUpdateRequest.isAdd = true;
         verify(jvppNat).nat64AddDelStaticBib(expectedUpdateRequest);
     }
 
@@ -123,12 +127,16 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
 
     private static Nat44AddDelStaticMapping getExpectedNat44Request() {
         final Nat44AddDelStaticMapping expectedRequest = new Nat44AddDelStaticMapping();
-        expectedRequest.addrOnly = 1;
+        expectedRequest.flags = new NatConfigFlags();
+        expectedRequest.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_ADDR_ONLY);
         expectedRequest.protocol = 17; // udp
         expectedRequest.vrfId = (int) NAT_INSTANCE_ID;
-        expectedRequest.externalSwIfIndex = -1;
-        expectedRequest.localIpAddress = new byte[] {(byte) 192, (byte) 168, 1, 87};
-        expectedRequest.externalIpAddress = new byte[] {45, 1, 5, 7};
+        expectedRequest.externalSwIfIndex = new InterfaceIndex();
+        expectedRequest.externalSwIfIndex.interfaceindex = -1;
+        expectedRequest.localIpAddress = new Ip4Address();
+        expectedRequest.localIpAddress.ip4Address = new byte[]{(byte) 192, (byte) 168, 1, 87};
+        expectedRequest.externalIpAddress = new Ip4Address();
+        expectedRequest.externalIpAddress.ip4Address = new byte[]{45, 1, 5, 7};
         return expectedRequest;
     }
 
@@ -136,21 +144,29 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         final Nat64AddDelStaticBib expectedRequest = new Nat64AddDelStaticBib();
         expectedRequest.proto = 58; // icmp v6
         expectedRequest.vrfId = (int) NAT_INSTANCE_ID;
-        expectedRequest.iAddr = new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, 0, 0, 0, 0, (byte) 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x33};
+        expectedRequest.iAddr = new Ip6Address();
+        expectedRequest.iAddr.ip6Address =
+                new byte[]{0x20, 0x01, 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, 0, 0, 0, 0, (byte) 0x8a, 0x2e, 0x03,
+                        0x70, 0x73, 0x33};
         expectedRequest.iPort = 123;
-        expectedRequest.oAddr = new byte[] {10, 1, 1, 3};
+        expectedRequest.oAddr = new Ip4Address();
+        expectedRequest.oAddr.ip4Address = new byte[]{10, 1, 1, 3};
         expectedRequest.oPort = 456;
         return expectedRequest;
     }
 
     private static Nat44AddDelStaticMapping getExpectedNat44UpdateRequest() {
         final Nat44AddDelStaticMapping expectedRequest = new Nat44AddDelStaticMapping();
-        expectedRequest.addrOnly = 1;
+        expectedRequest.flags = new NatConfigFlags();
+        expectedRequest.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_ADDR_ONLY);
         expectedRequest.protocol = 17; // udp
         expectedRequest.vrfId = (int) NAT_INSTANCE_ID;
-        expectedRequest.externalSwIfIndex = -1;
-        expectedRequest.localIpAddress = new byte[] {(byte) 192, (byte) 168, 1, 86};
-        expectedRequest.externalIpAddress = new byte[] {45, 1, 5, 6};
+        expectedRequest.externalSwIfIndex = new InterfaceIndex();
+        expectedRequest.externalSwIfIndex.interfaceindex = -1;
+        expectedRequest.localIpAddress = new Ip4Address();
+        expectedRequest.localIpAddress.ip4Address = new byte[]{(byte) 192, (byte) 168, 1, 86};
+        expectedRequest.externalIpAddress = new Ip4Address();
+        expectedRequest.externalIpAddress.ip4Address = new byte[]{45, 1, 5, 6};
         return expectedRequest;
     }
 
@@ -158,8 +174,12 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         final Nat64AddDelStaticBib expectedRequest = new Nat64AddDelStaticBib();
         expectedRequest.proto = 58; // icmp v6
         expectedRequest.vrfId = (int) NAT_INSTANCE_ID;
-        expectedRequest.iAddr = new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, 0, 0, 0, 0, (byte) 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x34};
-        expectedRequest.oAddr = new byte[] {10, 1, 1, 4};
+        expectedRequest.iAddr = new Ip6Address();
+        expectedRequest.iAddr.ip6Address =
+                new byte[]{0x20, 0x01, 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, 0, 0, 0, 0, (byte) 0x8a, 0x2e, 0x03,
+                        0x70, 0x73, 0x34};
+        expectedRequest.oAddr = new Ip4Address();
+        expectedRequest.oAddr.ip4Address = new byte[]{10, 1, 1, 4};
         expectedRequest.iPort = 1234;
         expectedRequest.oPort = 5678;
         return expectedRequest;

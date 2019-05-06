@@ -24,18 +24,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import java.util.Optional;
 import com.google.common.collect.Lists;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.jvpp.nat.dto.Nat44StaticMappingDetails;
+import io.fd.jvpp.nat.types.NatConfigFlags;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.MappingTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.mapping.table.MappingEntry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.mapping.table.MappingEntryBuilder;
@@ -168,9 +170,10 @@ public class MappingEntryContextTest implements Ipv4Translator {
     private Nat44StaticMappingDetails getDetails(final long vrfId, final String localIp, final String externIp) {
         final Nat44StaticMappingDetails nat44StaticMappingDetails = new Nat44StaticMappingDetails();
         nat44StaticMappingDetails.vrfId = (int) vrfId;
-        nat44StaticMappingDetails.addrOnly = 1;
-        nat44StaticMappingDetails.localIpAddress = ipv4AddressNoZoneToArray(localIp);
-        nat44StaticMappingDetails.externalIpAddress = ipv4AddressNoZoneToArray(externIp);
+        nat44StaticMappingDetails.flags = new NatConfigFlags();
+        nat44StaticMappingDetails.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_ADDR_ONLY);
+        nat44StaticMappingDetails.localIpAddress = ipv4AddressNoZoneToNatIp4Address(new Ipv4AddressNoZone(localIp));
+        nat44StaticMappingDetails.externalIpAddress = ipv4AddressNoZoneToNatIp4Address(new Ipv4AddressNoZone(externIp));
         return nat44StaticMappingDetails;
     }
 

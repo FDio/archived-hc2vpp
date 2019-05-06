@@ -29,6 +29,8 @@ import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.jvpp.nat.dto.Nat64PrefixDetails;
 import io.fd.jvpp.nat.dto.Nat64PrefixDetailsReplyDump;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.Ip6Address;
+import io.fd.jvpp.nat.types.Ip6Prefix;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -110,13 +112,18 @@ public class Nat64PrefixesCustomizerTest extends ListReaderCustomizerTest<Nat64P
         final Nat64PrefixDetailsReplyDump reply = new Nat64PrefixDetailsReplyDump();
         final Nat64PrefixDetails prefix0 = new Nat64PrefixDetails();
         prefix0.vrfId = 0;
-        prefix0.prefix = new byte[]{0, 0x64, (byte) 0xff, (byte) 0x9b, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-        prefix0.prefixLen = (byte) 96;
+        prefix0.prefix = new Ip6Prefix();
+        prefix0.prefix.prefix = new Ip6Address();
+        prefix0.prefix.prefix.ip6Address =
+                new byte[]{0, 0x64, (byte) 0xff, (byte) 0x9b, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+        prefix0.prefix.len = (byte) 96;
         reply.nat64PrefixDetails.add(prefix0);
         final Nat64PrefixDetails prefix1 = new Nat64PrefixDetails();
         prefix1.vrfId = 1;
-        prefix1.prefix = new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-        prefix1.prefixLen = (byte) 128;
+        prefix1.prefix = new Ip6Prefix();
+        prefix1.prefix.prefix = new Ip6Address();
+        prefix1.prefix.prefix.ip6Address = new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+        prefix1.prefix.len = (byte) 128;
         reply.nat64PrefixDetails.add(prefix1);
         return reply;
     }

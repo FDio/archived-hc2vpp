@@ -33,6 +33,7 @@ import io.fd.jvpp.nat.dto.Nat44AddressDetailsReplyDump;
 import io.fd.jvpp.nat.dto.Nat64PoolAddrDetails;
 import io.fd.jvpp.nat.dto.Nat64PoolAddrDetailsReplyDump;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.Ip4Address;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.LongStream;
@@ -172,13 +173,16 @@ public class ExternalIpPoolCustomizerTest
         Nat44AddressDetailsReplyDump replyDump = dumpReplyNat44Empty();
 
         Nat44AddressDetails detailsOne = new Nat44AddressDetails();
-        detailsOne.ipAddress = new byte[]{-64, -88, 44, 1};
+        detailsOne.ipAddress = new Ip4Address();
+        detailsOne.ipAddress.ip4Address = new byte[]{-64, -88, 44, 1};
 
         Nat44AddressDetails detailsTwo = new Nat44AddressDetails();
-        detailsTwo.ipAddress = new byte[]{-64, -88, 44, 2};
+        detailsTwo.ipAddress = new Ip4Address();
+        detailsTwo.ipAddress.ip4Address = new byte[]{-64, -88, 44, 2};
 
         Nat44AddressDetails detailsThree = new Nat44AddressDetails();
-        detailsThree.ipAddress = new byte[]{-64, -88, 44, 3};
+        detailsThree.ipAddress = new Ip4Address();
+        detailsThree.ipAddress.ip4Address = new byte[]{-64, -88, 44, 3};
 
         replyDump.nat44AddressDetails = Arrays.asList(detailsOne, detailsTwo, detailsThree);
 
@@ -193,13 +197,16 @@ public class ExternalIpPoolCustomizerTest
         Nat64PoolAddrDetailsReplyDump replyDump = dumpReplyNat64Empty();
 
         Nat64PoolAddrDetails detailsOne = new Nat64PoolAddrDetails();
-        detailsOne.address = new byte[]{-64, -88, 64, 1};
+        detailsOne.address = new Ip4Address();
+        detailsOne.address.ip4Address = new byte[]{-64, -88, 64, 1};
 
         Nat64PoolAddrDetails detailsTwo = new Nat64PoolAddrDetails();
-        detailsTwo.address = new byte[]{-64, -88, 64, 2};
+        detailsTwo.address = new Ip4Address();
+        detailsTwo.address.ip4Address = new byte[]{-64, -88, 64, 2};
 
         Nat64PoolAddrDetails detailsThree = new Nat64PoolAddrDetails();
-        detailsThree.address = new byte[]{-64, -88, 64, 3};
+        detailsThree.address = new Ip4Address();
+        detailsThree.address.ip4Address = new byte[]{-64, -88, 64, 3};
 
         replyDump.nat64PoolAddrDetails = Arrays.asList(detailsOne, detailsTwo, detailsThree);
 

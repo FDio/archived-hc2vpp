@@ -33,6 +33,7 @@ import io.fd.jvpp.nat.dto.Nat64BibDetails;
 import io.fd.jvpp.nat.dto.Nat64BibDetailsReplyDump;
 import io.fd.jvpp.nat.dto.Nat64BibDump;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.NatConfigFlags;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -114,10 +115,10 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
         builder.setIndex((long) index);
         builder.setType(
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.MappingEntry.Type.Static);
-        builder.setExternalSrcAddress(new IpPrefix(toIpv4Prefix(detail.externalIpAddress, 32)));
-        builder.setInternalSrcAddress(new IpPrefix(toIpv4Prefix(detail.localIpAddress, 32)));
+        builder.setExternalSrcAddress(new IpPrefix(toIpv4Prefix(detail.externalIpAddress.ip4Address, 32)));
+        builder.setInternalSrcAddress(new IpPrefix(toIpv4Prefix(detail.localIpAddress.ip4Address, 32)));
 
-        if (detail.addrOnly == 0) {
+        if (!detail.flags.contains(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_ADDR_ONLY)) {
             builder.setExternalSrcPort(new ExternalSrcPortBuilder()
                 .setStartPortNumber(new PortNumber(Short.toUnsignedInt(detail.externalPort))).build());
             builder.setInternalSrcPort(new InternalSrcPortBuilder()
@@ -128,15 +129,15 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
     private void readNat64Entry(@Nonnull final MappingEntryBuilder builder,
                                 final int index, final Nat64BibDetails detail) {
         builder.setIndex((long) index);
-        if (detail.isStatic == 1) {
+        if (detail.flags.contains(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_STATIC)) {
             builder.setType(
                     org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.MappingEntry.Type.Static);
         } else {
             builder.setType(
                     org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.MappingEntry.Type.DynamicImplicit);
         }
-        builder.setExternalSrcAddress(new IpPrefix(toIpv4Prefix(detail.oAddr,32 )));
-        builder.setInternalSrcAddress(new IpPrefix(toIpv6Prefix(detail.iAddr, 128)));
+        builder.setExternalSrcAddress(new IpPrefix(toIpv4Prefix(detail.oAddr.ip4Address, 32)));
+        builder.setInternalSrcAddress(new IpPrefix(toIpv6Prefix(detail.iAddr.ip6Address, 128)));
 
         builder.setExternalSrcPort(new ExternalSrcPortBuilder()
             .setStartPortNumber(new PortNumber(Short.toUnsignedInt(detail.oPort))).build());

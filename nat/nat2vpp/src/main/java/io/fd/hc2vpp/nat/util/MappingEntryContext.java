@@ -19,7 +19,6 @@ package io.fd.hc2vpp.nat.util;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.honeycomb.translate.MappingContext;
@@ -28,6 +27,7 @@ import io.fd.jvpp.nat.dto.Nat64BibDetails;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.naming.context.rev160513.Contexts;
@@ -100,24 +100,24 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
     private MappingEntryKey entryToKey(final Nat44StaticMappingDetails entry) {
         // Only IPv4
         return new MappingEntryKey(
-            new IpPrefix(new Ipv4Prefix(toIpv4Prefix(entry.externalIpAddress,32))),
-            new IpPrefix(new Ipv4Prefix(toIpv4Prefix(entry.localIpAddress, 32))));
+                new IpPrefix(new Ipv4Prefix(toIpv4Prefix(entry.externalIpAddress.ip4Address, 32))),
+                new IpPrefix(new Ipv4Prefix(toIpv4Prefix(entry.localIpAddress.ip4Address, 32))));
     }
 
     private MappingEntryKey entryToKey(final Nat64BibDetails entry) {
         return new MappingEntryKey(
-                new IpPrefix(new Ipv4Prefix(toIpv4Prefix(entry.oAddr, 32))),
-                new IpPrefix(new Ipv6Prefix(toIpv6Prefix(entry.iAddr, 128))));
+                new IpPrefix(new Ipv4Prefix(toIpv4Prefix(entry.oAddr.ip4Address, 32))),
+                new IpPrefix(new Ipv6Prefix(toIpv6Prefix(entry.iAddr.ip6Address, 128))));
     }
 
     private boolean equalEntries(final Nat44StaticMappingDetails detail, final MappingEntry ctxMappingEntry) {
         // Only IPv4
-        final IpPrefix internalAddrFromDetails = new IpPrefix(toIpv4Prefix(detail.localIpAddress, 32));
+        final IpPrefix internalAddrFromDetails = new IpPrefix(toIpv4Prefix(detail.localIpAddress.ip4Address, 32));
         if (!ctxMappingEntry.getInternal().equals(internalAddrFromDetails)) {
             return false;
         }
         // Only IPv4
-        final IpPrefix externalAddrFromDetails = new IpPrefix(toIpv4Prefix(detail.externalIpAddress, 32));
+        final IpPrefix externalAddrFromDetails = new IpPrefix(toIpv4Prefix(detail.externalIpAddress.ip4Address, 32));
         if (!ctxMappingEntry.getExternal().equals(externalAddrFromDetails)) {
             return false;
         }
@@ -126,12 +126,12 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
 
     private boolean equalEntries(final Nat64BibDetails detail, final MappingEntry ctxMappingEntry) {
         // Only IPv6
-        final IpPrefix internalAddrFromDetails = new IpPrefix(toIpv6Prefix(detail.iAddr, 128));
+        final IpPrefix internalAddrFromDetails = new IpPrefix(toIpv6Prefix(detail.iAddr.ip6Address, 128));
         if (!ctxMappingEntry.getInternal().equals(internalAddrFromDetails)) {
             return false;
         }
         // Only IPv4
-        final IpPrefix externalAddrFromDetails = new IpPrefix(toIpv4Prefix(detail.oAddr, 32));
+        final IpPrefix externalAddrFromDetails = new IpPrefix(toIpv4Prefix(detail.oAddr.ip4Address, 32));
         if (!ctxMappingEntry.getExternal().equals(externalAddrFromDetails)) {
             return false;
         }

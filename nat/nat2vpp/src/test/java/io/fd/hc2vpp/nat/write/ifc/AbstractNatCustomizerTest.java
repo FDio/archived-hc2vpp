@@ -31,10 +31,13 @@ import io.fd.jvpp.nat.dto.Nat44InterfaceAddDelOutputFeatureReply;
 import io.fd.jvpp.nat.dto.Nat64AddDelInterface;
 import io.fd.jvpp.nat.dto.Nat64AddDelInterfaceReply;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.InterfaceIndex;
+import io.fd.jvpp.nat.types.NatConfigFlags;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816.InterfaceNatVppFeatureAttributes;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.nat.Inbound;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.nat.Outbound;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -118,25 +121,43 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
 
     private Nat44InterfaceAddDelFeature expectedPreRoutingNat44Request(final D data, boolean isAdd) {
         Nat44InterfaceAddDelFeature request = new Nat44InterfaceAddDelFeature();
-        request.isInside = booleanToByte(data instanceof Inbound);
-        request.swIfIndex = IFACE_ID;
-        request.isAdd = booleanToByte(isAdd);
+        request.flags = new NatConfigFlags();
+        if (data instanceof Inbound) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_INSIDE);
+        } else if (data instanceof Outbound) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_OUTSIDE);
+        }
+        request.swIfIndex = new InterfaceIndex();
+        request.swIfIndex.interfaceindex = IFACE_ID;
+        request.isAdd = isAdd;
         return request;
     }
 
     private Nat64AddDelInterface expectedPreRoutingNat64Request(final D data, boolean isAdd) {
         Nat64AddDelInterface request = new Nat64AddDelInterface();
-        request.isInside = booleanToByte(data instanceof Inbound);
-        request.swIfIndex = IFACE_ID;
-        request.isAdd = booleanToByte(isAdd);
+        request.flags = new NatConfigFlags();
+        if (data instanceof Inbound) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_INSIDE);
+        } else if (data instanceof Outbound) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_OUTSIDE);
+        }
+        request.swIfIndex = new InterfaceIndex();
+        request.swIfIndex.interfaceindex = IFACE_ID;
+        request.isAdd = isAdd;
         return request;
     }
 
     private Nat44InterfaceAddDelOutputFeature expectedPostRoutingRequest(final D data, boolean isAdd) {
         Nat44InterfaceAddDelOutputFeature request = new Nat44InterfaceAddDelOutputFeature();
-        request.isInside = booleanToByte(data instanceof Inbound);
-        request.swIfIndex = IFACE_ID;
-        request.isAdd = booleanToByte(isAdd);
+        request.flags = new NatConfigFlags();
+        if (data instanceof Inbound) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_INSIDE);
+        } else if (data instanceof Outbound) {
+            request.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_OUTSIDE);
+        }
+        request.swIfIndex = new InterfaceIndex();
+        request.swIfIndex.interfaceindex = IFACE_ID;
+        request.isAdd = isAdd;
         return request;
     }
 

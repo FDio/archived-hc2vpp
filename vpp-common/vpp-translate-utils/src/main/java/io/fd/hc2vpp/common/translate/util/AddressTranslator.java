@@ -18,7 +18,6 @@ package io.fd.hc2vpp.common.translate.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Arrays;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;

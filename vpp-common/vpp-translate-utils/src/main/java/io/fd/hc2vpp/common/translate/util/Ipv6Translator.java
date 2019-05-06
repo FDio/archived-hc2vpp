@@ -78,6 +78,19 @@ public interface Ipv6Translator extends ByteDataTranslator {
     }
 
     /**
+     * Creates {@link io.fd.jvpp.nat.types.Ip6Address} from address part of {@link Ipv6Prefix}
+     *
+     * @return {@link io.fd.jvpp.nat.types.Ip6Address}
+     */
+    default io.fd.jvpp.nat.types.Ip6Address ipv6AddressPrefixToNatIp6Address(@Nonnull final Ipv6Prefix ipv6Prefix) {
+        checkNotNull(ipv6Prefix, "Cannot convert null prefix");
+
+        io.fd.jvpp.nat.types.Ip6Address ip6Address = new io.fd.jvpp.nat.types.Ip6Address();
+        ip6Address.ip6Address = ipv6AddressPrefixToArray(ipv6Prefix);
+        return ip6Address;
+    }
+
+    /**
      * Transforms {@link Prefix} from {@link Ipv6Prefix}
      * @param ipv6Prefix prefix to be translated
      * @return Vpp {@link Prefix} from {@link Ipv6Prefix}
@@ -91,6 +104,21 @@ public interface Ipv6Translator extends ByteDataTranslator {
         ip6Address.ip6Address = ipv6AddressPrefixToArray(ipv6Prefix);
         prefix.address.un = new AddressUnion(ip6Address);
         prefix.addressLength = extractPrefix(ipv6Prefix);
+        return prefix;
+    }
+
+    /**
+     * Creates {@link io.fd.jvpp.nat.types.Ip6Prefix} from {@link Ipv6Prefix}
+     *
+     * @param ipv6Prefix prefix to be translated
+     * @return Vpp {@link io.fd.jvpp.nat.types.Ip6Prefix} from {@link Ipv6Prefix}
+     */
+    default io.fd.jvpp.nat.types.Ip6Prefix ipv6AddressPrefixToNatIp6Prefix(@Nonnull final Ipv6Prefix ipv6Prefix) {
+        checkNotNull(ipv6Prefix, "Cannot convert null prefix");
+        io.fd.jvpp.nat.types.Ip6Prefix prefix = new io.fd.jvpp.nat.types.Ip6Prefix();
+        prefix.prefix = new io.fd.jvpp.nat.types.Ip6Address();
+        prefix.prefix.ip6Address = ipv6AddressPrefixToArray(ipv6Prefix);
+        prefix.len = extractPrefix(ipv6Prefix);
         return prefix;
     }
 

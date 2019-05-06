@@ -26,6 +26,8 @@ import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.jvpp.nat.dto.Nat64AddDelPrefix;
 import io.fd.jvpp.nat.dto.Nat64AddDelPrefixReply;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.Ip6Address;
+import io.fd.jvpp.nat.types.Ip6Prefix;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
@@ -77,10 +79,13 @@ public class Nat64PrefixesCustomizerTest extends WriterCustomizerTest implements
 
     private Nat64AddDelPrefix expectedRequest(final boolean isAdd) {
         final Nat64AddDelPrefix request = new Nat64AddDelPrefix();
-        request.isAdd = booleanToByte(isAdd);
+        request.isAdd = isAdd;
         request.vrfId = (int) VRF_ID;
-        request.prefix = new byte[]{0x20, 0x01, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        request.prefixLen = 32;
+        request.prefix = new Ip6Prefix();
+        request.prefix.prefix = new Ip6Address();
+        request.prefix.prefix.ip6Address =
+                new byte[]{0x20, 0x01, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        request.prefix.len = 32;
         return request;
     }
 }

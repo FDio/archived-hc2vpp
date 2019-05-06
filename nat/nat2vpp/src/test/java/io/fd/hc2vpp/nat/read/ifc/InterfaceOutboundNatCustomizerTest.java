@@ -35,6 +35,8 @@ import io.fd.jvpp.nat.dto.Nat44InterfaceOutputFeatureDetails;
 import io.fd.jvpp.nat.dto.Nat44InterfaceOutputFeatureDetailsReplyDump;
 import io.fd.jvpp.nat.dto.Nat64InterfaceDetailsReplyDump;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.InterfaceIndex;
+import io.fd.jvpp.nat.types.NatConfigFlags;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.NatBuilder;
@@ -76,8 +78,10 @@ public class InterfaceOutboundNatCustomizerTest
     private void mockPostRoutingDump() {
         final Nat44InterfaceOutputFeatureDetailsReplyDump details = new Nat44InterfaceOutputFeatureDetailsReplyDump();
         final Nat44InterfaceOutputFeatureDetails detail = new Nat44InterfaceOutputFeatureDetails();
-        detail.isInside = 0;
-        detail.swIfIndex = IFC_IDX;
+        detail.flags = new NatConfigFlags();
+        detail.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_OUTSIDE);
+        detail.swIfIndex = new InterfaceIndex();
+        detail.swIfIndex.interfaceindex = IFC_IDX;
         details.nat44InterfaceOutputFeatureDetails = Lists.newArrayList(detail);
         when(jvppNat.nat44InterfaceOutputFeatureDump(any())).thenReturn(future(details));
     }
@@ -86,8 +90,10 @@ public class InterfaceOutboundNatCustomizerTest
     public void testPresencePreRouting() throws Exception {
         final Nat44InterfaceDetailsReplyDump details = new Nat44InterfaceDetailsReplyDump();
         final Nat44InterfaceDetails detail = new Nat44InterfaceDetails();
-        detail.isInside = 0;
-        detail.swIfIndex = IFC_IDX;
+        detail.flags = new NatConfigFlags();
+        detail.flags.add(NatConfigFlags.NatConfigFlagsOptions.NAT_IS_OUTSIDE);
+        detail.swIfIndex = new InterfaceIndex();
+        detail.swIfIndex.interfaceindex = IFC_IDX;
         details.nat44InterfaceDetails = Lists.newArrayList(detail);
         when(jvppNat.nat44InterfaceDump(any())).thenReturn(future(details));
 
