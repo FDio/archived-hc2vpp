@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.19.04</version>
+        <version>1.19.04.1-SNAPSHOT</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
 
@@ -27,7 +27,7 @@
     <groupId>io.fd.hc2vpp.lisp</groupId>
     <artifactId>lisp2vpp</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.19.04</version>
+    <version>1.19.04.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <properties>

@@ -21,14 +21,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>hc2vpp-parent</artifactId>
-        <version>1.19.04</version>
+        <version>1.19.04.1-SNAPSHOT</version>
         <relativePath>../../common/hc2vpp-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.hc2vpp.it</groupId>
     <artifactId>jvpp-benchmark</artifactId>
-    <version>1.19.04</version>
+    <version>1.19.04.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <properties>
