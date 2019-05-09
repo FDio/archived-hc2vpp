@@ -37,7 +37,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 

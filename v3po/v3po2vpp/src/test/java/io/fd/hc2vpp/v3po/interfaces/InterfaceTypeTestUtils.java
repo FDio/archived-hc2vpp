@@ -22,8 +22,8 @@ import java.util.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.write.WriteContext;
 import org.mockito.Matchers;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfaceType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class InterfaceTypeTestUtils {

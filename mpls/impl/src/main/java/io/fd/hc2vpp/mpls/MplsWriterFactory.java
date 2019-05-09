@@ -28,7 +28,7 @@ import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.mpls.rev171120.StaticLspVppLookupAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.mpls.rev171120.vpp.label.lookup.attributes.LabelLookup;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.Mpls1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.multiple.paths.Paths;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.multiple.paths.paths.Path;
@@ -45,10 +45,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class MplsWriterFactory implements WriterFactory {
-    private static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface>
+    private static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface>
         IFC_ID =
         InstanceIdentifier.create(Interfaces.class).child(
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class);
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface.class);
 
     private static final InstanceIdentifier<Routing> ROUTING_ID = InstanceIdentifier.create(Routing.class);
     private static final InstanceIdentifier<Mpls> MPLS_ID = ROUTING_ID.augmentation(Routing1.class).child(Mpls.class);

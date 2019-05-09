@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315.PolicerInterfaceStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315._interface.policer.attributes.Policer;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315._interface.policer.attributes.PolicerBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;

@@ -31,9 +31,9 @@ import io.fd.jvpp.core.dto.ProxyArpIntfcEnableDisableReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.proxy.arp.rev180703.ProxyArpInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.proxy.arp.rev180703.interfaces._interface.ProxyArp;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ProxyArpCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {

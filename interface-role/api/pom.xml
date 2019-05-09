@@ -21,8 +21,10 @@
             <artifactId>yang-ext</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>ietf-interfaces</artifactId>
+            <!-- ietf-interfaces model -->
+            <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
+            <artifactId>rfc8343</artifactId>
+            <version>${odl.binding.model.version}</version>
         </dependency>
     </dependencies>
 </project>

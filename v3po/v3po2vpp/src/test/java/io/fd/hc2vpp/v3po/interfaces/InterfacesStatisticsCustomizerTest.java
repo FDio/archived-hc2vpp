@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfacesStatsAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.Statistics;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.StatisticsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfacesStatisticsCustomizerTest extends WriterCustomizerTest {

@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.base.attributes.Tags;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.base.attributes.tags.Tag;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class SubInterfaceUtils {
@@ -48,7 +48,7 @@ public final class SubInterfaceUtils {
 
     public static String subInterfaceFullNameOperational(final @Nonnull InstanceIdentifier<?> instanceIdentifier) {
         final String parentInterfaceName = checkNotNull(instanceIdentifier.firstKeyOf(
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class),
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface.class),
                 "Operational identifier expected").getName();
         final Long subIfId = instanceIdentifier.firstKeyOf(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface.class).getIdentifier();
         return SubInterfaceUtils.getSubInterfaceName(parentInterfaceName, subIfId.intValue());

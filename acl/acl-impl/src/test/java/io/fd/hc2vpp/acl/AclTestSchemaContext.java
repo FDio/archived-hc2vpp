@@ -31,7 +31,7 @@ public interface AclTestSchemaContext {
                                 .getInstance(),
                         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.$YangModuleInfoImpl
                                 .getInstance(),
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.$YangModuleInfoImpl
+                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.$YangModuleInfoImpl
                                 .getInstance(),
                         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev181001.$YangModuleInfoImpl
                                 .getInstance(),

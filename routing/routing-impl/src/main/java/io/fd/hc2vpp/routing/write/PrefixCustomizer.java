@@ -31,7 +31,7 @@ import io.fd.jvpp.core.dto.SwInterfaceIp6NdRaPrefix;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.routing.ra.rev180319.ControlAdvPrefixesVppAugmentation;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.interfaces._interface.ipv6.ipv6.router.advertisements.prefix.list.Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.interfaces._interface.ipv6.ipv6.router.advertisements.prefix.list.PrefixKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.interfaces._interface.ipv6.ipv6.router.advertisements.prefix.list.prefix.ControlAdvPrefixes;

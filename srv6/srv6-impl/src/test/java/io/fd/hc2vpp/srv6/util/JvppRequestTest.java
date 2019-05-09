@@ -118,7 +118,7 @@ public abstract class JvppRequestTest implements FutureProducer, NamingContextHe
                         .getInstance(),
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.$YangModuleInfoImpl
                         .getInstance(),
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.$YangModuleInfoImpl
                         .getInstance(),
                 org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170918.$YangModuleInfoImpl
                         .getInstance(),

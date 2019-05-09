@@ -33,8 +33,8 @@ import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.proxy.arp.rev180703.P
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.proxy.arp.rev180703.ProxyRanges;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.proxy.arp.rev180703.interfaces._interface.ProxyArp;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.proxy.arp.rev180703.proxy.ranges.ProxyRange;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class ProxyArpWriterFactory implements WriterFactory {

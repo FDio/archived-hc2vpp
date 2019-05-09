@@ -23,8 +23,8 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.role.rev170615.InterfaceRoleAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.role.rev170615._interface.role.grouping.Roles;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.role.rev170615._interface.role.grouping.roles.Role;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfaceRoleWriterFactory implements WriterFactory {

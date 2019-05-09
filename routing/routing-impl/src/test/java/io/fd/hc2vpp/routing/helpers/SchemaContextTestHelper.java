@@ -27,7 +27,7 @@ public interface SchemaContextTestHelper extends InjectablesProcessor {
     default ModuleInfoBackedContext getSchemaContext() {
         return provideSchemaContextFor(ImmutableSet.of(
                 // Default interfaces
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.$YangModuleInfoImpl
                     .getInstance(),
                 // Default ietf-ip
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.$YangModuleInfoImpl

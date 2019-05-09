@@ -24,7 +24,7 @@ import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.AddressKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
