@@ -19,5 +19,6 @@
 
     <properties>
         <honeycomb.version>1.19.08-SNAPSHOT</honeycomb.version>
+        <jvpp.version>19.08-SNAPSHOT</jvpp.version>
     </properties>
 </project>

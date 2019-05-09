@@ -30,10 +30,6 @@
   <version>1.19.08-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <properties>
-    <jvpp.version>19.08-SNAPSHOT</jvpp.version>
-  </properties>
-
   <dependencyManagement>
     <dependencies>
       <dependency>

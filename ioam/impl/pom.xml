@@ -29,11 +29,6 @@
   <version>1.19.08-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
-  <properties>
-    <ioam.version>19.08-SNAPSHOT</ioam.version>
-    <jvpp.version>19.08-SNAPSHOT</jvpp.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -88,17 +83,17 @@
     <dependency>
         <groupId>io.fd.jvpp</groupId>
         <artifactId>jvpp-ioamtrace</artifactId>
-        <version>${ioam.version}</version>
+        <version>${jvpp.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.jvpp</groupId>
       <artifactId>jvpp-ioampot</artifactId>
-      <version>${ioam.version}</version>
+      <version>${jvpp.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.jvpp</groupId>
       <artifactId>jvpp-ioamexport</artifactId>
-      <version>${ioam.version}</version>
+      <version>${jvpp.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.hc2vpp.common</groupId>

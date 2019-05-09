@@ -29,10 +29,6 @@
     <artifactId>acl-impl</artifactId>
     <version>1.19.08-SNAPSHOT</version>
 
-    <properties>
-        <jvpp.acl.version>19.08-SNAPSHOT</jvpp.acl.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
@@ -48,7 +44,7 @@
         <dependency>
             <groupId>io.fd.jvpp</groupId>
             <artifactId>jvpp-acl</artifactId>
-            <version>${jvpp.acl.version}</version>
+            <version>${jvpp.version}</version>
         </dependency>
 
         <!-- DI -->

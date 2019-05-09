@@ -31,10 +31,6 @@
     <version>1.19.08-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
-    <properties>
-        <jvpp.version>19.08-SNAPSHOT</jvpp.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.fd.jvpp</groupId>
