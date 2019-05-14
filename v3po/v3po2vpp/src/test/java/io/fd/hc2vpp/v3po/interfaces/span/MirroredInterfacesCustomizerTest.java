@@ -110,5 +110,4 @@ public class MirroredInterfacesCustomizerTest extends WriterCustomizerTest {
         assertEquals(IFACE_INDEX, deleteRequest.swIfIndexTo);
         assertEquals(SRC_IFACE_INDEX, deleteRequest.swIfIndexFrom);
     }
-
 }

@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static io.fd.hc2vpp.v3po.util.SubInterfaceUtils.getNumberOfTags;
 import static io.fd.hc2vpp.v3po.util.SubInterfaceUtils.getSubInterfaceName;
 
-import com.google.common.base.Preconditions;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -65,7 +64,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
     public SubInterfaceCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                   @Nonnull final NamingContext interfaceContext) {
         super(futureJVppCore);
-        this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
+        this.interfaceContext = interfaceContext;
     }
 
     @Override
@@ -116,8 +115,8 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         // TODO HONEYCOMB-183 match should be mandatory
         final MatchType matchType = subInterface.getMatch().getMatchType();
         request.exactMatch = booleanToByte(
-            matchType instanceof VlanTagged
-                && ((VlanTagged) matchType).getVlanTagged().isMatchExactTags()
+                matchType instanceof VlanTagged
+                        && ((VlanTagged) matchType).getVlanTagged().isMatchExactTags()
         );
         request.defaultSub = booleanToByte(matchType instanceof Default);
         if (numberOfTags > 0) {

@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.v3po.interfaces;
 
-import com.google.common.base.Preconditions;
 import io.fd.hc2vpp.common.translate.util.AbstractInterfaceTypeCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -52,7 +51,7 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
 
     public VhostUserCustomizer(@Nonnull final FutureJVppCore vppApi, @Nonnull final NamingContext interfaceContext) {
         super(vppApi);
-        this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
+        this.interfaceContext = interfaceContext;
     }
 
     @Override

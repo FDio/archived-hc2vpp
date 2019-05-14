@@ -38,11 +38,9 @@ import org.mockito.Captor;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.pbb.types.rev161214.Operation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.PbbRewriteInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.interfaces._interface.PbbRewrite;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.interfaces._interface.PbbRewriteBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
@@ -72,14 +70,14 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
     @Test
     public void testWrite() throws WriteFailedException {
         whenRewriteThenSuccess();
-        customizer.writeCurrentAttributes(validId, validData(), writeContext);
+        customizer.writeCurrentAttributes(validId, PbbRewriteValidatorTest.validData(), writeContext);
         verifyRewriteRequest(desiredSetResult());
     }
 
     @Test
     public void testWriteFailedCallFailed() {
         whenRewriteThenFail();
-        final PbbRewrite validData = validData();
+        final PbbRewrite validData = PbbRewriteValidatorTest.validData();
         try {
             customizer.writeCurrentAttributes(validId, validData, writeContext);
         } catch (Exception e) {
@@ -96,18 +94,9 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
     }
 
     @Test
-    public void testWriteFailedInvalidData() {
-        verifyInvalidWriteDataCombination(invalidDataNoDestination());
-        verifyInvalidWriteDataCombination(invalidDataNoSource());
-        verifyInvalidWriteDataCombination(invalidDataNoItag());
-        verifyInvalidWriteDataCombination(invalidDataNoOperation());
-        verifyInvalidWriteDataCombination(invalidDataNoVlan());
-    }
-
-    @Test
     public void testUpdate() throws WriteFailedException {
         whenRewriteThenSuccess();
-        final PbbRewrite rewrite = validData();
+        final PbbRewrite rewrite = PbbRewriteValidatorTest.validData();
         customizer.updateCurrentAttributes(validId, rewrite, rewrite, writeContext);
         verifyRewriteRequest(desiredSetResult());
     }
@@ -115,8 +104,8 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
     @Test
     public void testUpdateFailedCallFailed() {
         whenRewriteThenFail();
-        final PbbRewrite invalidData = invalidDataNoVlan();
-        final PbbRewrite validData = validData();
+        final PbbRewrite invalidData = PbbRewriteValidatorTest.invalidDataNoVlan();
+        final PbbRewrite validData = PbbRewriteValidatorTest.validData();
         try {
             customizer.updateCurrentAttributes(validId, invalidData, validData, writeContext);
         } catch (Exception e) {
@@ -134,25 +123,16 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
     }
 
     @Test
-    public void testUpdateFailedInvalidData() {
-        verifyInvalidUpdateDataCombination(invalidDataNoDestination());
-        verifyInvalidUpdateDataCombination(invalidDataNoSource());
-        verifyInvalidUpdateDataCombination(invalidDataNoItag());
-        verifyInvalidUpdateDataCombination(invalidDataNoOperation());
-        verifyInvalidUpdateDataCombination(invalidDataNoVlan());
-    }
-
-    @Test
     public void testDelete() throws WriteFailedException {
         whenRewriteThenSuccess();
-        customizer.deleteCurrentAttributes(validId, validData(), writeContext);
+        customizer.deleteCurrentAttributes(validId, PbbRewriteValidatorTest.validData(), writeContext);
         verifyRewriteRequest(desiredDisableResult());
     }
 
     @Test
     public void testDeleteFailedCallFailed() {
         whenRewriteThenFail();
-        final PbbRewrite validData = validData();
+        final PbbRewrite validData = PbbRewriteValidatorTest.validData();
         try {
             customizer.deleteCurrentAttributes(validId, validData, writeContext);
         } catch (Exception e) {
@@ -165,15 +145,6 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
         fail("Test should have failed");
     }
 
-    @Test
-    public void testDeleteFailedInvalidData() {
-        verifyInvalidDeleteDataCombination(invalidDataNoDestination());
-        verifyInvalidDeleteDataCombination(invalidDataNoSource());
-        verifyInvalidDeleteDataCombination(invalidDataNoItag());
-        verifyInvalidDeleteDataCombination(invalidDataNoOperation());
-        verifyInvalidDeleteDataCombination(invalidDataNoVlan());
-    }
-
     private void whenRewriteThenSuccess() {
         when(api.l2InterfacePbbTagRewrite(any())).thenReturn(future(new L2InterfacePbbTagRewriteReply()));
     }
@@ -181,41 +152,6 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
     private void whenRewriteThenFail() {
         when(api.l2InterfacePbbTagRewrite(any())).thenReturn(failedFuture());
     }
-
-    private void verifyInvalidWriteDataCombination(final PbbRewrite invalidData) {
-        try {
-            customizer.writeCurrentAttributes(validId, invalidData, writeContext);
-        } catch (Exception e) {
-            assertTrue(e instanceof NullPointerException);
-            return;
-        }
-
-        fail("Verifying of invalid combination failed");
-    }
-
-    private void verifyInvalidUpdateDataCombination(final PbbRewrite invalidData) {
-        try {
-            customizer.updateCurrentAttributes(validId, validData(), invalidData, writeContext);
-        } catch (Exception e) {
-            assertTrue(e instanceof NullPointerException);
-            return;
-        }
-
-        fail("Verifying of invalid combination failed");
-    }
-
-
-    private void verifyInvalidDeleteDataCombination(final PbbRewrite invalidData) {
-        try {
-            customizer.deleteCurrentAttributes(validId, invalidData, writeContext);
-        } catch (Exception e) {
-            assertTrue(e instanceof NullPointerException);
-            return;
-        }
-
-        fail("Verifying of invalid combination failed");
-    }
-
 
     private L2InterfacePbbTagRewrite desiredSetResult() {
         final L2InterfacePbbTagRewrite desiredResult = new L2InterfacePbbTagRewrite();
@@ -253,60 +189,5 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
         assertEquals(actualRequest.outerTag, desiredResult.outerTag);
         assertArrayEquals(actualRequest.bDmac, desiredResult.bDmac);
         assertArrayEquals(actualRequest.bSmac, desiredResult.bSmac);
-    }
-
-    private PbbRewrite invalidDataNoDestination() {
-        return new PbbRewriteBuilder()
-                .setBVlanTagVlanId(1234)
-                .setITagIsid(2L)
-                .setSourceAddress(new MacAddress("aa:aa:aa:aa:aa:aa"))
-                .setInterfaceOperation(Operation.Pop2)
-                .build();
-    }
-
-    private PbbRewrite invalidDataNoSource() {
-        return new PbbRewriteBuilder()
-                .setBVlanTagVlanId(1234)
-                .setITagIsid(2L)
-                .setDestinationAddress(new MacAddress("bb:bb:bb:bb:bb:bb"))
-                .setInterfaceOperation(Operation.Pop2)
-                .build();
-    }
-
-    private PbbRewrite invalidDataNoItag() {
-        return new PbbRewriteBuilder()
-                .setBVlanTagVlanId(1234)
-                .setSourceAddress(new MacAddress("aa:aa:aa:aa:aa:aa"))
-                .setDestinationAddress(new MacAddress("bb:bb:bb:bb:bb:bb"))
-                .setInterfaceOperation(Operation.Pop2)
-                .build();
-    }
-
-    private PbbRewrite invalidDataNoVlan() {
-        return new PbbRewriteBuilder()
-                .setITagIsid(2L)
-                .setSourceAddress(new MacAddress("aa:aa:aa:aa:aa:aa"))
-                .setDestinationAddress(new MacAddress("bb:bb:bb:bb:bb:bb"))
-                .setInterfaceOperation(Operation.Pop2)
-                .build();
-    }
-
-    private PbbRewrite invalidDataNoOperation() {
-        return new PbbRewriteBuilder()
-                .setITagIsid(2L)
-                .setSourceAddress(new MacAddress("aa:aa:aa:aa:aa:aa"))
-                .setDestinationAddress(new MacAddress("bb:bb:bb:bb:bb:bb"))
-                .setInterfaceOperation(Operation.Pop2)
-                .build();
-    }
-
-    private PbbRewrite validData() {
-        return new PbbRewriteBuilder()
-                .setBVlanTagVlanId(1234)
-                .setITagIsid(2L)
-                .setSourceAddress(new MacAddress("aa:aa:aa:aa:aa:aa"))
-                .setDestinationAddress(new MacAddress("bb:bb:bb:bb:bb:bb"))
-                .setInterfaceOperation(Operation.Pop2)
-                .build();
     }
 }

@@ -34,10 +34,10 @@ public class SubInterfaceUnnumberedCustomizerTest extends AbstractUnnumberedCust
     private static final int UNNUMBERED_IFC_ID = 2;
     private static final long UNNUMBERED_IFC_NUMBER = 123;
     private static final InstanceIdentifier<Unnumbered> UNNUMBERED_IFC_IID = InstanceIdentifier.create(Interfaces.class)
-        .child(Interface.class, new InterfaceKey(PARENT_IFC_NAME))
-        .augmentation(SubinterfaceAugmentation.class).child(SubInterfaces.class)
-        .child(SubInterface.class, new SubInterfaceKey(UNNUMBERED_IFC_NUMBER)).augmentation(
-            SubinterfaceUnnumberedAugmentation.class).child(Unnumbered.class);
+            .child(Interface.class, new InterfaceKey(PARENT_IFC_NAME))
+            .augmentation(SubinterfaceAugmentation.class).child(SubInterfaces.class)
+            .child(SubInterface.class, new SubInterfaceKey(UNNUMBERED_IFC_NUMBER))
+            .augmentation(SubinterfaceUnnumberedAugmentation.class).child(Unnumbered.class);
 
     @Override
     protected int getUnnumberedIfcId() {
@@ -58,5 +58,4 @@ public class SubInterfaceUnnumberedCustomizerTest extends AbstractUnnumberedCust
     protected AbstractUnnumberedCustomizer getCustomizer() {
         return new SubInterfaceUnnumberedCustomizer(api, new NamingContext("ifc-prefix", IFC_CTX_NAME));
     }
-
 }

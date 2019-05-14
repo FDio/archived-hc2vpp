@@ -16,21 +16,14 @@
 
 package io.fd.hc2vpp.v3po.interfaces;
 
-import static com.google.common.base.Preconditions.checkState;
 import static io.fd.hc2vpp.v3po.util.SubInterfaceUtils.subInterfaceFullNameConfig;
 
-import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
-import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.jvpp.core.future.FutureJVppCore;
-import java.util.List;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip4.attributes.Ipv4;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.Ipv6;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.routing.attributes.Routing;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -45,8 +38,6 @@ public class SubInterfaceRoutingCustomizer extends RoutingCustomizer implements 
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> instanceIdentifier,
                                        @Nonnull final Routing routing, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        checkState(isAddressNotPresentForSubInterface(instanceIdentifier, writeContext, true),
-                "Cannot change routing configuration, if address is present for sub-interface");
         setRouting(instanceIdentifier, subInterfaceFullNameConfig(instanceIdentifier), routing, writeContext);
     }
 
@@ -54,8 +45,6 @@ public class SubInterfaceRoutingCustomizer extends RoutingCustomizer implements 
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> instanceIdentifier,
                                         @Nonnull final Routing routing, @Nonnull final Routing d1,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        checkState(isAddressNotPresentForSubInterface(instanceIdentifier, writeContext, true),
-                "Cannot change routing configuration, if address is present for sub-interface");
         setRouting(instanceIdentifier, subInterfaceFullNameConfig(instanceIdentifier), routing, writeContext);
     }
 
@@ -63,35 +52,6 @@ public class SubInterfaceRoutingCustomizer extends RoutingCustomizer implements 
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> instanceIdentifier,
                                         @Nonnull final Routing routing, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        checkState(isAddressNotPresentForSubInterface(instanceIdentifier, writeContext, false),
-                "Cannot change routing configuration, if address is present for sub-interface");
         disableRouting(instanceIdentifier, subInterfaceFullNameConfig(instanceIdentifier), writeContext);
-    }
-
-    /**
-     * Returns true if interface does not have v4/v6 addresses configured
-     */
-    private boolean isAddressNotPresentForSubInterface(@Nonnull final InstanceIdentifier<Routing> id,
-                                                       @Nonnull final WriteContext ctx,
-                                                       boolean checkBefore) {
-        final Optional<SubInterface> subInterfaceData = checkBefore
-                ?
-                ctx.readBefore(RWUtils.cutId(id, SubInterface.class))
-                :
-                        ctx.readAfter(RWUtils.cutId(id, SubInterface.class));
-
-        if (subInterfaceData.isPresent()) {
-            final SubInterface subInterface = subInterfaceData.get();
-
-            final boolean v4NotPresent =
-                    java.util.Optional.ofNullable(subInterface.getIpv4()).map(Ipv4::getAddress).map(List::isEmpty)
-                            .orElse(true);
-
-            final boolean v6NotPresent =
-                    java.util.Optional.ofNullable(subInterface.getIpv6()).map(Ipv6::getAddress).map(List::isEmpty)
-                            .orElse(true);
-            return v4NotPresent && v6NotPresent;
-        }
-        return true;
     }
 }

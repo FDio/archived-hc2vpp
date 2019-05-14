@@ -104,7 +104,6 @@ public class MirroredInterfacesCustomizerTest
         MirroredInterfacesBuilder builder = new MirroredInterfacesBuilder();
         getCustomizer().readCurrentAttributes(validId, builder, ctx);
 
-
         final MirroredInterfaces data = builder.build();
         // 1,2 should be returned,0 should be filtered out because of disabled state
 

@@ -21,10 +21,15 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfaces.RewriteCustomizer;
+import io.fd.hc2vpp.v3po.interfaces.RewriteValidator;
 import io.fd.hc2vpp.v3po.interfaces.SubInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.SubInterfaceL2Customizer;
+import io.fd.hc2vpp.v3po.interfaces.SubInterfaceL2Validator;
 import io.fd.hc2vpp.v3po.interfaces.SubInterfaceRoutingCustomizer;
+import io.fd.hc2vpp.v3po.interfaces.SubInterfaceRoutingValidator;
 import io.fd.hc2vpp.v3po.interfaces.SubInterfaceUnnumberedCustomizer;
+import io.fd.hc2vpp.v3po.interfaces.SubInterfaceUnnumberedValidator;
+import io.fd.hc2vpp.v3po.interfaces.SubInterfaceValidator;
 import io.fd.hc2vpp.v3po.interfaces.span.MirroredInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
@@ -59,11 +64,11 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
     private final NamingContext bdContext;
 
     public static final InstanceIdentifier<SubinterfaceAugmentation> SUB_IFC_AUG_ID =
-        InterfacesWriterFactory.IFC_ID.augmentation(SubinterfaceAugmentation.class);
+            InterfacesWriterFactory.IFC_ID.augmentation(SubinterfaceAugmentation.class);
     public static final InstanceIdentifier<SubInterface> SUB_IFC_ID =
-        SUB_IFC_AUG_ID.child(SubInterfaces.class).child(SubInterface.class);
+            SUB_IFC_AUG_ID.child(SubInterfaces.class).child(SubInterface.class);
     public static final InstanceIdentifier<L2> L2_ID = SUB_IFC_ID.child(
-        L2.class);
+            L2.class);
 
     @Inject
     public SubinterfaceAugmentationWriterFactory(final FutureJVppCore jvpp,
@@ -79,31 +84,35 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
         // Subinterfaces
         //  Subinterface(Handle only after all interface related stuff gets processed) =
         registry.subtreeAddAfter(
-            // TODO HONEYCOMB-188 this customizer covers quite a lot of complex child nodes (maybe refactor ?)
-            Sets.newHashSet(
-                InstanceIdentifier.create(SubInterface.class).child(Tags.class),
-                InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class),
-                InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class).child(
-                    Dot1qTag.class),
-                InstanceIdentifier.create(SubInterface.class).child(Match.class),
-                InstanceIdentifier.create(SubInterface.class).child(Match.class).child(VlanTagged.class)),
-            new GenericListWriter<>(SUB_IFC_ID, new SubInterfaceCustomizer(jvpp, ifcContext)),
-            InterfacesWriterFactory.IFC_ID);
+                // TODO HONEYCOMB-188 this customizer covers quite a lot of complex child nodes (maybe refactor ?)
+                Sets.newHashSet(
+                        InstanceIdentifier.create(SubInterface.class).child(Tags.class),
+                        InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class),
+                        InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class).child(
+                                Dot1qTag.class),
+                        InstanceIdentifier.create(SubInterface.class).child(Match.class),
+                        InstanceIdentifier.create(SubInterface.class).child(Match.class).child(VlanTagged.class)),
+                new GenericListWriter<>(SUB_IFC_ID, new SubInterfaceCustomizer(jvpp, ifcContext),
+                        new SubInterfaceValidator(ifcContext)),
+                InterfacesWriterFactory.IFC_ID);
         //   L2 =
-        registry.addAfter(new GenericWriter<>(L2_ID, new SubInterfaceL2Customizer(jvpp, ifcContext, bdContext)),
-            SUB_IFC_ID);
+        registry.addAfter(new GenericWriter<>(L2_ID, new SubInterfaceL2Customizer(jvpp, ifcContext, bdContext),
+                        new SubInterfaceL2Validator(ifcContext, bdContext)),
+                SUB_IFC_ID);
         //    Rewrite(also handles pushTags + pushTags/dot1qtag) =
         final InstanceIdentifier<Rewrite> rewriteId = L2_ID.child(Rewrite.class);
         registry.subtreeAddAfter(
-            Sets.newHashSet(
-                InstanceIdentifier.create(Rewrite.class).child(PushTags.class),
-                InstanceIdentifier.create(Rewrite.class).child(PushTags.class)
-                    .child(
-                        org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.Dot1qTag.class)),
-            new GenericWriter<>(rewriteId, new RewriteCustomizer(jvpp, ifcContext)),
-            L2_ID);
+                Sets.newHashSet(
+                        InstanceIdentifier.create(Rewrite.class).child(PushTags.class),
+                        InstanceIdentifier.create(Rewrite.class).child(PushTags.class)
+                                .child(
+                                        org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.Dot1qTag.class)),
+                new GenericWriter<>(rewriteId, new RewriteCustomizer(jvpp, ifcContext),
+                        new RewriteValidator(ifcContext)),
+                L2_ID);
         final InstanceIdentifier<Routing> routingId = SUB_IFC_ID.child(Routing.class);
-        registry.add(new GenericWriter<>(routingId, new SubInterfaceRoutingCustomizer(jvpp, ifcContext)));
+        registry.add(new GenericWriter<>(routingId, new SubInterfaceRoutingCustomizer(jvpp, ifcContext),
+                new SubInterfaceRoutingValidator(ifcContext)));
 
         final InstanceIdentifier<MirroredInterface> mirroredId =
                 SUB_IFC_ID.augmentation(VppSubinterfaceSpanAugmentation.class)
@@ -116,8 +125,9 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
 
         // Unnumbered =
         final InstanceIdentifier<Unnumbered> unnumberedId =
-            SUB_IFC_ID.augmentation(SubinterfaceUnnumberedAugmentation.class).child(Unnumbered.class);
-        registry.addAfter(new GenericWriter<>(unnumberedId, new SubInterfaceUnnumberedCustomizer(jvpp, ifcContext)),
-            SUB_IFC_ID);
+                SUB_IFC_ID.augmentation(SubinterfaceUnnumberedAugmentation.class).child(Unnumbered.class);
+        registry.addAfter(new GenericWriter<>(unnumberedId, new SubInterfaceUnnumberedCustomizer(jvpp, ifcContext),
+                        new SubInterfaceUnnumberedValidator(ifcContext)),
+                SUB_IFC_ID);
     }
 }

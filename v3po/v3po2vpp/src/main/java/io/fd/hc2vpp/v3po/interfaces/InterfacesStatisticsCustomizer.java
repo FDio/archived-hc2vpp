@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.v3po.interfaces;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceStatisticsManager;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
@@ -26,13 +24,12 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.Statistics;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class InterfacesStatisticsCustomizer implements
-        WriterCustomizer<Statistics> {
+public class InterfacesStatisticsCustomizer implements WriterCustomizer<Statistics> {
 
     private final InterfaceStatisticsManager statisticsManager;
 
     public InterfacesStatisticsCustomizer(final InterfaceStatisticsManager statisticsManager) {
-        this.statisticsManager = checkNotNull(statisticsManager, "Statistics Collection Manager should not be null");
+        this.statisticsManager = statisticsManager;
     }
 
     @Override

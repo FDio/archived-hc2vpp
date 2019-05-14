@@ -95,13 +95,13 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
         return tag.build();
     }
 
-    private static Match generateMatch() {
+    static Match generateMatch() {
         final MatchBuilder match = new MatchBuilder();
         final VlanTaggedBuilder tagged = new VlanTaggedBuilder();
         tagged.setMatchExactTags(true);
         match.setMatchType(
-            new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.match.attributes.match.type.VlanTaggedBuilder()
-                .setVlanTagged(tagged.build()).build());
+                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.match.attributes.match.type.VlanTaggedBuilder()
+                        .setVlanTagged(tagged.build()).build());
         return match.build();
     }
 
@@ -136,8 +136,8 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
         request.twoTags = 1;
         request.innerVlanId = innerVlanId;
         request.innerVlanIdAny = (byte) (isInnerAny
-            ? 1
-            : 0);
+                ? 1
+                : 0);
         request.dot1Ad = 1;
         request.outerVlanId = STAG_ID;
         request.exactMatch = 1;
@@ -153,8 +153,8 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
 
     private InstanceIdentifier<SubInterface> getSubInterfaceId(final String name, final long index) {
         return InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(name)).augmentation(
-            SubinterfaceAugmentation.class).child(SubInterfaces.class)
-            .child(SubInterface.class, new SubInterfaceKey(index));
+                SubinterfaceAugmentation.class).child(SubInterfaces.class)
+                .child(SubInterface.class, new SubInterfaceKey(index));
     }
 
     private void whenCreateSubifThenSuccess() {
@@ -173,7 +173,7 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
     }
 
     private SwInterfaceSetFlags verifySwInterfaceSetFlagsWasInvoked(final SwInterfaceSetFlags expected)
-        throws VppBaseCallException {
+            throws VppBaseCallException {
         ArgumentCaptor<SwInterfaceSetFlags> argumentCaptor = ArgumentCaptor.forClass(SwInterfaceSetFlags.class);
         verify(api).swInterfaceSetFlags(argumentCaptor.capture());
         final SwInterfaceSetFlags actual = argumentCaptor.getValue();
@@ -195,8 +195,8 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
 
         verify(api).createSubif(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
         verify(mappingContext)
-            .put(eq(mappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
-                mapping(SUB_IFACE_NAME, 0).get()));
+                .put(eq(mappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
+                        mapping(SUB_IFACE_NAME, 0).get()));
     }
 
     @Test
@@ -211,8 +211,8 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
 
         verify(api).createSubif(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ANY_ID, true));
         verify(mappingContext)
-            .put(eq(mappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
-                mapping(SUB_IFACE_NAME, 0).get()));
+                .put(eq(mappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
+                        mapping(SUB_IFACE_NAME, 0).get()));
     }
 
     @Test
@@ -228,8 +228,8 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verify(api).createSubif(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
             verify(mappingContext, times(0)).put(
-                eq(mappingIid(SUPER_IF_NAME, IFC_TEST_INSTANCE)),
-                eq(mapping(SUPER_IF_NAME, 0).get()));
+                    eq(mappingIid(SUPER_IF_NAME, IFC_TEST_INSTANCE)),
+                    eq(mapping(SUPER_IF_NAME, 0).get()));
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");

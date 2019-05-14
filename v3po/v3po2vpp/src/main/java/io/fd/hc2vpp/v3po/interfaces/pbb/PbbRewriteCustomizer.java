@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.v3po.interfaces.pbb;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.MacTranslator;
@@ -44,7 +42,7 @@ public class PbbRewriteCustomizer extends FutureJVppCustomizer
     public PbbRewriteCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                 @Nonnull final NamingContext interfaceNamingContext) {
         super(futureJVppCore);
-        this.interfaceNamingContext = checkNotNull(interfaceNamingContext, "Interface naming context cannot be null");
+        this.interfaceNamingContext = interfaceNamingContext;
     }
 
     @Override
@@ -84,16 +82,16 @@ public class PbbRewriteCustomizer extends FutureJVppCustomizer
     private void setPbbRewrite(final InstanceIdentifier<PbbRewrite> id, final PbbRewrite data,
                                final WriteContext writeContext, final boolean disable)
             throws TimeoutException, VppBaseCallException {
-        final String interfaceName = checkNotNull(id.firstKeyOf(Interface.class), "Interface key not found").getName();
+        final String interfaceName = id.firstKeyOf(Interface.class).getName();
 
         final L2InterfacePbbTagRewrite request = new L2InterfacePbbTagRewrite();
 
         //checking all attributes in preconditions(pbb-rewrite is subcontainer, so there can't be mandatory statements)
         request.swIfIndex = interfaceNamingContext.getIndex(interfaceName, writeContext.getMappingContext());
-        request.bDmac = parseMac(verifiedDestinationAddress(data));
-        request.bSmac = parseMac(verifiedSourceAddress(data));
-        request.bVlanid = verifiedBVlanId(data);
-        request.iSid = verifiedISid(data);
+        request.bDmac = parseMac(data.getDestinationAddress().getValue());
+        request.bSmac = parseMac(data.getSourceAddress().getValue());
+        request.bVlanid = data.getBVlanTagVlanId().shortValue();
+        request.iSid = data.getITagIsid().intValue();
         request.vtrOp = verifiedOperation(data, disable);
 
         //not sure whats gonna happen to this attribute, so its left optional for now
@@ -104,27 +102,10 @@ public class PbbRewriteCustomizer extends FutureJVppCustomizer
         getReply(getFutureJVpp().l2InterfacePbbTagRewrite(request).toCompletableFuture());
     }
 
-    private String verifiedDestinationAddress(final PbbRewrite data) {
-        return checkNotNull(data.getDestinationAddress(), "Destination address cannot be null").getValue();
-    }
-
-    private String verifiedSourceAddress(final PbbRewrite data) {
-        return checkNotNull(data.getSourceAddress(), "Destination address cannot be null").getValue();
-    }
-
-    private short verifiedBVlanId(final PbbRewrite data) {
-        return checkNotNull(data.getBVlanTagVlanId(), "BVlan id cannot be null").shortValue();
-    }
-
-    private int verifiedISid(final PbbRewrite data) {
-        return checkNotNull(data.getITagIsid(), "ISid cannot be null").intValue();
-    }
-
     // if disabled ,then uses non-public allowed value 0, which is equal to operation disable
     private int verifiedOperation(final PbbRewrite data, final boolean disable) {
-
         return disable
                 ? OPERATION_DISABLE
-                : checkNotNull(data.getInterfaceOperation(), "Operation cannot be null").getIntValue();
+                : data.getInterfaceOperation().getIntValue();
     }
 }

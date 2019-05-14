@@ -29,7 +29,6 @@ import io.fd.jvpp.core.dto.HwInterfaceSetMtuReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Ethernet;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.EthernetBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev180703.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
@@ -57,7 +56,7 @@ public class EthernetCustomizerTest extends WriterCustomizerTest {
     public void testWrite() throws WriteFailedException {
         when(api.hwInterfaceSetMtu(any())).thenReturn(future(new HwInterfaceSetMtuReply()));
         final int mtu = 1234;
-        customizer.writeCurrentAttributes(IF_IID, ethernet(mtu), writeContext);
+        customizer.writeCurrentAttributes(IF_IID, EthernetValidatorTest.ethernet(mtu), writeContext);
         verify(api).hwInterfaceSetMtu(mtuSetRequest(mtu));
     }
 
@@ -65,7 +64,7 @@ public class EthernetCustomizerTest extends WriterCustomizerTest {
     public void testUpdate() throws WriteFailedException {
         when(api.hwInterfaceSetMtu(any())).thenReturn(future(new HwInterfaceSetMtuReply()));
         final int mtu = 5678;
-        customizer.updateCurrentAttributes(IF_IID, mock(Ethernet.class), ethernet(mtu), writeContext);
+        customizer.updateCurrentAttributes(IF_IID, mock(Ethernet.class), EthernetValidatorTest.ethernet(mtu), writeContext);
         verify(api).hwInterfaceSetMtu(mtuSetRequest(mtu));
     }
 
@@ -80,11 +79,4 @@ public class EthernetCustomizerTest extends WriterCustomizerTest {
     public void testDelete() throws WriteFailedException {
         customizer.deleteCurrentAttributes(IF_IID, mock(Ethernet.class), writeContext);
     }
-
-    private static Ethernet ethernet(final int mtu) {
-        final EthernetBuilder ethernet = new EthernetBuilder();
-        ethernet.setMtu(mtu);
-        return ethernet.build();
-    }
-
 }

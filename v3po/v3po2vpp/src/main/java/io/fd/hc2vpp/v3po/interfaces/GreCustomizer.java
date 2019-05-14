@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.v3po.interfaces;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import io.fd.hc2vpp.common.translate.util.AbstractInterfaceTypeCustomizer;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -125,15 +123,7 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
     }
 
     private boolean isIpv6(final Gre gre) {
-        if (gre.getSrc().getIpv4AddressNoZone() == null) {
-            checkArgument(gre.getDst().getIpv4AddressNoZone() == null, "Inconsistent ip addresses: %s, %s", gre.getSrc(),
-                    gre.getDst());
-            return true;
-        } else {
-            checkArgument(gre.getDst().getIpv6AddressNoZone() == null, "Inconsistent ip addresses: %s, %s", gre.getSrc(),
-                    gre.getDst());
-            return false;
-        }
+        return gre.getSrc().getIpv4AddressNoZone() == null;
     }
 
     private void deleteGreTunnel(final InstanceIdentifier<Gre> id, final String swIfName, final Gre gre,

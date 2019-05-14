@@ -61,7 +61,7 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest implements Ipv
                     .augmentation(VppInterfaceAugmentation.class).child(VhostUser.class);
     private VhostUserCustomizer customizer;
 
-    private static VhostUser generateVhostUser(final VhostUserRole role, final String socketName) {
+    static VhostUser generateVhostUser(final VhostUserRole role, final String socketName) {
         VhostUserBuilder builder = new VhostUserBuilder();
         builder.setRole(role);
         builder.setSocket(socketName);
@@ -121,7 +121,7 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest implements Ipv
         customizer.writeCurrentAttributes(ID, vhostUser, writeContext);
         verifyCreateVhostUserIfWasInvoked(vhostUser);
         verify(mappingContext).put(eq(mappingIid(IFACE_NAME, "test-instance")), eq(
-            mapping(IFACE_NAME, 0).get()));
+                mapping(IFACE_NAME, 0).get()));
     }
 
     @Test

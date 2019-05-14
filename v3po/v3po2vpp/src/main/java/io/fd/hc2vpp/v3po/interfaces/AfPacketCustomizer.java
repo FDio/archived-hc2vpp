@@ -16,9 +16,6 @@
 
 package io.fd.hc2vpp.v3po.interfaces;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.AbstractInterfaceTypeCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.MacTranslator;
@@ -49,7 +46,7 @@ public class AfPacketCustomizer extends AbstractInterfaceTypeCustomizer<AfPacket
 
     public AfPacketCustomizer(@Nonnull final FutureJVppCore vppApi, @Nonnull final NamingContext interfaceContext) {
         super(vppApi);
-        this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
+        this.interfaceContext = interfaceContext;
     }
 
     @Override
@@ -92,12 +89,7 @@ public class AfPacketCustomizer extends AbstractInterfaceTypeCustomizer<AfPacket
 
     private AfPacketCreate getCreateRequest(@Nonnull final AfPacket afPacket) {
         final AfPacketCreate request = new AfPacketCreate();
-        checkArgument(afPacket.getHostInterfaceName() != null,
-            "host-interface-name is mandatory for af-packet interface");
         request.hostIfName = afPacket.getHostInterfaceName().getBytes(StandardCharsets.UTF_8);
-        checkArgument(request.hostIfName.length <= 64,
-            "Interface name for af_packet interface should not be longer than 64 bytes, but was %s",
-            request.hostIfName.length);
         final PhysAddress mac = afPacket.getMac();
         if (mac == null) {
             request.useRandomHwAddr = 1;
