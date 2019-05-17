@@ -28,6 +28,7 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.jvpp.nat.dto.Nat44AddDelAddressRange;
 import io.fd.jvpp.nat.dto.Nat64AddDelPoolAddrRange;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
+import io.fd.jvpp.nat.types.NatConfigFlags;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nat.rev180510.ExternalIpAddressPoolAugmentation;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -81,6 +82,9 @@ final class ExternalIpPoolCustomizer implements ListWriterCustomizer<ExternalIpA
             getReplyForWrite(jvppNat.nat64AddDelPoolAddrRange(request).toCompletableFuture(), id);
         } else {
             final Nat44AddDelAddressRange request = getNat44Request(addressPool.getExternalIpPool(), isAdd);
+            if (request.flags == null) {
+                request.flags = new NatConfigFlags();
+            }
             getReplyForWrite(jvppNat.nat44AddDelAddressRange(request).toCompletableFuture(), id);
         }
     }

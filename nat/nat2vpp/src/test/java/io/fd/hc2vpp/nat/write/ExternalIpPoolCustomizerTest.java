@@ -34,6 +34,7 @@ import io.fd.jvpp.nat.dto.Nat64AddDelPoolAddrRange;
 import io.fd.jvpp.nat.dto.Nat64AddDelPoolAddrRangeReply;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
 import io.fd.jvpp.nat.types.Ip4Address;
+import io.fd.jvpp.nat.types.NatConfigFlags;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -123,6 +124,7 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
         expectedRequest.firstIpAddress.ip4Address = new byte[]{(byte) 192, (byte) 168, 1, 0};
         expectedRequest.lastIpAddress = new Ip4Address();
         expectedRequest.lastIpAddress.ip4Address = new byte[]{(byte) 192, (byte) 168, 1, (byte) 255};
+        expectedRequest.flags = new NatConfigFlags();
         return expectedRequest;
     }
 

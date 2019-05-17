@@ -162,6 +162,7 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
             request.localPort = internalPortNumber.shortValue();
             request.externalPort = externalPortNumber.shortValue();
         }
+        request.tag = "";
         return request;
     }
 

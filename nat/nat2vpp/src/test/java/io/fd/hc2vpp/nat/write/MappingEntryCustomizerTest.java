@@ -137,6 +137,7 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         expectedRequest.localIpAddress.ip4Address = new byte[]{(byte) 192, (byte) 168, 1, 87};
         expectedRequest.externalIpAddress = new Ip4Address();
         expectedRequest.externalIpAddress.ip4Address = new byte[]{45, 1, 5, 7};
+        expectedRequest.tag = "";
         return expectedRequest;
     }
 
