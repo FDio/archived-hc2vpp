@@ -52,6 +52,7 @@
       io.fd.hc2vpp.fib.management.FibManagementModule,
       io.fd.hc2vpp.lisp.LispModule,
       io.fd.hc2vpp.lisp.gpe.GpeModule,
+      io.fd.hc2vpp.stats.StatsModule,
       io.fd.hc2vpp.v3po.V3poModule,
       io.fd.hc2vpp.iface.role.InterfaceRoleModule,
       io.fd.hc2vpp.l3.InterfaceL3Module,
@@ -196,6 +197,11 @@
     <dependency>
       <groupId>io.fd.hc2vpp.ipsec</groupId>
       <artifactId>ipsec-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.stats</groupId>
+      <artifactId>stats-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
 <!--    To use samples uncomment following dependency and rebuild the project -->

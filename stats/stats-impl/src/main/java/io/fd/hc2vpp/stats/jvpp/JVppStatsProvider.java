@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po.interfacesstate.cache;
+package io.fd.hc2vpp.stats.jvpp;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;

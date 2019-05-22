@@ -1,0 +1,3 @@
+= stats-api
+
+The APIs are based on vpp stats model.

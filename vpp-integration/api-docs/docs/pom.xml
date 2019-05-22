@@ -35,6 +35,7 @@
             io.fd.hc2vpp.fib.management.FibManagementModule,
             io.fd.hc2vpp.lisp.LispModule,
             io.fd.hc2vpp.lisp.gpe.GpeModule,
+            io.fd.hc2vpp.stats.StatsModule,
             io.fd.hc2vpp.v3po.V3poModule,
             io.fd.hc2vpp.iface.role.InterfaceRoleModule,
             io.fd.hc2vpp.l3.InterfaceL3Module,
