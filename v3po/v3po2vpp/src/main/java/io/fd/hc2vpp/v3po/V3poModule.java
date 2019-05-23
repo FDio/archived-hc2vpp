@@ -75,7 +75,6 @@ public class V3poModule extends AbstractModule {
         // Statistics
         bind(InterfaceStatisticsManager.class).toProvider(InterfaceStatisticsManagerProvider.class)
                 .in(Singleton.class);
-        bind(FutureJVppStatsFacade.class).toProvider(jvppStatsProviderClass).in(Singleton.class);
 
         // Context utility for deleted interfaces
         bind(DisabledInterfacesManager.class).toInstance(new DisabledInterfacesManager());
