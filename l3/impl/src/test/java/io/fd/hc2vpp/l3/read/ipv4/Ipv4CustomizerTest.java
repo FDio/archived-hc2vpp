@@ -21,14 +21,14 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.Interface1Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.Ipv4Builder;
 
 public class Ipv4CustomizerTest extends ReaderCustomizerTest<Ipv4, Ipv4Builder> {
 
     public Ipv4CustomizerTest() {
-        super(Ipv4.class, Interface2Builder.class);
+        super(Ipv4.class, Interface1Builder.class);
     }
 
     @Test

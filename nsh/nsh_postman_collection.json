@@ -1592,7 +1592,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/vxlanGpeTun3",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/vxlanGpeTun3",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1601,7 +1601,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"vxlanGpeTun3"
 							]
@@ -2773,7 +2773,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/vxlanGpeTun3",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/vxlanGpeTun3",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -2782,7 +2782,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"vxlanGpeTun3"
 							]
@@ -2922,7 +2922,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/vxlanTun1",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/vxlanTun1",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -2931,7 +2931,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"vxlanTun1"
 							]

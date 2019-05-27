@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.v3po.notification;
 
-import java.util.Optional;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -33,16 +32,17 @@ import io.fd.jvpp.core.dto.WantInterfaceEventsReply;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.InterfaceChange;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.InterfaceChangeBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.InterfaceDeleted;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.InterfaceDeletedBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.InterfaceNameOrIndex;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.InterfaceStateChange;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.InterfaceStateChangeBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.InterfaceStatus;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -105,7 +105,7 @@ final class InterfaceChangeNotificationProducer implements ManagedNotificationPr
         if (swInterfaceEvent.deleted == 1) {
             return new InterfaceDeletedBuilder().setName(getIfcName(swInterfaceEvent)).build();
         } else {
-            return new InterfaceStateChangeBuilder()
+            return new InterfaceChangeBuilder()
                     .setName(getIfcName(swInterfaceEvent))
                     .setAdminStatus(swInterfaceEvent.adminUpDown == 1
                             ? InterfaceStatus.Up
@@ -166,7 +166,7 @@ final class InterfaceChangeNotificationProducer implements ManagedNotificationPr
     @Override
     public Collection<Class<? extends Notification>> getNotificationTypes() {
         final ArrayList<Class<? extends Notification>> classes = Lists.newArrayList();
-        classes.add(InterfaceStateChange.class);
+        classes.add(InterfaceChange.class);
         classes.add(InterfaceDeleted.class);
         return classes;
     }

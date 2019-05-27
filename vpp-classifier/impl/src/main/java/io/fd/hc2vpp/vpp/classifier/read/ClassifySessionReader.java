@@ -18,12 +18,11 @@ package io.fd.hc2vpp.vpp.classifier.read;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInts;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.v3po.interfacesstate.InterfaceDataTranslator;
+import io.fd.hc2vpp.v3po.read.InterfaceDataTranslator;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -36,6 +35,7 @@ import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

@@ -216,13 +216,6 @@ module vpp-vlan {
     }
   }
 
-  grouping sub-interface-l2-state-attributes {
-    container l2 {
-      uses v3po:l2-state-attributes;
-      uses rewrite-attributes;
-    }
-  }
-
   grouping sub-interface-config-attributes {
     leaf enabled {
       type boolean;
@@ -231,31 +224,38 @@ module vpp-vlan {
         "Contains the configured, desired state of the sub-interface.
         To enable sub-interface, the super inerface needs to be enabled";
     }
-  }
 
-  grouping sub-interface-operational-attributes {
     leaf admin-status {
       type sub-interface-status;
       mandatory true;
+      config false;
     }
+
     leaf oper-status {
       type sub-interface-status;
       mandatory true;
+      config false;
     }
+
     leaf if-index {
       type int32 {
         range "1..2147483647";
       }
       mandatory true;
+      config false;
     }
+
     leaf phys-address {
       type yang:phys-address;
       description
         "The sub-interface's Media Access Control (MAC) address.";
+      config false;
     }
+
     leaf speed {
       type yang:gauge64;
       units "bits/second";
+      config false;
     }
   }
 
@@ -461,28 +461,6 @@ module vpp-vlan {
         uses sub-interface-ip6-attributes;
         uses sub-interface-routing-attributes;
         uses sub-interface-l2-config-attributes;
-      }
-    }
-  }
-
-  augment /if:interfaces-state/if:interface {
-    ext:augment-identifier "subinterface-state-augmentation";
-
-    container sub-interfaces {
-      description "L2 vlan subinterfaces";
-
-      list sub-interface {
-        key "identifier";
-        leaf identifier {
-          type uint32;
-        }
-
-        uses sub-interface-base-attributes;
-        uses sub-interface-operational-attributes;
-        uses sub-interface-ip4-attributes;
-        uses sub-interface-ip6-attributes;
-        uses sub-interface-routing-attributes;
-        uses sub-interface-l2-state-attributes;
       }
     }
   }

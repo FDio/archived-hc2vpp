@@ -25,18 +25,18 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315.PolicerInterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315.PolicerInterfaceStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315.PolicerInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315.PolicerInterfaceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315._interface.policer.attributes.Policer;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfacePolicerReaderFactory implements ReaderFactory {
     private static final InstanceIdentifier<Interface> IFC_ID =
-        InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    private static final InstanceIdentifier<PolicerInterfaceStateAugmentation> POLICER_IFC_ID =
-        IFC_ID.augmentation(PolicerInterfaceStateAugmentation.class);
+            InstanceIdentifier.create(Interfaces.class).child(Interface.class);
+    private static final InstanceIdentifier<PolicerInterfaceAugmentation> POLICER_IFC_ID =
+            IFC_ID.augmentation(PolicerInterfaceAugmentation.class);
 
     private static final InstanceIdentifier<Policer> POLICER_IID = POLICER_IFC_ID.child(Policer.class);
 
@@ -51,7 +51,7 @@ public class InterfacePolicerReaderFactory implements ReaderFactory {
 
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
-        registry.addStructuralReader(POLICER_IFC_ID, PolicerInterfaceStateAugmentationBuilder.class);
+        registry.addStructuralReader(POLICER_IFC_ID, PolicerInterfaceAugmentationBuilder.class);
         registry.add(
             new GenericReader<>(POLICER_IID, new InterfacePolicerCustomizer(vppApi, ifcContext, classifyTableContext)));
     }

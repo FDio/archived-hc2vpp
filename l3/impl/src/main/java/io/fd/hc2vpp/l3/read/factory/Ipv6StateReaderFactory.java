@@ -30,24 +30,24 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.NdProxyIp6StateAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.NdProxyIp6StateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces.state._interface.ipv6.NdProxies;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces.state._interface.ipv6.NdProxiesBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces.state._interface.ipv6.nd.proxies.NdProxy;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv6.Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv6.Neighbor;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.NdProxyIp6Augmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.NdProxyIp6AugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.NdProxies;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.NdProxiesBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxy;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.Interface1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.ipv6.Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.ipv6.Neighbor;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Ipv6StateReaderFactory implements ReaderFactory {
 
-    private static final InstanceIdentifier<Interface2> IFC_2_ID = InstanceIdentifier.create(InterfacesState.class)
+    private static final InstanceIdentifier<Interface1> IFC_1_ID = InstanceIdentifier.create(Interfaces.class)
             .child(Interface.class)
-            .augmentation(Interface2.class);
+            .augmentation(Interface1.class);
 
     @Inject
     private FutureJVppCore jvpp;
@@ -59,7 +59,7 @@ public class Ipv6StateReaderFactory implements ReaderFactory {
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
         //    Ipv6
-        final InstanceIdentifier<Ipv6> ipv6Id = IFC_2_ID.child(Ipv6.class);
+        final InstanceIdentifier<Ipv6> ipv6Id = IFC_1_ID.child(Ipv6.class);
         registry.add(new GenericReader<>(ipv6Id, new Ipv6Customizer(jvpp)));
         //     Ipv6 Address
         final InstanceIdentifier<Address> ipv6AddrId = ipv6Id.child(Address.class);
@@ -68,8 +68,8 @@ public class Ipv6StateReaderFactory implements ReaderFactory {
         final InstanceIdentifier<Neighbor> neighborId = ipv6Id.child(Neighbor.class);
         registry.add(new GenericListReader<>(neighborId, new Ipv6NeighbourCustomizer(jvpp, ifcNamingCtx)));
         //     NdProxyIp6StateAugmentation (Structural)
-        final InstanceIdentifier<NdProxyIp6StateAugmentation> ndAugId = ipv6Id.augmentation(NdProxyIp6StateAugmentation.class);
-        registry.addStructuralReader(ndAugId, NdProxyIp6StateAugmentationBuilder.class);
+        final InstanceIdentifier<NdProxyIp6Augmentation> ndAugId = ipv6Id.augmentation(NdProxyIp6Augmentation.class);
+        registry.addStructuralReader(ndAugId, NdProxyIp6AugmentationBuilder.class);
         //     NdProxies (Structural)
         final InstanceIdentifier<NdProxies> ndProxiesId = ndAugId.child(NdProxies.class);
         registry.addStructuralReader(ndProxiesId, NdProxiesBuilder.class);

@@ -24,17 +24,17 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.stats.jvpp.JVppStatsProvider;
-import io.fd.hc2vpp.v3po.factory.InterfacesStateReaderFactory;
+import io.fd.hc2vpp.v3po.factory.InterfacesReaderFactory;
 import io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory;
 import io.fd.hc2vpp.v3po.factory.L2HoneycombWriterFactory;
 import io.fd.hc2vpp.v3po.factory.L2StateHoneycombReaderFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory;
-import io.fd.hc2vpp.v3po.factory.SubinterfaceStateAugmentationReaderFactory;
-import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
-import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManagerProvider;
-import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceStatisticsManager;
-import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceStatisticsManagerProvider;
+import io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationReaderFactory;
 import io.fd.hc2vpp.v3po.notification.InterfaceChangeNotificationProducerProvider;
+import io.fd.hc2vpp.v3po.read.cache.InterfaceCacheDumpManager;
+import io.fd.hc2vpp.v3po.read.cache.InterfaceCacheDumpManagerProvider;
+import io.fd.hc2vpp.v3po.read.cache.InterfaceStatisticsManager;
+import io.fd.hc2vpp.v3po.read.cache.InterfaceStatisticsManagerProvider;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -81,8 +81,8 @@ public class V3poModule extends AbstractModule {
 
         // Readers
         final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
-        readerFactoryBinder.addBinding().to(InterfacesStateReaderFactory.class);
-        readerFactoryBinder.addBinding().to(SubinterfaceStateAugmentationReaderFactory.class);
+        readerFactoryBinder.addBinding().to(InterfacesReaderFactory.class);
+        readerFactoryBinder.addBinding().to(SubinterfaceAugmentationReaderFactory.class);
         readerFactoryBinder.addBinding().to(L2StateHoneycombReaderFactory.class);
 
         // Expose disabled interfaces in operational data

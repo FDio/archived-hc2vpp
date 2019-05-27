@@ -289,7 +289,7 @@
 							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"loop0\",\n      \"enabled\": true,\n      \"type\": \"v3po:loopback\",\n      \"ietf-ip:ipv4\": {\n        \"address\": [\n          {\n            \"ip\": \"10.100.1.1\",\n            \"prefix-length\": 24\n          }\n        ]\n      },\n      \"v3po:ethernet\": {\n        \"mtu\": 9216\n      }\n    }\n  ]\n}"
 						},
 						"url": {
-							"raw": "https://172.17.0.3:8445/restconf/operational/ietf-interfaces:interfaces-state/interface/loop0",
+							"raw": "https://172.17.0.3:8445/restconf/operational/ietf-interfaces:interfaces/interface/loop0",
 							"protocol": "https",
 							"host": [
 								"172",
@@ -301,7 +301,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"loop0"
 							]

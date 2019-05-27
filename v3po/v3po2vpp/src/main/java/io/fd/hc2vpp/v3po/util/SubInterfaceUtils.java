@@ -47,10 +47,9 @@ public final class SubInterfaceUtils {
     }
 
     public static String subInterfaceFullNameOperational(final @Nonnull InstanceIdentifier<?> instanceIdentifier) {
-        final String parentInterfaceName = checkNotNull(instanceIdentifier.firstKeyOf(
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface.class),
+        final String parentInterfaceName = checkNotNull(instanceIdentifier.firstKeyOf(Interface.class),
                 "Operational identifier expected").getName();
-        final Long subIfId = instanceIdentifier.firstKeyOf(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface.class).getIdentifier();
+        final Long subIfId = instanceIdentifier.firstKeyOf(SubInterface.class).getIdentifier();
         return SubInterfaceUtils.getSubInterfaceName(parentInterfaceName, subIfId.intValue());
     }
 

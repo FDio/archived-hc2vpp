@@ -392,7 +392,7 @@
 							"raw": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -401,7 +401,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"GigabitEthernet0%2F8%2F0",
 								"vpp-vlan:sub-interfaces",

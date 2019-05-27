@@ -18,7 +18,7 @@ package io.fd.hc2vpp.routing;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.StaticRoutes1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.Route;
@@ -57,7 +57,7 @@ public class RoutingIIds {
     //Writer IIDs
     public static final InstanceIdentifier<Ipv6RouterAdvertisements> IFCS_IFC_IFC1_IPV6_IPV61_RTADV =
             InstanceIdentifier.create(Interfaces.class).child(Interface.class).augmentation(Interface1.class)
-                    .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6.class)
+                    .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.Ipv6.class)
                     .augmentation(Ipv61.class).child(Ipv6RouterAdvertisements.class);
     public static final InstanceIdentifier<Prefix> IFCS_IFC_IFC1_IPV6_IPV61_RTADV_PRLST_PRFX =
             IFCS_IFC_IFC1_IPV6_IPV61_RTADV.child(PrefixList.class).child(Prefix.class);

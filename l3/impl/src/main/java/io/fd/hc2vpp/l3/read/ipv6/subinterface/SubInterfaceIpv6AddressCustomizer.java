@@ -17,11 +17,10 @@
 package io.fd.hc2vpp.l3.read.ipv6.subinterface;
 
 
-import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.l3.utils.ip.read.IfaceDumpFilter;
 import io.fd.hc2vpp.l3.utils.ip.read.IpAddressReader;
-import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceCustomizer;
+import io.fd.hc2vpp.v3po.read.SubInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -33,14 +32,15 @@ import io.fd.jvpp.core.dto.IpAddressDetails;
 import io.fd.jvpp.core.dto.IpAddressDetailsReplyDump;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.Ipv6;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.Address;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.AddressBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.AddressKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;

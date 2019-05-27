@@ -30,7 +30,7 @@ public interface SchemaContextTestHelper extends InjectablesProcessor {
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.$YangModuleInfoImpl
                     .getInstance(),
                 // Default ietf-ip
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.$YangModuleInfoImpl
                     .getInstance(),
                 // Default ietf-routing
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.$YangModuleInfoImpl

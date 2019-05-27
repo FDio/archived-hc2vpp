@@ -79,13 +79,13 @@ final class SubInterfaceOutboundNatCustomizer extends AbstractSubInterfaceNatCus
                 InstanceIdentifier.create(Interfaces.class)
                         .child(Interface.class,
                                 new InterfaceKey(id.firstKeyOf(
-                                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface.class)
+                                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface.class)
                                         .getName()))
                         .augmentation(SubinterfaceAugmentation.class)
                         .child(SubInterfaces.class)
                         .child(SubInterface.class,
                                 new SubInterfaceKey(id.firstKeyOf(
-                                        org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface.class)
+                                        org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterface.class)
                                         .getIdentifier()))
                         .augmentation(NatSubinterfaceAugmentation.class)
                         .child(Nat.class)

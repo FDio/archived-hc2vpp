@@ -75,10 +75,4 @@ module interface-policer {
 
         uses interface-policer-attributes;
     }
-
-    augment /if:interfaces-state/if:interface {
-        ext:augment-identifier "policer-interface-state-augmentation";
-
-        uses interface-policer-attributes;
-    }
 }

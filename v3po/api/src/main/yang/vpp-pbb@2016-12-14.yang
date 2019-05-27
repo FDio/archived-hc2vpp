@@ -52,7 +52,7 @@ module vpp-pbb {
      }
   }
 
-  augment /if:interfaces-state/if:interface {
+  augment /if:interfaces/if:interface {
       ext:augment-identifier "pbb-rewrite-state-interface-augmentation";
       container pbb-rewrite-state {
          uses pbb-types:pbb-rewrite-attributes;

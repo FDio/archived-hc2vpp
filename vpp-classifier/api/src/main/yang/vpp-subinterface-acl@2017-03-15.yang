@@ -54,9 +54,4 @@ module vpp-subinterface-acl {
        ext:augment-identifier "vpp-subinterface-acl-augmentation";
        uses vpp-classifier-acl:vpp-acl-attributes;
     }
-
-    augment /if:interfaces-state/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
-       ext:augment-identifier "vpp-subinterface-acl-state-augmentation";
-       uses vpp-classifier-acl:vpp-acl-attributes;
-    }
 }

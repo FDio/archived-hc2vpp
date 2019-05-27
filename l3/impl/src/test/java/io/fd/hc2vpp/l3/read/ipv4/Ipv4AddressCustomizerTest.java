@@ -48,16 +48,16 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.AddressBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.AddressKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.Interface1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.ipv4.Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.ipv4.AddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.ipv4.AddressKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.ipv4.address.subnet.PrefixLength;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address, AddressKey, AddressBuilder> implements
@@ -76,9 +76,9 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
     }
 
     private static InstanceIdentifier<Address> getId(final String address, final String ifaceName) {
-        return InstanceIdentifier.builder(InterfacesState.class)
+        return InstanceIdentifier.builder(Interfaces.class)
                 .child(Interface.class, new InterfaceKey(ifaceName))
-                .augmentation(Interface2.class)
+                .augmentation(Interface1.class)
                 .child(Ipv4.class)
                 .child(Address.class, new AddressKey(new Ipv4AddressNoZone(new Ipv4Address(address))))
                 .build();
@@ -91,15 +91,15 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         defineMapping(mappingContext, IFACE_2_NAME, IFACE_2_ID, IFC_CTX_NAME);
 
         ifaceOneAddressOneIdentifier =
-                InstanceIdentifier.create(InterfacesState.class)
+                InstanceIdentifier.create(Interfaces.class)
                         .child(Interface.class, new InterfaceKey(IFACE_NAME))
-                        .augmentation(Interface2.class)
+                        .augmentation(Interface1.class)
                         .child(Ipv4.class)
                         .child(Address.class, new AddressKey(new Ipv4AddressNoZone("192.168.2.1")));
         ifaceTwoAddressOneIdentifier =
-                InstanceIdentifier.create(InterfacesState.class)
+                InstanceIdentifier.create(Interfaces.class)
                         .child(Interface.class, new InterfaceKey(IFACE_2_NAME))
-                        .augmentation(Interface2.class)
+                        .augmentation(Interface1.class)
                         .child(Ipv4.class)
                         .child(Address.class, new AddressKey(new Ipv4AddressNoZone("192.168.2.1")));
 

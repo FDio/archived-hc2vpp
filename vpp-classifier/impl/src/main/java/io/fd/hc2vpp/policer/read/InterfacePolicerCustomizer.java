@@ -34,10 +34,10 @@ import io.fd.jvpp.core.dto.PolicerClassifyDump;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315.PolicerInterfaceStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315.PolicerInterfaceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315._interface.policer.attributes.Policer;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315._interface.policer.attributes.PolicerBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -115,6 +115,6 @@ final class InterfacePolicerCustomizer extends FutureJVppCustomizer
 
     @Override
     public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final Policer policer) {
-        ((PolicerInterfaceStateAugmentationBuilder) builder).setPolicer(policer);
+        ((PolicerInterfaceAugmentationBuilder) builder).setPolicer(policer);
     }
 }

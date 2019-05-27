@@ -75,7 +75,7 @@ final class InterfaceOutboundNatCustomizer extends AbstractInterfaceNatCustomize
                 InstanceIdentifier.create(Interfaces.class)
                         .child(Interface.class,
                                 new InterfaceKey(id.firstKeyOf(
-                                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface.class)
+                                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface.class)
                                         .getName()))
                         .augmentation(NatInterfaceAugmentation.class)
                         .child(Nat.class)

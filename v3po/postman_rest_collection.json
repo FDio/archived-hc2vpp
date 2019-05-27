@@ -294,7 +294,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/local0/",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/local0/",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -303,7 +303,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"local0",
 								""
@@ -800,7 +800,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/GigabitEthernet0%2F8%2F0",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -809,7 +809,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"GigabitEthernet0%2F8%2F0"
 							]
@@ -1190,7 +1190,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/local0",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/local0",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1199,7 +1199,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"local0"
 							]
@@ -1343,7 +1343,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/local0/ipv4",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/local0/ipv4",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1352,7 +1352,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"local0",
 								"ipv4"
@@ -1541,7 +1541,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/GigabitEthernet0%2F8%2F0/span",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/span",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1550,7 +1550,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"GigabitEthernet0%2F8%2F0",
 								"span"
@@ -1657,7 +1657,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/tap-v2/statistics/",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/tap-v2/statistics/",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1666,7 +1666,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"tap-v2",
 								"statistics",
@@ -2527,7 +2527,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/veth0",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/veth0",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -2536,7 +2536,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"veth0"
 							]
@@ -2601,7 +2601,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/",
+					"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -2610,7 +2610,7 @@
 					"path": [
 						"restconf",
 						"operational",
-						"ietf-interfaces:interfaces-state",
+						"ietf-interfaces:interfaces",
 						""
 					]
 				}

@@ -38,7 +38,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.InterfaceStateChange;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.InterfaceChange;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.InterfaceStatus;
 
 public class InterfaceChangeNotificationProducerTest implements FutureProducer, NamingContextHelper {
@@ -101,8 +101,8 @@ public class InterfaceChangeNotificationProducerTest implements FutureProducer, 
         swInterfaceSetFlagsNotification.adminUpDown = 1;
         swInterfaceSetFlagsNotification.linkUpDown = 1;
         callbackArgumentCaptor.getValue().onSwInterfaceEvent(swInterfaceSetFlagsNotification);
-        final ArgumentCaptor<InterfaceStateChange> notificationCaptor =
-            ArgumentCaptor.forClass(InterfaceStateChange.class);
+        final ArgumentCaptor<InterfaceChange> notificationCaptor =
+                ArgumentCaptor.forClass(InterfaceChange.class);
         verify(collector).onNotification(notificationCaptor.capture());
 
         assertEquals(IFACE_NAME, notificationCaptor.getValue().getName().getString());

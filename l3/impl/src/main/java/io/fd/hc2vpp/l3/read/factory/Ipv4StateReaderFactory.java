@@ -30,21 +30,21 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.Neighbor;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.Interface1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.Interface1Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.ipv4.Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev180222.interfaces._interface.ipv4.Neighbor;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Ipv4StateReaderFactory implements ReaderFactory {
 
-    private static final InstanceIdentifier<Interface2> IFC_2_ID =
-            InstanceIdentifier.create(InterfacesState.class)
+    private static final InstanceIdentifier<Interface1> IFC_1_ID =
+            InstanceIdentifier.create(Interfaces.class)
                     .child(Interface.class)
-                    .augmentation(Interface2.class);
+                    .augmentation(Interface1.class);
 
     @Inject
     private FutureJVppCore jvpp;
@@ -57,10 +57,10 @@ public class Ipv4StateReaderFactory implements ReaderFactory {
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
 
         //add also structural reader
-        registry.addStructuralReader(IFC_2_ID, Interface2Builder.class);
+        registry.addStructuralReader(IFC_1_ID, Interface1Builder.class);
 
         //    Ipv4
-        final InstanceIdentifier<Ipv4> ipv4Id = IFC_2_ID.child(Ipv4.class);
+        final InstanceIdentifier<Ipv4> ipv4Id = IFC_1_ID.child(Ipv4.class);
         registry.add(new GenericReader<>(ipv4Id, new Ipv4Customizer(jvpp)));
         //     Ipv4 Address
         final InstanceIdentifier<Address> ipv4AddrId = ipv4Id.child(Address.class);

@@ -44,10 +44,10 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.SubinterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.SubInterfaces;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.SubinterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.SubInterfaces;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterfaceKey;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip4.attributes.Ipv4;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip4.attributes.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip4.attributes.ipv4.Address;
@@ -57,9 +57,9 @@ import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.su
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip4.attributes.ipv4.address.subnet.PrefixLengthBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerTest<Address, AddressKey, AddressBuilder>
@@ -74,8 +74,8 @@ public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerT
     private static final int SUB_IF_INDEX = 11;
     private static final int SUB_IF_2_INDEX = 12;
     private static final InstanceIdentifier<Ipv4> IP4_IID =
-            InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
-                    .augmentation(SubinterfaceStateAugmentation.class)
+            InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME))
+                    .augmentation(SubinterfaceAugmentation.class)
                     .child(SubInterfaces.class).child(SubInterface.class, new SubInterfaceKey(SUB_IF_ID))
                     .child(Ipv4.class);
     private static final Ipv4AddressNoZone IP1 = new Ipv4AddressNoZone("10.1.1.1");
@@ -102,16 +102,16 @@ public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerT
     protected void setUp() throws Exception {
         interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
 
-        ifaceOneAddressOneIdentifier = InstanceIdentifier.create(InterfacesState.class)
+        ifaceOneAddressOneIdentifier = InstanceIdentifier.create(Interfaces.class)
                 .child(Interface.class, new InterfaceKey(IF_NAME))
-                .augmentation(SubinterfaceStateAugmentation.class)
+                .augmentation(SubinterfaceAugmentation.class)
                 .child(SubInterfaces.class)
                 .child(SubInterface.class, new SubInterfaceKey(1L))
                 .child(Ipv4.class)
                 .child(Address.class, new AddressKey(new Ipv4AddressNoZone("192.168.2.1")));
-        ifaceTwoAddressOneIdentifier = InstanceIdentifier.create(InterfacesState.class)
+        ifaceTwoAddressOneIdentifier = InstanceIdentifier.create(Interfaces.class)
                 .child(Interface.class, new InterfaceKey(IF_NAME))
-                .augmentation(SubinterfaceStateAugmentation.class)
+                .augmentation(SubinterfaceAugmentation.class)
                 .child(SubInterfaces.class)
                 .child(SubInterface.class, new SubInterfaceKey(2L))
                 .child(Ipv4.class)

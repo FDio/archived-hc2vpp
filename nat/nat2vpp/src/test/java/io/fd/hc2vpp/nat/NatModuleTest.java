@@ -46,10 +46,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesStateBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class NatModuleTest {
@@ -80,8 +80,9 @@ public class NatModuleTest {
     @Before
     public void setUp() throws Exception {
         ietfIfcReaderFactory = registry -> {
-            registry.addStructuralReader(InstanceIdentifier.create(InterfacesState.class), InterfacesStateBuilder.class);
-            registry.addStructuralReader(InstanceIdentifier.create(InterfacesState.class).child(Interface.class), InterfaceBuilder.class);
+            registry.addStructuralReader(InstanceIdentifier.create(Interfaces.class), InterfacesBuilder.class);
+            registry.addStructuralReader(InstanceIdentifier.create(Interfaces.class).child(Interface.class),
+                    InterfaceBuilder.class);
         };
         initMocks(this);
         ifcContext = new NamingContext("interface-", "interface-context");
@@ -89,10 +90,10 @@ public class NatModuleTest {
         // be present, add structural readers (or add V3poModule here, but adding the full Module is not the best solution)
         Guice.createInjector(binder -> Multibinder.newSetBinder(binder, ReaderFactory.class)
                 .addBinding().toInstance(registry -> {
-                    registry.addStructuralReader(InstanceIdentifier.create(InterfacesState.class),
-                            InterfacesStateBuilder.class);
+                    registry.addStructuralReader(InstanceIdentifier.create(Interfaces.class),
+                            InterfacesBuilder.class);
                     registry.add(new GenericListReader<>(
-                            InstanceIdentifier.create(InterfacesState.class).child(Interface.class),
+                            InstanceIdentifier.create(Interfaces.class).child(Interface.class),
                             mock(ListReaderCustomizer.class)));
                 }), new NatModule(MockJVppNatProvider.class), BoundFieldModule.of(this)).injectMembers(this);
     }

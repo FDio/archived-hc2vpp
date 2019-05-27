@@ -29,13 +29,13 @@ import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.NatBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.nat.Inbound;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.nat.Outbound;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.subinterface.nat.rev170615.NatSubinterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.subinterface.nat.rev170615.NatSubinterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.SubinterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.SubInterfaces;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.subinterface.nat.rev170615.NatSubinterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.subinterface.nat.rev170615.NatSubinterfaceAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.SubinterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.SubInterfaces;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -44,10 +44,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public final class SubIfcNatReaderFactory implements ReaderFactory {
 
     private static final InstanceIdentifier<SubInterface>
-            SUB_IFC_ID = InstanceIdentifier.create(InterfacesState.class).child(Interface.class).augmentation(
-            SubinterfaceStateAugmentation.class).child(SubInterfaces.class).child(SubInterface.class);
-    private static final InstanceIdentifier<NatSubinterfaceStateAugmentation> NAT_SUB_AUG_ID =
-            SUB_IFC_ID.augmentation(NatSubinterfaceStateAugmentation.class);
+            SUB_IFC_ID = InstanceIdentifier.create(Interfaces.class).child(Interface.class).augmentation(
+            SubinterfaceAugmentation.class).child(SubInterfaces.class).child(SubInterface.class);
+    private static final InstanceIdentifier<NatSubinterfaceAugmentation> NAT_SUB_AUG_ID =
+            SUB_IFC_ID.augmentation(NatSubinterfaceAugmentation.class);
     private static final InstanceIdentifier<Nat> NAT_AUG_CONTAINER_ID = NAT_SUB_AUG_ID.child(Nat.class);
 
     private final NamingContext ifcContext;
@@ -62,7 +62,7 @@ public final class SubIfcNatReaderFactory implements ReaderFactory {
 
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
-        registry.addStructuralReader(NAT_SUB_AUG_ID, NatSubinterfaceStateAugmentationBuilder.class);
+        registry.addStructuralReader(NAT_SUB_AUG_ID, NatSubinterfaceAugmentationBuilder.class);
         registry.addStructuralReader(NAT_AUG_CONTAINER_ID, NatBuilder.class);
 
         registry.addAfter(new GenericInitReader<>(NAT_AUG_CONTAINER_ID.child(Inbound.class),

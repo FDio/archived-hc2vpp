@@ -33,26 +33,26 @@ import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.re
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.rev170503.vpp.acl.attributes.Acl;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.rev170503.vpp.acl.attributes.AclBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.rev170503.vpp.acl.attributes.acl.Ingress;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.subinterface.acl.rev170315.VppSubinterfaceAclStateAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.subinterface.acl.rev170315.VppSubinterfaceAclStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.SubinterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.SubInterfaces;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.subinterface.acl.rev170315.VppSubinterfaceAclAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.subinterface.acl.rev170315.VppSubinterfaceAclAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.SubinterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.SubInterfaces;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class SubInterfaceAclReaderFactory implements ReaderFactory {
 
-    static final InstanceIdentifier<InterfacesState> IFC_STATE_ID =
-            InstanceIdentifier.create(InterfacesState.class);
+    static final InstanceIdentifier<Interfaces> IFC_STATE_ID =
+            InstanceIdentifier.create(Interfaces.class);
     static final InstanceIdentifier<Interface> IFC_ID = IFC_STATE_ID.child(Interface.class);
 
-    private static final InstanceIdentifier<VppSubinterfaceAclStateAugmentation> SUB_IFC_AUG_ID =
-            IFC_ID.augmentation(SubinterfaceStateAugmentation.class)
+    private static final InstanceIdentifier<VppSubinterfaceAclAugmentation> SUB_IFC_AUG_ID =
+            IFC_ID.augmentation(SubinterfaceAugmentation.class)
             .child(SubInterfaces.class)
             .child(SubInterface.class)
-            .augmentation(VppSubinterfaceAclStateAugmentation.class);
+                    .augmentation(VppSubinterfaceAclAugmentation.class);
 
     @Inject
     private FutureJVppCore jvpp;
@@ -68,7 +68,7 @@ public class SubInterfaceAclReaderFactory implements ReaderFactory {
     @Override
     public void init(@Nonnull ModifiableReaderRegistryBuilder registry) {
         // Aug readed(Structural)
-        registry.addStructuralReader(SUB_IFC_AUG_ID, VppSubinterfaceAclStateAugmentationBuilder.class);
+        registry.addStructuralReader(SUB_IFC_AUG_ID, VppSubinterfaceAclAugmentationBuilder.class);
         //    Acl(Structural)
         final InstanceIdentifier<Acl> aclIid = SUB_IFC_AUG_ID.child(Acl.class);
         registry.addStructuralReader(aclIid, AclBuilder.class);

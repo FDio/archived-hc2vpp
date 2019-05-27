@@ -27,8 +27,8 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp._interface.acl.rev170315.VppInterfaceAclStateAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp._interface.acl.rev170315.VppInterfaceAclStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp._interface.acl.rev170315.VppInterfaceAclAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp._interface.acl.rev170315.VppInterfaceAclAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.rev170503.acl.base.attributes.Ip4Acl;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.rev170503.acl.base.attributes.Ip6Acl;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.rev170503.acl.base.attributes.L2Acl;
@@ -36,16 +36,16 @@ import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.re
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.rev170503.vpp.acl.attributes.AclBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.rev170503.vpp.acl.attributes.acl.Ingress;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.rev170503.vpp.acl.attributes.acl.IngressBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfaceAclReaderFactory implements ReaderFactory{
 
     private static final InstanceIdentifier<Interface> IFC_ID =
-            InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    private static final InstanceIdentifier<VppInterfaceAclStateAugmentation> VPP_IFC_AUG_ID =
-            IFC_ID.augmentation(VppInterfaceAclStateAugmentation.class);
+            InstanceIdentifier.create(Interfaces.class).child(Interface.class);
+    private static final InstanceIdentifier<VppInterfaceAclAugmentation> VPP_IFC_AUG_ID =
+            IFC_ID.augmentation(VppInterfaceAclAugmentation.class);
 
     @Inject
     private FutureJVppCore jvpp;
@@ -61,7 +61,7 @@ public class InterfaceAclReaderFactory implements ReaderFactory{
     @Override
     public void init(@Nonnull ModifiableReaderRegistryBuilder registry) {
         //    Acl augmentation(structural)
-        registry.addStructuralReader(VPP_IFC_AUG_ID, VppInterfaceAclStateAugmentationBuilder.class);
+        registry.addStructuralReader(VPP_IFC_AUG_ID, VppInterfaceAclAugmentationBuilder.class);
         //    Acl(Structural)
         final InstanceIdentifier<Acl> aclIid = VPP_IFC_AUG_ID.child(Acl.class);
         registry.addStructuralReader(aclIid, AclBuilder.class);

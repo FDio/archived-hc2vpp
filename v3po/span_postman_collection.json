@@ -70,7 +70,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/GigabitEthernet0%2F8%2F0/span",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/span",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -79,7 +79,7 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"GigabitEthernet0%2F8%2F0",
 								"span"
@@ -196,7 +196,7 @@
 							"raw": "{\r\n    \r\n    \"span\": {\r\n    \t\"mirrored-interfaces\": {\r\n    \t\t\"mirrored-interface\": [{\"iface-ref\":\"GigabitEthernet0/8/0\",\"state\":\"receive\"}]\r\n    \t}\r\n    }\r\n    \r\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/span-state",
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/span",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -205,13 +205,13 @@
 							"path": [
 								"restconf",
 								"operational",
-								"ietf-interfaces:interfaces-state",
+								"ietf-interfaces:interfaces",
 								"interface",
 								"GigabitEthernet0%2F8%2F0",
 								"vpp-vlan:sub-interfaces",
 								"sub-interface",
 								"1",
-								"span-state"
+								"span"
 							]
 						},
 						"description": "set span src local0 dst GigabiteEthernet0/8/0"

@@ -62,11 +62,4 @@ module subinterface-span {
       uses v3po:span-attributes;
     }
   }
-
-  augment /if:interfaces-state/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
-    ext:augment-identifier "vpp-subinterface-span-state-augmentation";
-    container span-state {
-      uses v3po:span-state-attributes;
-    }
-  }
 }

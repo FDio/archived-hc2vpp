@@ -24,14 +24,14 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816.NatInterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816.NatInterfaceStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816.NatInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816.NatInterfaceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.Nat;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.NatBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.nat.Inbound;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.nat.Outbound;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -40,9 +40,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public final class IfcNatReaderFactory implements ReaderFactory {
 
     private static final InstanceIdentifier<Interface>
-            IFC_ID = InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    private static final InstanceIdentifier<NatInterfaceStateAugmentation> NAT_AUG_ID =
-            IFC_ID.augmentation(NatInterfaceStateAugmentation.class);
+            IFC_ID = InstanceIdentifier.create(Interfaces.class).child(Interface.class);
+    private static final InstanceIdentifier<NatInterfaceAugmentation> NAT_AUG_ID =
+            IFC_ID.augmentation(NatInterfaceAugmentation.class);
     private static final InstanceIdentifier<Nat> NAT_AUG_CONTAINER_ID = NAT_AUG_ID.child(Nat.class);
     private final NamingContext ifcContext;
     private final FutureJVppNatFacade jvppNat;
@@ -56,7 +56,7 @@ public final class IfcNatReaderFactory implements ReaderFactory {
 
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
-        registry.addStructuralReader(NAT_AUG_ID, NatInterfaceStateAugmentationBuilder.class);
+        registry.addStructuralReader(NAT_AUG_ID, NatInterfaceAugmentationBuilder.class);
         registry.addStructuralReader(NAT_AUG_CONTAINER_ID, NatBuilder.class);
 
         registry.addAfter(new GenericInitReader<>(NAT_AUG_CONTAINER_ID.child(Inbound.class),

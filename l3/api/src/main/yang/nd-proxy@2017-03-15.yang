@@ -56,16 +56,4 @@ module nd-proxy {
             }
         }
     }
-
-    augment /if:interfaces-state/if:interface/ip:ipv6 {
-        ext:augment-identifier "nd-proxy-ip6-state-augmentation";
-        container nd-proxies {
-            list nd-proxy {
-                key "address";
-                leaf address {
-                    type inet:ipv6-address-no-zone;
-                }
-            }
-        }
-    }
 }

@@ -50,10 +50,4 @@ module subinterface-nat {
 
     uses ifc-nat:interface-nat-attributes;
   }
-
-  augment /if:interfaces-state/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
-    ext:augment-identifier "nat-subinterface-state-augmentation";
-
-    uses ifc-nat:interface-nat-attributes;
-  }
 }

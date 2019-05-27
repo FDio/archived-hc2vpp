@@ -45,9 +45,9 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesStateBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class L3ModulesTest {
@@ -75,9 +75,9 @@ public class L3ModulesTest {
         // add structural readers here (better than maven dependency).
         Guice.createInjector(binder -> Multibinder.newSetBinder(binder, ReaderFactory.class)
                         .addBinding().toInstance(registry -> {
-                            registry.addStructuralReader(InstanceIdentifier.create(InterfacesState.class),
-                                    InterfacesStateBuilder.class);
-                            registry.add(new GenericListReader<>(InstanceIdentifier.create(InterfacesState.class)
+                            registry.addStructuralReader(InstanceIdentifier.create(Interfaces.class),
+                                    InterfacesBuilder.class);
+                            registry.add(new GenericListReader<>(InstanceIdentifier.create(Interfaces.class)
                                     .child(Interface.class),
                                     mock(ListReaderCustomizer.class)));
                         }), new InterfaceL3Module(),
