@@ -24,7 +24,7 @@ import io.fd.honeycomb.translate.write.DataValidationFailedException;
 import io.fd.honeycomb.translate.write.Validator;
 import io.fd.honeycomb.translate.write.WriteContext;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev170315._interface.policer.attributes.Policer;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.policer.rev190527._interface.policer.attributes.Policer;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfacePolicerValidator implements Validator<Policer> {

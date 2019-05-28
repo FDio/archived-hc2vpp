@@ -36,10 +36,10 @@ import io.fd.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfaceAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.AfPacket;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.AfPacketBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VppInterfaceAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.AfPacket;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.AfPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -92,7 +92,7 @@ public class AfPacketCustomizer implements InitializingReaderCustomizer<AfPacket
         final SwInterfaceDetails ifcDetails = dumpManager.getInterfaceDetail(id, ctx, key.getName());
 
         if (!isInterfaceOfType(
-            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.AfPacket.class,
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.AfPacket.class,
             ifcDetails)) {
             return;
         }
@@ -114,23 +114,23 @@ public class AfPacketCustomizer implements InitializingReaderCustomizer<AfPacket
 
     @Nonnull
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.AfPacket> init(
+    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.AfPacket> init(
         @Nonnull final InstanceIdentifier<AfPacket> id,
         @Nonnull final AfPacket readValue,
         @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
-            new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.AfPacketBuilder()
+                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.AfPacketBuilder()
                 .setHostInterfaceName(readValue.getHostInterfaceName())
                 .setMac(readValue.getMac())
                 .build());
     }
 
     @VisibleForTesting
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.AfPacket> getCfgId(
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.AfPacket> getCfgId(
         final InstanceIdentifier<AfPacket> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
             .augmentation(VppInterfaceAugmentation.class)
             .child(
-                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.AfPacket.class);
+                    org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.AfPacket.class);
     }
 }

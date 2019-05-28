@@ -1,10 +1,14 @@
-module vpp-interface-acl {
+module vpp-subinterface-acl {
     yang-version 1;
-    namespace "http://fd.io/hc2vpp/yang/vpp-interface-acl";
-    prefix "vpp-ifc-acl";
+    namespace "http://fd.io/hc2vpp/yang/vpp-subinterface-acl";
+    prefix "vpp-subifc-acl";
 
     import ietf-interfaces {
         prefix "if";
+    }
+
+    import vpp-vlan {
+        prefix "vpp-vlan";
     }
 
     import vpp-classifier-acl {
@@ -24,7 +28,7 @@ module vpp-interface-acl {
 
     description
         "This module contains a collection of YANG definitions for
-         applying ACLs on VPP interfaces.
+         applying ACLs on VPP sub-interfaces.
          Uses ACL implementation based on VPP packet classifier.
 
          Copyright (c) 2017 Cisco and/or its affiliates.
@@ -41,13 +45,19 @@ module vpp-interface-acl {
          See the License for the specific language governing permissions and
          limitations under the License.";
 
-    revision "2017-03-15" {
+    revision "2019-05-27" {
         description
-            "Initial revision of vpp-interface-acl model.";
+            "Removed interfaces-state augmentations due to its deprecation
+             in ietf-interfaces model";
     }
 
-    augment /if:interfaces/if:interface {
-        ext:augment-identifier "vpp-interface-acl-augmentation";
-        uses vpp-classifier-acl:vpp-acl-attributes;
+    revision "2017-03-15" {
+        description
+            "Initial revision of vpp-subinterface-acl model.";
+    }
+
+    augment /if:interfaces/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
+       ext:augment-identifier "vpp-subinterface-acl-augmentation";
+       uses vpp-classifier-acl:vpp-acl-attributes;
     }
 }

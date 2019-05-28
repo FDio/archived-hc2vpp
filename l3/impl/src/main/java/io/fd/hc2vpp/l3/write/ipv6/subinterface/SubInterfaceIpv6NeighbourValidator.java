@@ -23,7 +23,7 @@ import io.fd.honeycomb.translate.write.DataValidationFailedException;
 import io.fd.honeycomb.translate.write.Validator;
 import io.fd.honeycomb.translate.write.WriteContext;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.Neighbor;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.ip6.attributes.ipv6.Neighbor;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class SubInterfaceIpv6NeighbourValidator implements Validator<Neighbor> {

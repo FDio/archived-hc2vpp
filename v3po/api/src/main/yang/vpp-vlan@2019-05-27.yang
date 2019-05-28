@@ -47,6 +47,12 @@ module vpp-vlan {
      See the License for the specific language governing permissions and
      limitations under the License.";
 
+  revision "2019-05-27" {
+    description
+      "Removed interfaces-state augmentations due to its deprecation
+       in ietf-interfaces model";
+  }
+
   revision "2018-03-19" {
     description "Prefix invalid 802dot1q and 802dot1ad identifiers with underscore.";
   }

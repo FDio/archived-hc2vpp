@@ -41,6 +41,12 @@ module vpp-pbb {
      See the License for the specific language governing permissions and
      limitations under the License.";
 
+  revision "2019-05-27" {
+    description
+      "Removed interfaces-state augmentations due to its deprecation
+       in ietf-interfaces model";
+  }
+
   revision "2016-12-14" {
     description "Initial revision of pbb model";
   }
@@ -50,13 +56,5 @@ module vpp-pbb {
      container pbb-rewrite {
         uses pbb-types:pbb-rewrite-attributes;
      }
-  }
-
-  augment /if:interfaces/if:interface {
-      ext:augment-identifier "pbb-rewrite-state-interface-augmentation";
-      container pbb-rewrite-state {
-         uses pbb-types:pbb-rewrite-attributes;
-         config false;
-      }
   }
 }

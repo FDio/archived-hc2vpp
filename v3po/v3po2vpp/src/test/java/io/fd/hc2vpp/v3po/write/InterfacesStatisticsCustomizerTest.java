@@ -22,9 +22,9 @@ import io.fd.hc2vpp.v3po.read.cache.InterfaceStatisticsManagerImpl;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfacesStatsAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.Statistics;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.StatisticsBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VppInterfacesStatsAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces.Statistics;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces.StatisticsBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 

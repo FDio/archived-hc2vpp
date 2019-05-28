@@ -36,14 +36,14 @@ import io.fd.jvpp.core.dto.VxlanTunnelDump;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.L2Input;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.NshProxy;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfaceAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VxlanTunnel;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VxlanVni;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Vxlan;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.VxlanBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.L2Input;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.NshProxy;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VppInterfaceAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VxlanTunnel;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VxlanVni;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Vxlan;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VxlanBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
@@ -142,11 +142,11 @@ public class VxlanCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Vxlan> init(
+    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Vxlan> init(
             @Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan readValue,
             @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.VxlanBuilder()
+                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VxlanBuilder()
                         .setDst(readValue.getDst())
                         .setSrc(readValue.getSrc())
                         .setEncapVrfId(readValue.getEncapVrfId())
@@ -155,10 +155,10 @@ public class VxlanCustomizer extends FutureJVppCustomizer
                         .build());
     }
 
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Vxlan> getCfgId(
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Vxlan> getCfgId(
             final InstanceIdentifier<Vxlan> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(VppInterfaceAugmentation.class)
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Vxlan.class);
+                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Vxlan.class);
     }
 }

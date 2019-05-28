@@ -36,11 +36,11 @@ import io.fd.jvpp.core.future.FutureJVppCore;
 import java.math.BigInteger;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VhostUserRole;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfaceAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.VhostUser;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.VhostUserBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VhostUserRole;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VppInterfaceAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VhostUser;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VhostUserBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceKey;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -98,7 +98,7 @@ public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUs
 
 
         if (!isInterfaceOfType(
-                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VhostUser.class,
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VhostUser.class,
                 ifcDetails)) {
             return;
         }
@@ -136,7 +136,7 @@ public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUs
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.VhostUser> init(
+    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VhostUser> init(
             @Nonnull final InstanceIdentifier<VhostUser> id,
             @Nonnull final VhostUser readValue,
             @Nonnull final ReadContext ctx) {
@@ -149,7 +149,7 @@ public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUs
             throw new IllegalStateException(format("Unable to find VHost interface %s", key.getName()), e);
         }
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.VhostUserBuilder()
+                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VhostUserBuilder()
                         .setRole(readValue.getRole())
                         .setSocket(readValue.getSocket())
                         .setTag(ifcDetails.tag[0] == 0
@@ -158,10 +158,10 @@ public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUs
                         .build());
     }
 
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.VhostUser> getCfgId(
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VhostUser> getCfgId(
             final InstanceIdentifier<VhostUser> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(VppInterfaceAugmentation.class)
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.VhostUser.class);
+                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VhostUser.class);
     }
 }

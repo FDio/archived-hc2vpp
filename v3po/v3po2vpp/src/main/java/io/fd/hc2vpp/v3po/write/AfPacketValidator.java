@@ -27,7 +27,7 @@ import io.fd.honeycomb.translate.write.Validator;
 import io.fd.honeycomb.translate.write.WriteContext;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.AfPacket;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.AfPacket;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AfPacketValidator implements Validator<AfPacket> {

@@ -36,9 +36,9 @@ import io.fd.jvpp.core.dto.GreTunnelAddDel;
 import io.fd.jvpp.core.dto.GreTunnelAddDelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.Gre;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.GreBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Gre;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.GreBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
@@ -68,7 +68,7 @@ public class GreCustomizerTest extends WriterCustomizerTest implements AddressTr
     @Override
     public void setUpTest() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
-            org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.GreTunnel.class);
+                org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.GreTunnel.class);
         customizer = new GreCustomizer(api, new NamingContext("generateInterfaceNAme", IFC_TEST_INSTANCE));
     }
 

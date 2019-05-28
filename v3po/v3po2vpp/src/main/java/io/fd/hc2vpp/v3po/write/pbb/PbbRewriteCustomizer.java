@@ -28,7 +28,7 @@ import io.fd.jvpp.core.dto.L2InterfacePbbTagRewrite;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.interfaces._interface.PbbRewrite;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev190527.interfaces._interface.PbbRewrite;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 

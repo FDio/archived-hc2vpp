@@ -21,7 +21,7 @@ import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces.Statistics;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces.Statistics;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfacesStatisticsCustomizer implements WriterCustomizer<Statistics> {

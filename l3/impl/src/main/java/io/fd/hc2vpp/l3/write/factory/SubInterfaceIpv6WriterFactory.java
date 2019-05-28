@@ -33,10 +33,10 @@ import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.rewrite.attributes.Rewrite;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.Ipv6;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.Address;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.routing.attributes.Routing;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.rewrite.attributes.Rewrite;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.ip6.attributes.Ipv6;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.ip6.attributes.ipv6.Address;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.routing.attributes.Routing;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class SubInterfaceIpv6WriterFactory implements WriterFactory {
@@ -56,14 +56,14 @@ public class SubInterfaceIpv6WriterFactory implements WriterFactory {
         //   Ipv6
         final InstanceIdentifier<Address>
                 ipv6SubifcAddressId = SUB_IFC_ID.child(Ipv6.class)
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.Address.class);
+                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.ip6.attributes.ipv6.Address.class);
         registry.addAfter(new GenericListWriter<>(ipv6SubifcAddressId,
                 new SubInterfaceIpv6AddressCustomizer(jvpp, ifcNamingContext),
                 new SubInterfaceIpv6AddressValidator(ifcNamingContext)), ImmutableSet
                 .of(rewriteId, SUB_IFC_ID.child(Routing.class)));
-        final InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.Neighbor>
+        final InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.ip6.attributes.ipv6.Neighbor>
                 ipv6NeighborId = SUB_IFC_ID.child(Ipv6.class)
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.Neighbor.class);
+                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.ip6.attributes.ipv6.Neighbor.class);
         registry.addAfter(new GenericListWriter<>(ipv6NeighborId,
                 new SubInterfaceIpv6NeighbourCustomizer(jvpp, ifcNamingContext),
                 new SubInterfaceIpv6NeighbourValidator(ifcNamingContext)), rewriteId);

@@ -24,8 +24,8 @@ import io.fd.honeycomb.translate.write.Validator;
 import io.fd.honeycomb.translate.write.WriteContext;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.span.attributes.MirroredInterfaces;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.span.attributes.mirrored.interfaces.MirroredInterface;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.span.attributes.MirroredInterfaces;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.span.attributes.mirrored.interfaces.MirroredInterface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MirroredInterfaceValidator implements Validator<MirroredInterface> {

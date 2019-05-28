@@ -16,7 +16,7 @@
 
 package io.fd.hc2vpp.nat.read.ifc;
 
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816._interface.nat.attributes.nat.OutboundBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev190527._interface.nat.attributes.nat.OutboundBuilder;
 
 final class OutboundAttributesReader implements VppAttributesBuilder<OutboundBuilder> {
     @Override

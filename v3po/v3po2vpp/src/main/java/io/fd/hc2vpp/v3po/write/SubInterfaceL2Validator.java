@@ -23,7 +23,7 @@ import io.fd.honeycomb.translate.write.DataValidationFailedException;
 import io.fd.honeycomb.translate.write.Validator;
 import io.fd.honeycomb.translate.write.WriteContext;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.l2.config.attributes.L2;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.l2.config.attributes.L2;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class SubInterfaceL2Validator implements Validator<L2> {

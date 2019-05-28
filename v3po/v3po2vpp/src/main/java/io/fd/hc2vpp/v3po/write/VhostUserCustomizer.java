@@ -32,8 +32,8 @@ import io.fd.jvpp.core.future.FutureJVppCore;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VhostUserRole;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.interfaces._interface.VhostUser;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VhostUserRole;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -56,7 +56,7 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
 
     @Override
     protected Class<? extends InterfaceType> getExpectedInterfaceType() {
-        return org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190502.VhostUser.class;
+        return org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VhostUser.class;
     }
 
     @Override

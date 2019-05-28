@@ -23,7 +23,7 @@ import io.fd.honeycomb.translate.write.DataValidationFailedException;
 import io.fd.honeycomb.translate.write.Validator;
 import io.fd.honeycomb.translate.write.WriteContext;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxy;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev190527.interfaces._interface.ipv6.nd.proxies.NdProxy;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class NdProxyValidator implements Validator<NdProxy> {

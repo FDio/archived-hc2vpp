@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.l3.read.ipv6.subinterface;
 
-import java.util.Optional;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.l3.utils.ip.read.IfaceDumpFilter;
 import io.fd.hc2vpp.l3.utils.ip.read.IpNeighbourReader;
@@ -28,12 +27,13 @@ import io.fd.jvpp.core.dto.IpNeighborDetails;
 import io.fd.jvpp.core.dto.IpNeighborDetailsReplyDump;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.Ipv6Builder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.Neighbor;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.NeighborBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.ipv6.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.ip6.attributes.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.ip6.attributes.ipv6.Neighbor;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.ip6.attributes.ipv6.NeighborBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.ip6.attributes.ipv6.NeighborKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;

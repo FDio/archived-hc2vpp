@@ -32,12 +32,12 @@ import io.fd.jvpp.core.dto.Ip6NdProxyDetailsReplyDump;
 import io.fd.jvpp.core.types.Ip6Address;
 import java.util.List;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.NdProxyIp6Augmentation;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.NdProxies;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.NdProxiesBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxy;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxyBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxyKey;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev190527.NdProxyIp6Augmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev190527.interfaces._interface.ipv6.NdProxies;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev190527.interfaces._interface.ipv6.NdProxiesBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev190527.interfaces._interface.ipv6.nd.proxies.NdProxy;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev190527.interfaces._interface.ipv6.nd.proxies.NdProxyBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev190527.interfaces._interface.ipv6.nd.proxies.NdProxyKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
@@ -116,7 +116,7 @@ public class NdProxyCustomizerTest extends InitializingListReaderCustomizerTest<
             id,
             new NdProxyBuilder().setAddress(address).build(),
             getCfgId(id),
-            new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxyBuilder()
+                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.nd.proxy.rev190527.interfaces._interface.ipv6.nd.proxies.NdProxyBuilder()
                 .setAddress(address).build()
         );
     }

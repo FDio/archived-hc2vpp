@@ -36,7 +36,7 @@ public interface NatTestSchemaContext {
                                 .getInstance(),
                         org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.nat.rev180510.$YangModuleInfoImpl
                                 .getInstance(),
-                        org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev170816.$YangModuleInfoImpl
+                        org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang._interface.nat.rev190527.$YangModuleInfoImpl
                                 .getInstance()));
         return context;
     }

@@ -18,9 +18,9 @@ package io.fd.hc2vpp.v3po.read.pbb;
 
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.PbbRewriteInterfaceAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.interfaces._interface.PbbRewrite;
-import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev161214.interfaces._interface.PbbRewriteBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev190527.PbbRewriteInterfaceAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev190527.interfaces._interface.PbbRewrite;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.pbb.rev190527.interfaces._interface.PbbRewriteBuilder;
 
 public class PbbRewriteCustomizerTest extends ReaderCustomizerTest<PbbRewrite, PbbRewriteBuilder> {
 

@@ -41,6 +41,12 @@ module nd-proxy {
          See the License for the specific language governing permissions and
          limitations under the License.";
 
+    revision "2019-05-27" {
+        description
+            "Removed interfaces-state augmentations due to its deprecation
+             in ietf-interfaces model";
+    }
+
     revision "2017-03-15" {
         description "Initial revision of neighbour discovery proxy model for VPP";
     }
