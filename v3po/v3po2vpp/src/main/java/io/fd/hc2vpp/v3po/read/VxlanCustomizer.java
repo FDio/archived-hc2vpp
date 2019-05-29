@@ -70,8 +70,7 @@ public class VxlanCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void merge(@Nonnull Builder<? extends DataObject> parentBuilder,
-                      @Nonnull Vxlan readValue) {
+    public void merge(@Nonnull Builder<? extends DataObject> parentBuilder, @Nonnull Vxlan readValue) {
         ((VppInterfaceAugmentationBuilder) parentBuilder).setVxlan(readValue);
     }
 
@@ -142,11 +141,11 @@ public class VxlanCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Vxlan> init(
+    public Initialized<Vxlan> init(
             @Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan readValue,
             @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VxlanBuilder()
+                new VxlanBuilder()
                         .setDst(readValue.getDst())
                         .setSrc(readValue.getSrc())
                         .setEncapVrfId(readValue.getEncapVrfId())
@@ -155,10 +154,9 @@ public class VxlanCustomizer extends FutureJVppCustomizer
                         .build());
     }
 
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Vxlan> getCfgId(
-            final InstanceIdentifier<Vxlan> id) {
+    private InstanceIdentifier<Vxlan> getCfgId(final InstanceIdentifier<Vxlan> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(VppInterfaceAugmentation.class)
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Vxlan.class);
+                .child(Vxlan.class);
     }
 }

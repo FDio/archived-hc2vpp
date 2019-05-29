@@ -218,11 +218,11 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.interfaces._interface.sub.interfaces.SubInterface> init(
+    public Initialized<SubInterface> init(
             @Nonnull final InstanceIdentifier<SubInterface> id, @Nonnull final SubInterface readValue,
             @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.interfaces._interface.sub.interfaces.SubInterfaceBuilder()
+                new SubInterfaceBuilder()
                         .setEnabled(SubInterfaceStatus.Up.equals(readValue.getAdminStatus()))
                         .setIdentifier(readValue.getIdentifier())
                         .setMatch(readValue.getMatch())
@@ -231,13 +231,10 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
                         .build());
     }
 
-    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.interfaces._interface.sub.interfaces.SubInterface> getCfgId(
-            final InstanceIdentifier<SubInterface> id) {
+    public static InstanceIdentifier<SubInterface> getCfgId(final InstanceIdentifier<SubInterface> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(SubinterfaceAugmentation.class)
                 .child(SubInterfaces.class)
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.interfaces._interface.sub.interfaces.SubInterface.class,
-                        new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.interfaces._interface.sub.interfaces.SubInterfaceKey(
-                                id.firstKeyOf(SubInterface.class).getIdentifier()));
+                .child(SubInterface.class, new SubInterfaceKey(id.firstKeyOf(SubInterface.class).getIdentifier()));
     }
 }

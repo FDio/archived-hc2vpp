@@ -150,11 +150,11 @@ public class InterfaceCustomizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface> init(
+    public Initialized<Interface> init(
             @Nonnull final InstanceIdentifier<Interface> id, @Nonnull final Interface readValue,
             @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceBuilder()
+                new InterfaceBuilder()
                         .setName(readValue.getName())
                         .setType(readValue.getType())
                         .setEnabled(AdminStatus.Up.equals(readValue.getAdminStatus()))
@@ -163,11 +163,8 @@ public class InterfaceCustomizer
                         .build());
     }
 
-    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface> getCfgId(
-            final InstanceIdentifier<Interface> id) {
-        return InstanceIdentifier.create(Interfaces.class).child(
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface.class,
-                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceKey(
-                        id.firstKeyOf(Interface.class).getName()));
+    public static InstanceIdentifier<Interface> getCfgId(final InstanceIdentifier<Interface> id) {
+        return InstanceIdentifier.create(Interfaces.class)
+                .child(Interface.class, new InterfaceKey(id.firstKeyOf(Interface.class).getName()));
     }
 }

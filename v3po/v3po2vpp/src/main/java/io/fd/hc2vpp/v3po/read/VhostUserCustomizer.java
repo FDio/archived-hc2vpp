@@ -136,10 +136,8 @@ public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUs
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VhostUser> init(
-            @Nonnull final InstanceIdentifier<VhostUser> id,
-            @Nonnull final VhostUser readValue,
-            @Nonnull final ReadContext ctx) {
+    public Initialized<VhostUser> init(@Nonnull final InstanceIdentifier<VhostUser> id,
+                                       @Nonnull final VhostUser readValue, @Nonnull final ReadContext ctx) {
         // The tag is set from interface details, those details are retrieved from cache
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final SwInterfaceDetails ifcDetails;
@@ -149,7 +147,7 @@ public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUs
             throw new IllegalStateException(format("Unable to find VHost interface %s", key.getName()), e);
         }
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VhostUserBuilder()
+                new VhostUserBuilder()
                         .setRole(readValue.getRole())
                         .setSocket(readValue.getSocket())
                         .setTag(ifcDetails.tag[0] == 0
@@ -158,10 +156,9 @@ public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUs
                         .build());
     }
 
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VhostUser> getCfgId(
-            final InstanceIdentifier<VhostUser> id) {
+    private InstanceIdentifier<VhostUser> getCfgId(final InstanceIdentifier<VhostUser> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(VppInterfaceAugmentation.class)
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VhostUser.class);
+                .child(VhostUser.class);
     }
 }

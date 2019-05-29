@@ -28,7 +28,9 @@ import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.l2.config.attributes.interconnection.BridgeBased;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.l2.config.attributes.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.l2.config.attributes.interconnection.XconnectBased;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.l2.config.attributes.interconnection.XconnectBasedBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.interfaces._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.interfaces._interface.sub.interfaces.SubInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.interfaces._interface.sub.interfaces.SubInterfaceKey;
@@ -83,37 +85,29 @@ public class SubInterfaceL2Customizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.l2.config.attributes.L2> init(
-            @Nonnull final InstanceIdentifier<L2> id,
-            @Nonnull final L2 readValue,
-            @Nonnull final ReadContext ctx) {
+    public Initialized<L2> init(@Nonnull final InstanceIdentifier<L2> id, @Nonnull final L2 readValue,
+                                @Nonnull final ReadContext ctx) {
 
-        org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.l2.config.attributes.L2Builder
-                builder =
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.l2.config.attributes.L2Builder();
+        L2Builder builder = new L2Builder();
 
         if (readValue.getInterconnection() instanceof XconnectBased) {
             XconnectBased state = (XconnectBased) readValue.getInterconnection();
-            builder.setInterconnection(
-                    new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.l2.config.attributes.interconnection.XconnectBasedBuilder()
-                            .setXconnectOutgoingInterface(state.getXconnectOutgoingInterface())
-                            .build());
+            builder.setInterconnection(new XconnectBasedBuilder()
+                    .setXconnectOutgoingInterface(state.getXconnectOutgoingInterface())
+                    .build());
         } else {
             BridgeBased state = (BridgeBased) readValue.getInterconnection();
-            builder.setInterconnection(
-                    new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.l2.config.attributes.interconnection.BridgeBasedBuilder()
-                            .setBridgeDomain(state.getBridgeDomain())
-                            .setBridgedVirtualInterface(state.isBridgedVirtualInterface())
-                            .setSplitHorizonGroup(state.getSplitHorizonGroup())
-                            .build());
+            builder.setInterconnection(new BridgeBasedBuilder()
+                    .setBridgeDomain(state.getBridgeDomain())
+                    .setBridgedVirtualInterface(state.isBridgedVirtualInterface())
+                    .setSplitHorizonGroup(state.getSplitHorizonGroup())
+                    .build());
         }
 
         return Initialized.create(getCfgId(id), builder.setRewrite(readValue.getRewrite()).build());
     }
 
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.l2.config.attributes.L2> getCfgId(
-            final InstanceIdentifier<L2> id) {
-        return SubInterfaceCustomizer.getCfgId(RWUtils.cutId(id, SubInterface.class))
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.vlan.rev190527.sub._interface.l2.config.attributes.L2.class);
+    static InstanceIdentifier<L2> getCfgId(final InstanceIdentifier<L2> id) {
+        return SubInterfaceCustomizer.getCfgId(RWUtils.cutId(id, SubInterface.class)).child(L2.class);
     }
 }

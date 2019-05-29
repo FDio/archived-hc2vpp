@@ -51,8 +51,7 @@ public class L2Customizer extends FutureJVppCustomizer implements InitializingRe
     private static final Logger LOG = LoggerFactory.getLogger(L2Customizer.class);
     private final InterconnectionReadUtils icReadUtils;
 
-    public L2Customizer(@Nonnull final FutureJVppCore futureJVppCore,
-                        @Nonnull final NamingContext interfaceContext,
+    public L2Customizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext interfaceContext,
                         @Nonnull final NamingContext bridgeDomainContext,
                         @Nonnull final InterfaceCacheDumpManager dumpManager) {
         super(futureJVppCore);
@@ -82,13 +81,9 @@ public class L2Customizer extends FutureJVppCustomizer implements InitializingRe
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.L2> init(
-            @Nonnull final InstanceIdentifier<L2> id,
-            @Nonnull final L2 readValue,
-            @Nonnull final ReadContext ctx) {
-        final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.L2Builder
-                l2Builder =
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.L2Builder();
+    public Initialized<L2> init(@Nonnull final InstanceIdentifier<L2> id, @Nonnull final L2 readValue,
+                                @Nonnull final ReadContext ctx) {
+        final L2Builder l2Builder = new L2Builder();
 
         final Interconnection interconnection = readValue.getInterconnection();
         if (interconnection != null) {
@@ -110,10 +105,9 @@ public class L2Customizer extends FutureJVppCustomizer implements InitializingRe
         return Initialized.create(getCfgId(id), l2Builder.build());
     }
 
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.L2> getCfgId(
-            final InstanceIdentifier<L2> id) {
+    private InstanceIdentifier<L2> getCfgId(final InstanceIdentifier<L2> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(VppInterfaceAugmentation.class)
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.L2.class);
+                .child(L2.class);
     }
 }

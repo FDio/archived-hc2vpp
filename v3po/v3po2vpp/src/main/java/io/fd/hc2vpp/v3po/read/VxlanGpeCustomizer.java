@@ -132,11 +132,10 @@ public class VxlanGpeCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VxlanGpe> init(
-            @Nonnull final InstanceIdentifier<VxlanGpe> id, @Nonnull final VxlanGpe readValue,
-            @Nonnull final ReadContext ctx) {
+    public Initialized<VxlanGpe> init(@Nonnull final InstanceIdentifier<VxlanGpe> id, @Nonnull final VxlanGpe readValue,
+                                      @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VxlanGpeBuilder()
+                new VxlanGpeBuilder()
                         .setLocal(readValue.getLocal())
                         .setRemote(readValue.getRemote())
                         .setVni(new VxlanGpeVni(readValue.getVni()))
@@ -146,10 +145,10 @@ public class VxlanGpeCustomizer extends FutureJVppCustomizer
                         .build());
     }
 
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VxlanGpe> getCfgId(
+    private InstanceIdentifier<VxlanGpe> getCfgId(
             final InstanceIdentifier<VxlanGpe> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(VppInterfaceAugmentation.class)
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.VxlanGpe.class);
+                .child(VxlanGpe.class);
     }
 }

@@ -173,9 +173,8 @@ public class TapV2Customizer extends FutureJVppCustomizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.TapV2> init(
-            @Nonnull final InstanceIdentifier<TapV2> id, @Nonnull final TapV2 readValue,
-            @Nonnull final ReadContext ctx) {
+    public Initialized<TapV2> init(@Nonnull final InstanceIdentifier<TapV2> id, @Nonnull final TapV2 readValue,
+                                   @Nonnull final ReadContext ctx) {
         // The MAC address & tag is set from interface details, those details are retrieved from cache
         final InterfaceKey key = id.firstKeyOf(Interface.class);
 
@@ -187,7 +186,7 @@ public class TapV2Customizer extends FutureJVppCustomizer
         }
 
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.TapV2Builder()
+                new TapV2Builder()
                         .setMac(new PhysAddress(vppPhysAddrToYang(ifcDetails.l2Address)))
                         .setHostInterfaceName(readValue.getHostInterfaceName())
                         .setTag(ifcDetails.tag[0] == 0
@@ -203,10 +202,9 @@ public class TapV2Customizer extends FutureJVppCustomizer
                         .build());
     }
 
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.TapV2> getCfgId(
-            final InstanceIdentifier<TapV2> id) {
+    private InstanceIdentifier<TapV2> getCfgId(final InstanceIdentifier<TapV2> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(VppInterfaceAugmentation.class)
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.TapV2.class);
+                .child(TapV2.class);
     }
 }

@@ -128,20 +128,19 @@ public class GreCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Gre> init(
-            @Nonnull final InstanceIdentifier<Gre> id, @Nonnull final Gre readValue, @Nonnull final ReadContext ctx) {
+    public Initialized<Gre> init(@Nonnull final InstanceIdentifier<Gre> id, @Nonnull final Gre readValue,
+                                 @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.GreBuilder()
+                new GreBuilder()
                         .setDst(readValue.getDst())
                         .setSrc(readValue.getSrc())
                         .setOuterFibId(readValue.getOuterFibId())
                         .build());
     }
 
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Gre> getCfgId(
-            final InstanceIdentifier<Gre> id) {
+    private InstanceIdentifier<Gre> getCfgId(final InstanceIdentifier<Gre> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(VppInterfaceAugmentation.class)
-                .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Gre.class);
+                .child(Gre.class);
     }
 }

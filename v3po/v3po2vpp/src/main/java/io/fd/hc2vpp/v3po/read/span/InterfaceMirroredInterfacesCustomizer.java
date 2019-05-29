@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Span;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.SpanBuilder;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.span.attributes.MirroredInterfaces;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.span.attributes.MirroredInterfacesBuilder;
@@ -52,22 +53,21 @@ public class InterfaceMirroredInterfacesCustomizer extends AbstractMirroredInter
     public Initialized<? extends DataObject> init(@Nonnull final InstanceIdentifier<MirroredInterfaces> id,
                                                   @Nonnull final MirroredInterfaces readValue,
                                                   @Nonnull final ReadContext ctx) {
-        final InstanceIdentifier<org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.span.attributes.MirroredInterfaces>
-                cfgId =
+        final InstanceIdentifier<MirroredInterfaces> cfgId =
                 InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                         .augmentation(VppInterfaceAugmentation.class)
-                        .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Span.class)
-                        .child(org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.span.attributes.MirroredInterfaces.class);
-        final org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.span.attributes.MirroredInterfaces
-                cfgValue = new MirroredInterfacesBuilder()
-                .setMirroredInterface(Optional.ofNullable(readValue.getMirroredInterface()).orElse(Collections.emptyList())
-                        .stream()
-                        .map(mirroredInterface -> new MirroredInterfaceBuilder()
-                                .setState(mirroredInterface.getState())
-                                .withKey(new MirroredInterfaceKey(mirroredInterface.key().getIfaceRef()))
-                                .setIfaceRef(mirroredInterface.getIfaceRef())
-                                .build())
-                        .collect(Collectors.toList()))
+                        .child(Span.class)
+                        .child(MirroredInterfaces.class);
+        final MirroredInterfaces cfgValue = new MirroredInterfacesBuilder()
+                .setMirroredInterface(
+                        Optional.ofNullable(readValue.getMirroredInterface()).orElse(Collections.emptyList())
+                                .stream()
+                                .map(mirroredInterface -> new MirroredInterfaceBuilder()
+                                        .setState(mirroredInterface.getState())
+                                        .withKey(new MirroredInterfaceKey(mirroredInterface.key().getIfaceRef()))
+                                        .setIfaceRef(mirroredInterface.getIfaceRef())
+                                        .build())
+                                .collect(Collectors.toList()))
                 .build();
         return Initialized.create(cfgId, cfgValue);
     }
