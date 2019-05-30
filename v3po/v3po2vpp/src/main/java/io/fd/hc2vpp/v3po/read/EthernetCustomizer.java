@@ -65,6 +65,11 @@ public class EthernetCustomizer
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final SwInterfaceDetails iface = dumpManager.getInterfaceDetail(id, ctx, key.getName());
 
+        if (!EthernetCsmacd.class.equals(getInterfaceType(id.firstKeyOf(Interface.class).getName()))) {
+            // HW MTU is specific to Ethernet interface. Skip non ethernet interface
+            return;
+        }
+
         if (iface.linkMtu != 0) {
             // Read physical payload MTU (link_mtu) if given.
             // VPP since 18.07 supports also setting MTUs for software interfaces,

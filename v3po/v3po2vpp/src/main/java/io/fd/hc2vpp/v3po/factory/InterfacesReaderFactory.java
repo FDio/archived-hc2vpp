@@ -28,6 +28,7 @@ import io.fd.hc2vpp.v3po.read.InterfaceCustomizer;
 import io.fd.hc2vpp.v3po.read.InterfaceRoutingCustomizer;
 import io.fd.hc2vpp.v3po.read.InterfaceStatisticsCustomizer;
 import io.fd.hc2vpp.v3po.read.L2Customizer;
+import io.fd.hc2vpp.v3po.read.LoopbackCustomizer;
 import io.fd.hc2vpp.v3po.read.TapV2Customizer;
 import io.fd.hc2vpp.v3po.read.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.read.VxlanCustomizer;
@@ -49,6 +50,7 @@ import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interf
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Gre;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.L2;
+import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Loopback;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Routing;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.Span;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.interfaces._interface.SpanBuilder;
@@ -125,6 +127,9 @@ public final class InterfacesReaderFactory implements ReaderFactory {
         //    Ethernet
         registry.add(new GenericInitReader<>(vppIfcAugId.child(Ethernet.class),
                 new EthernetCustomizer(ifaceDumpManager)));
+        //    Loopback
+        registry.add(new GenericInitReader<>(vppIfcAugId.child(Loopback.class),
+                new LoopbackCustomizer(ifaceDumpManager)));
         //    Routing
         registry.add(new GenericInitReader<>(vppIfcAugId.child(Routing.class),
                 new InterfaceRoutingCustomizer(jvpp, ifcNamingCtx)));

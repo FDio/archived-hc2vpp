@@ -48,8 +48,8 @@ public class EthernetCustomizer extends AbstractInterfaceTypeCustomizer<Ethernet
     }
 
     @Override
-    public void writeInterface(@Nonnull final InstanceIdentifier<Ethernet> id,
-                                       @Nonnull final Ethernet dataAfter, @Nonnull final WriteContext writeContext)
+    public void writeInterface(@Nonnull final InstanceIdentifier<Ethernet> id, @Nonnull final Ethernet dataAfter,
+                               @Nonnull final WriteContext writeContext)
         throws WriteFailedException {
         setEthernetAttributes(id, dataAfter, writeContext);
     }
