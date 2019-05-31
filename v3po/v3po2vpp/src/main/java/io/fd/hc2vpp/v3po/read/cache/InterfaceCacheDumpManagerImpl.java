@@ -16,11 +16,11 @@
 
 package io.fd.hc2vpp.v3po.read.cache;
 
-import static io.fd.hc2vpp.common.translate.util.JvppReplyConsumer.INSTANCE;
 import static java.util.stream.Collectors.toMap;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.read.InterfaceDataTranslator;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -44,14 +44,14 @@ import org.slf4j.LoggerFactory;
 /**
  * Manager for dump data of interfaces/sub-interfaces
  */
-final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager {
+final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager, InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceCacheDumpManagerImpl.class);
 
     // byNameIndex must be cached, not held as reference here, to have it destroyed with cache after transaction
     static final String BY_NAME_INDEX_KEY = InterfaceCacheDumpManagerImpl.class.getName() + "_byNameIndex";
     private NamingContext namingContext;
-    private final DumpCacheManager<SwInterfaceDetailsReplyDump, String> specificDumpManager;
+    private final DumpCacheManager<SwInterfaceDetailsReplyDump, Integer> specificDumpManager;
     private final DumpCacheManager<SwInterfaceDetailsReplyDump, Void> fullDumpManager;
 
     InterfaceCacheDumpManagerImpl(@Nonnull final FutureJVppCore jvpp,
@@ -59,7 +59,8 @@ final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager {
         this.namingContext = namingContext;
         specificDumpManager = specificInterfaceDumpManager(jvpp);
         fullDumpManager = fullInterfaceDumpManager(jvpp,
-                new StaticCacheKeyFactory(InterfaceCacheDumpManagerImpl.class.getName() + "_dump", SwInterfaceDetailsReplyDump.class));
+                new StaticCacheKeyFactory(InterfaceCacheDumpManagerImpl.class.getName() + "_dump",
+                        SwInterfaceDetailsReplyDump.class));
     }
 
     @Override
@@ -95,8 +96,9 @@ final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager {
             throws ReadFailedException {
         LOG.debug("Interface {} not present in cached data, performing specific dump[{}]", interfaceName,
                 identifier);
+        int index = namingContext.getIndex(interfaceName, ctx.getMappingContext());
         final SwInterfaceDetailsReplyDump reply =
-                specificDumpManager.getDump(identifier, ctx.getModificationCache(), interfaceName)
+                specificDumpManager.getDump(identifier, ctx.getModificationCache(), index)
                         .orElse(new SwInterfaceDetailsReplyDump());
 
         if (reply.swInterfaceDetails.isEmpty()) {
@@ -162,9 +164,9 @@ final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager {
                 .build();
     }
 
-    private static DumpCacheManager<SwInterfaceDetailsReplyDump, String> specificInterfaceDumpManager(
+    private static DumpCacheManager<SwInterfaceDetailsReplyDump, Integer> specificInterfaceDumpManager(
             final FutureJVppCore jvpp) {
-        return new DumpCacheManager.DumpCacheManagerBuilder<SwInterfaceDetailsReplyDump, String>()
+        return new DumpCacheManager.DumpCacheManagerBuilder<SwInterfaceDetailsReplyDump, Integer>()
                 .withExecutor(specificInterfaceDumpExecutor(jvpp))
                 .acceptOnly(SwInterfaceDetailsReplyDump.class)
                 .build();
@@ -185,14 +187,14 @@ final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager {
         };
     }
 
-    private static EntityDumpExecutor<SwInterfaceDetailsReplyDump, String> specificInterfaceDumpExecutor(
+    private static EntityDumpExecutor<SwInterfaceDetailsReplyDump, Integer> specificInterfaceDumpExecutor(
             final FutureJVppCore api) {
-        return (identifier, ifaceName) -> {
+        return (identifier, swIfIndex) -> {
             final SwInterfaceDump request = new SwInterfaceDump();
             request.swIfIndex = new InterfaceIndex();
-            request.swIfIndex.interfaceindex =~0;
-            request.nameFilter = ifaceName.getBytes();
-            request.nameFilterValid = 1;
+            request.swIfIndex.interfaceindex = swIfIndex;
+            request.nameFilter = "".getBytes();
+            request.nameFilterValid = 0;
 
             final CompletableFuture<SwInterfaceDetailsReplyDump>
                     swInterfaceDetailsReplyDumpCompletableFuture = api.swInterfaceDump(request).toCompletableFuture();

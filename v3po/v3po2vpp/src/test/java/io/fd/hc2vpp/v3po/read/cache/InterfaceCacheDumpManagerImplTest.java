@@ -88,6 +88,7 @@ public class InterfaceCacheDumpManagerImplTest implements NamingContextHelper, F
 
         // this one is not in full dump
         when(jvpp.swInterfaceDump(specificRequest(IFACE_3))).thenReturn(future(specificReplyThree()));
+        when(jvpp.swInterfaceDump(specificRequest(3))).thenReturn(future(specificReplyThree()));
         defineMapping(mappingContext, IFACE_0, 0, "interface-context");
         defineMapping(mappingContext, IFACE_1, 1, "interface-context");
         defineMapping(mappingContext, IFACE_2, 2, "interface-context");
@@ -139,7 +140,7 @@ public class InterfaceCacheDumpManagerImplTest implements NamingContextHelper, F
         final SwInterfaceDetails specificDetail = manager.getInterfaceDetail(identifierThree, ctx, IFACE_3);
         assertEquals(detailThree(), specificDetail);
 
-        verify(jvpp, times(1)).swInterfaceDump(specificRequest(IFACE_3));
+        verify(jvpp, times(1)).swInterfaceDump(specificRequest(3));
     }
 
     private SwInterfaceDetailsReplyDump fullReply() {
@@ -194,6 +195,14 @@ public class InterfaceCacheDumpManagerImplTest implements NamingContextHelper, F
         specificRequest.swIfIndex.interfaceindex =~0;
         specificRequest.nameFilterValid = 1;
         specificRequest.nameFilter = ifaceName.getBytes();
+        return specificRequest;
+    }
+    private static SwInterfaceDump specificRequest(final int swIfIndex) {
+        final SwInterfaceDump specificRequest = new SwInterfaceDump();
+        specificRequest.swIfIndex = new InterfaceIndex();
+        specificRequest.swIfIndex.interfaceindex = swIfIndex;
+        specificRequest.nameFilterValid = 0;
+        specificRequest.nameFilter = "".getBytes();
         return specificRequest;
     }
 
