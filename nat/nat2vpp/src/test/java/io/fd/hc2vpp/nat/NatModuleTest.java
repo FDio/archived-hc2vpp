@@ -86,7 +86,7 @@ public class NatModuleTest {
         };
         initMocks(this);
         ifcContext = new NamingContext("interface-", "interface-context");
-        // Nat Module adds readers under InterfacesState/Interface and since readers for parents that do nothing need to
+        // Nat Module adds readers under Interfaces/Interface and since readers for parents that do nothing need to
         // be present, add structural readers (or add V3poModule here, but adding the full Module is not the best solution)
         Guice.createInjector(binder -> Multibinder.newSetBinder(binder, ReaderFactory.class)
                 .addBinding().toInstance(registry -> {

@@ -70,7 +70,7 @@ public class L3ModulesTest {
     public void setUp() {
         initMocks(this);
         interfaceContext = new NamingContext("iface", "iface-context");
-        // InterfaceL3Module adds readers under InterfacesState
+        // InterfaceL3Module adds readers under Interfaces
         // because readers for parents need to be present (are part of V3poModule)
         // add structural readers here (better than maven dependency).
         Guice.createInjector(binder -> Multibinder.newSetBinder(binder, ReaderFactory.class)

@@ -57,8 +57,7 @@ public class InterfaceAclReaderFactory implements ReaderFactory {
         registry.addStructuralReader(AclIIds.ACLS_AP, AttachmentPointsBuilder.class);
 
         registry.addAfter(new GenericInitListReader<>(AclIIds.ACLS_AP_INT,
-                        new InterfaceAclCustomizer(futureAclFacade, interfaceContext)),
-                AclIIds.IFC_STATE);
+                new InterfaceAclCustomizer(futureAclFacade, interfaceContext)), AclIIds.IFC_STATE);
 
         registry.addStructuralReader(AclIIds.ACLS_AP_INT_ING, IngressBuilder.class);
         registry.addStructuralReader(AclIIds.ACLS_AP_INT_EGR, EgressBuilder.class);
