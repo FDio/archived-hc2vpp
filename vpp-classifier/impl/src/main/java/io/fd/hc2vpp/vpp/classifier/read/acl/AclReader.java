@@ -28,7 +28,6 @@ import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.vpp.classifier.acl.re
 
 interface AclReader {
 
-    @Nonnull
     default L2Acl readL2Acl(final int l2TableId, @Nonnull final VppClassifierContextManager classifyTableContext,
                             @Nonnull final MappingContext mappingContext) {
         if (l2TableId == ~0) {
@@ -38,7 +37,6 @@ interface AclReader {
             .setClassifyTable(classifyTableContext.getTableName(l2TableId, mappingContext)).build();
     }
 
-    @Nonnull
     default Ip4Acl readIp4Acl(final int ip4TableId, @Nonnull final VppClassifierContextManager classifyTableContext,
                               @Nonnull final MappingContext mappingContext) {
         if (ip4TableId == ~0) {
@@ -48,7 +46,6 @@ interface AclReader {
             .setClassifyTable(classifyTableContext.getTableName(ip4TableId, mappingContext)).build();
     }
 
-    @Nonnull
     default Ip6Acl readIp6Acl(final int ip6TableId, @Nonnull final VppClassifierContextManager classifyTableContext,
                               @Nonnull final MappingContext mappingContext) {
         if (ip6TableId == ~0) {

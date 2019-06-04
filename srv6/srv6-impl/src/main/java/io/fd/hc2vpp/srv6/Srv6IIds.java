@@ -47,50 +47,50 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.base.r
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Srv6IIds {
-    public final static InstanceIdentifier<Routing> RT = InstanceIdentifier.create(Routing.class);
-    public final static InstanceIdentifier<Routing1> RT_RT1_AUG = RT.augmentation(Routing1.class);
-    public final static InstanceIdentifier<Srv6> RT_SRV6 = RT_RT1_AUG.child(Srv6.class);
-    public final static InstanceIdentifier<Locators> RT_SRV6_LOCATORS = RT_SRV6.child(Locators.class);
-    public final static InstanceIdentifier<Locator> RT_SRV6_LOCS_LOCATOR = RT_SRV6_LOCATORS.child(Locator.class);
-    public final static InstanceIdentifier<Locator> LOCATOR = InstanceIdentifier.create(Locator.class);
-    public final static InstanceIdentifier<VppSrv6FibLocatorAugment> LOC_FT_AUG =
+    public static final InstanceIdentifier<Routing> RT = InstanceIdentifier.create(Routing.class);
+    public static final InstanceIdentifier<Routing1> RT_RT1_AUG = RT.augmentation(Routing1.class);
+    public static final InstanceIdentifier<Srv6> RT_SRV6 = RT_RT1_AUG.child(Srv6.class);
+    public static final InstanceIdentifier<Locators> RT_SRV6_LOCATORS = RT_SRV6.child(Locators.class);
+    public static final InstanceIdentifier<Locator> RT_SRV6_LOCS_LOCATOR = RT_SRV6_LOCATORS.child(Locator.class);
+    public static final InstanceIdentifier<Locator> LOCATOR = InstanceIdentifier.create(Locator.class);
+    public static final InstanceIdentifier<VppSrv6FibLocatorAugment> LOC_FT_AUG =
             LOCATOR.augmentation(VppSrv6FibLocatorAugment.class);
-    public final static InstanceIdentifier<FibTable> LOC_FT = LOC_FT_AUG.child(FibTable.class);
+    public static final InstanceIdentifier<FibTable> LOC_FT = LOC_FT_AUG.child(FibTable.class);
 
-    public final static InstanceIdentifier<Prefix> LOC_PREFIX = LOCATOR.child(Prefix.class);
-    public final static InstanceIdentifier<Locator1> RT_SRV6_LOCS_LOC_AUG =
+    public static final InstanceIdentifier<Prefix> LOC_PREFIX = LOCATOR.child(Prefix.class);
+    public static final InstanceIdentifier<Locator1> RT_SRV6_LOCS_LOC_AUG =
             RT_SRV6_LOCS_LOCATOR.augmentation(Locator1.class);
-    public final static InstanceIdentifier<Static> RT_SRV6_LOCS_LOC_STATIC = RT_SRV6_LOCS_LOC_AUG.child(Static.class);
-    public final static InstanceIdentifier<LocalSids> RT_SRV6_LOCS_LOC_ST_LOCALSIDS =
+    public static final InstanceIdentifier<Static> RT_SRV6_LOCS_LOC_STATIC = RT_SRV6_LOCS_LOC_AUG.child(Static.class);
+    public static final InstanceIdentifier<LocalSids> RT_SRV6_LOCS_LOC_ST_LOCALSIDS =
             RT_SRV6_LOCS_LOC_STATIC.child(LocalSids.class);
-    public final static InstanceIdentifier<Sid> RT_SRV6_LOCS_LOC_ST_LS_SID =
+    public static final InstanceIdentifier<Sid> RT_SRV6_LOCS_LOC_ST_LS_SID =
             RT_SRV6_LOCS_LOC_ST_LOCALSIDS.child(Sid.class);
-    public final static InstanceIdentifier<Encapsulation> RT_SRV6_ENCAP = RT_SRV6.child(Encapsulation.class);
+    public static final InstanceIdentifier<Encapsulation> RT_SRV6_ENCAP = RT_SRV6.child(Encapsulation.class);
 
-    public final static InstanceIdentifier<Sid> SID = InstanceIdentifier.create(Sid.class);
-    public final static InstanceIdentifier<End> SID_END = SID.child(End.class);
-    public final static InstanceIdentifier<EndX> SID_END_X = SID.child(EndX.class);
-    public final static InstanceIdentifier<Paths> SID_END_X_PATHS = SID_END_X.child(Paths.class);
-    public final static InstanceIdentifier<Path> SID_END_X_PATHS_PATH = SID_END_X_PATHS.child(Path.class);
-    public final static InstanceIdentifier<EndT> SID_END_T = SID.child(EndT.class);
-    public final static InstanceIdentifier<EndB6> SID_END_B6 = SID.child(EndB6.class);
-    public final static InstanceIdentifier<EndB6Encaps> SID_END_B6ENCAP = SID.child(EndB6Encaps.class);
-    public final static InstanceIdentifier<EndBm> SID_END_BM = SID.child(EndBm.class);
-    public final static InstanceIdentifier<EndDt4> SID_END_DT4 = SID.child(EndDt4.class);
-    public final static InstanceIdentifier<EndDt6> SID_END_DT6 = SID.child(EndDt6.class);
-    public final static InstanceIdentifier<EndDt46> SID_END_DT46 = SID.child(EndDt46.class);
-    public final static InstanceIdentifier<EndDx2> SID_END_DX2 = SID.child(EndDx2.class);
-    public final static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6.sid.config.end.dx2.Paths>
+    public static final InstanceIdentifier<Sid> SID = InstanceIdentifier.create(Sid.class);
+    public static final InstanceIdentifier<End> SID_END = SID.child(End.class);
+    public static final InstanceIdentifier<EndX> SID_END_X = SID.child(EndX.class);
+    public static final InstanceIdentifier<Paths> SID_END_X_PATHS = SID_END_X.child(Paths.class);
+    public static final InstanceIdentifier<Path> SID_END_X_PATHS_PATH = SID_END_X_PATHS.child(Path.class);
+    public static final InstanceIdentifier<EndT> SID_END_T = SID.child(EndT.class);
+    public static final InstanceIdentifier<EndB6> SID_END_B6 = SID.child(EndB6.class);
+    public static final InstanceIdentifier<EndB6Encaps> SID_END_B6ENCAP = SID.child(EndB6Encaps.class);
+    public static final InstanceIdentifier<EndBm> SID_END_BM = SID.child(EndBm.class);
+    public static final InstanceIdentifier<EndDt4> SID_END_DT4 = SID.child(EndDt4.class);
+    public static final InstanceIdentifier<EndDt6> SID_END_DT6 = SID.child(EndDt6.class);
+    public static final InstanceIdentifier<EndDt46> SID_END_DT46 = SID.child(EndDt46.class);
+    public static final InstanceIdentifier<EndDx2> SID_END_DX2 = SID.child(EndDx2.class);
+    public static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6.sid.config.end.dx2.Paths>
             SID_END_DX2_PATHS = SID_END_DX2.child(
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6.sid.config.end.dx2.Paths.class);
-    public final static InstanceIdentifier<EndDx4> SID_END_DX4 = SID.child(EndDx4.class);
-    public final static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.multi.paths.v4.Paths>
+    public static final InstanceIdentifier<EndDx4> SID_END_DX4 = SID.child(EndDx4.class);
+    public static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.multi.paths.v4.Paths>
             SID_END_DX4_PATHS = SID_END_DX4.child(
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.multi.paths.v4.Paths.class);
-    public final static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.multi.paths.v4.paths.Path>
+    public static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.multi.paths.v4.paths.Path>
             SID_END_DX4_PATHS_PATH = SID_END_DX4_PATHS.child(
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.multi.paths.v4.paths.Path.class);
-    public final static InstanceIdentifier<EndDx6> SID_END_DX6 = SID.child(EndDx6.class);
-    public final static InstanceIdentifier<Paths> SID_END_DX6_PATHS = SID_END_DX6.child(Paths.class);
-    public final static InstanceIdentifier<Path> SID_END_DX6_PATHS_PATH = SID_END_DX6_PATHS.child(Path.class);
+    public static final InstanceIdentifier<EndDx6> SID_END_DX6 = SID.child(EndDx6.class);
+    public static final InstanceIdentifier<Paths> SID_END_DX6_PATHS = SID_END_DX6.child(Paths.class);
+    public static final InstanceIdentifier<Path> SID_END_DX6_PATHS_PATH = SID_END_DX6_PATHS.child(Path.class);
 }

@@ -87,7 +87,7 @@ public class IpsecStateCustomizer extends FutureJVppCustomizer
             for (IpsecSaDetails details : reply.ipsecSaDetails) {
                 SaBuilder saBuilder = new SaBuilder();
                 saBuilder.setSpi(Integer.toUnsignedLong(details.entry.spi))
-                        .setAntiReplayWindow(Long.valueOf(details.replayWindow).intValue())
+                        .setAntiReplayWindow((int) details.replayWindow)
                         .setAuthenticationAlgorithm(parseAuthAlgorithm(details.entry.integrityAlgorithm))
                         .setEncryptionAlgorithm(parseCryptoAlgorithm(details.entry.cryptoAlgorithm));
                 listSa.add(saBuilder.build());
@@ -106,14 +106,10 @@ public class IpsecStateCustomizer extends FutureJVppCustomizer
                 return IkeEncryptionAlgorithmT.EncrAesCbc192;
             case IPSEC_API_CRYPTO_ALG_AES_CBC_256:
                 return IkeEncryptionAlgorithmT.EncrAesCbc256;
+            // todo verify Cryptoalgorithms
             case IPSEC_API_CRYPTO_ALG_AES_CTR_128:
-                // todo verify Cryptoalgorithms
-                return IkeEncryptionAlgorithmT.EncrAesCtr;
             case IPSEC_API_CRYPTO_ALG_AES_CTR_192:
-                // todo verify Cryptoalgorithms
-                return IkeEncryptionAlgorithmT.EncrAesCtr;
             case IPSEC_API_CRYPTO_ALG_AES_CTR_256:
-                // todo verify Cryptoalgorithms
                 return IkeEncryptionAlgorithmT.EncrAesCtr;
             case IPSEC_API_CRYPTO_ALG_AES_GCM_128:
                 return IkeEncryptionAlgorithmT.EncrAesGcm8Icv;
@@ -122,7 +118,6 @@ public class IpsecStateCustomizer extends FutureJVppCustomizer
             case IPSEC_API_CRYPTO_ALG_AES_GCM_256:
                 return IkeEncryptionAlgorithmT.EncrAesGcm16Icv;
             case IPSEC_API_CRYPTO_ALG_DES_CBC:
-                // todo verify Cryptoalgorithms
                 return IkeEncryptionAlgorithmT.EncrDes;
             case IPSEC_API_CRYPTO_ALG_3DES_CBC:
                 return IkeEncryptionAlgorithmT.Encr3des;

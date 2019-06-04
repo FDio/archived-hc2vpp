@@ -51,20 +51,20 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AclIIds {
-    public final static InstanceIdentifier<Acls> ACLS = InstanceIdentifier.create(Acls.class);
-    public final static InstanceIdentifier<Acl> ACLS_ACL = ACLS.child(Acl.class);
-    public final static InstanceIdentifier<Acl> ACL = InstanceIdentifier.create(Acl.class);
+    public static final InstanceIdentifier<Acls> ACLS = InstanceIdentifier.create(Acls.class);
+    public static final InstanceIdentifier<Acl> ACLS_ACL = ACLS.child(Acl.class);
+    public static final InstanceIdentifier<Acl> ACL = InstanceIdentifier.create(Acl.class);
 
-    public final static InstanceIdentifier<AttachmentPoints> ACLS_AP = ACLS.child(AttachmentPoints.class);
-    public final static InstanceIdentifier<Interface> ACLS_AP_INT = ACLS_AP.child(Interface.class);
+    public static final InstanceIdentifier<AttachmentPoints> ACLS_AP = ACLS.child(AttachmentPoints.class);
+    public static final InstanceIdentifier<Interface> ACLS_AP_INT = ACLS_AP.child(Interface.class);
     public static final InstanceIdentifier<Ingress> ACLS_AP_INT_ING = ACLS_AP_INT.child(Ingress.class);
     public static final InstanceIdentifier<AclSets> ACLS_AP_INT_ING_ACLS = ACLS_AP_INT_ING.child(AclSets.class);
     public static final InstanceIdentifier<AclSet> ACLS_AP_INT_ING_ACLS_ACL = ACLS_AP_INT_ING_ACLS.child(AclSet.class);
     public static final InstanceIdentifier<Egress> ACLS_AP_INT_EGR = ACLS_AP_INT.child(Egress.class);
     public static final InstanceIdentifier<AclSets> ACLS_AP_INT_EGR_ACLS = ACLS_AP_INT_EGR.child(AclSets.class);
     public static final InstanceIdentifier<AclSet> ACLS_AP_INT_EGR_ACLS_ACL = ACLS_AP_INT_EGR_ACLS.child(AclSet.class);
-    public final static InstanceIdentifier<Interface> IFC_ACL = InstanceIdentifier.create(Interface.class);
-    public final static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface>
+    public static final InstanceIdentifier<Interface> IFC_ACL = InstanceIdentifier.create(Interface.class);
+    public static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface>
             IFC = InstanceIdentifier.create(Interfaces.class)
             .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface.class);
     public static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface>
