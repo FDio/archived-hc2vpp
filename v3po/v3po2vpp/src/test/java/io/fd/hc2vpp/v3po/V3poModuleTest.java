@@ -38,7 +38,6 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.jvpp.core.future.FutureJVppCore;
-import io.fd.jvpp.stats.future.FutureJVppStats;
 import io.fd.jvpp.stats.future.FutureJVppStatsFacade;
 import java.util.HashSet;
 import java.util.Set;

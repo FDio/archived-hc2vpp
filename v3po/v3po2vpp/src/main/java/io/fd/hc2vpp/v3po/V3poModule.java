@@ -25,6 +25,8 @@ import com.google.inject.name.Names;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.stats.jvpp.JVppStatsProvider;
 import io.fd.hc2vpp.v3po.factory.InterfacesReaderFactory;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceNamesDumpManager;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceNamesDumpManagerProvider;
 import io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory;
 import io.fd.hc2vpp.v3po.factory.L2HoneycombWriterFactory;
 import io.fd.hc2vpp.v3po.factory.L2StateHoneycombReaderFactory;
@@ -71,6 +73,7 @@ public class V3poModule extends AbstractModule {
                 .toInstance(new NamingContext("bridge-domain-", "bridge-domain-context"));
 
         bind(InterfaceCacheDumpManager.class).toProvider(InterfaceCacheDumpManagerProvider.class).in(Singleton.class);
+        bind(InterfaceNamesDumpManager.class).toProvider(InterfaceNamesDumpManagerProvider.class).in(Singleton.class);
 
         // Statistics
         bind(InterfaceStatisticsManager.class).toProvider(InterfaceStatisticsManagerProvider.class)
