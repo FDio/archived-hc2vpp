@@ -46,7 +46,7 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
         this.interfaceContext = interfaceContext;
     }
 
-    private static GreTunnelAddDel getGreTunnelRequest(final byte isAdd, final IpAddressNoZone srcAddr,
+    private static GreTunnelAddDel getGreTunnelRequest(final boolean isAdd, final IpAddressNoZone srcAddr,
                                                        final IpAddressNoZone dstAddr, final int outerFibId,
                                                        final byte isIpv6) {
         final GreTunnelAddDel greTunnelAddDel = new GreTunnelAddDel();
@@ -64,7 +64,6 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
                     AddressTranslator.INSTANCE.ipv6AddressToAddress(dstAddr.getIpv6AddressNoZone());
         }
         greTunnelAddDel.tunnel.outerFibId = outerFibId;
-        greTunnelAddDel.tunnel.isIpv6 = isIpv6;
         return greTunnelAddDel;
     }
 
@@ -99,13 +98,13 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
 
         LOG.debug("Setting gre tunnel for interface: {}. Gre: {}", swIfName, gre);
         final CompletionStage<GreTunnelAddDelReply> greAddDelTunnelReplyCompletionStage =
-            getFutureJVpp().greTunnelAddDel(getGreTunnelRequest((byte) 1 /* is add */, gre.getSrc(),
+            getFutureJVpp().greTunnelAddDel(getGreTunnelRequest(true, gre.getSrc(),
                 gre.getDst(), outerFibId, isIpv6));
 
         final GreTunnelAddDelReply reply =
                 getReplyForCreate(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id, gre);
         LOG.debug("Gre tunnel set successfully for: {}, gre: {}", swIfName, gre);
-        if (interfaceContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
+        if (interfaceContext.containsName(reply.swIfIndex.interfaceindex, writeContext.getMappingContext())) {
             // VPP keeps gre tunnels present even after they are delete(reserving ID for next tunnel)
             // This may cause inconsistencies in mapping context when configuring tunnels like this:
             // 1. Add tunnel 2. Delete tunnel 3. Read interfaces (reserved mapping e.g. gre_tunnel0 -> 6
@@ -113,13 +112,14 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
             // reserved ID and context is invalid)
             // That's why a check has to be performed here removing mapping gre_tunnel0 -> 6 mapping and storing
             // new name for that ID
-            final String formerName = interfaceContext.getName(reply.swIfIndex, writeContext.getMappingContext());
+            final String formerName =
+                    interfaceContext.getName(reply.swIfIndex.interfaceindex, writeContext.getMappingContext());
             LOG.debug("Removing updated mapping of a gre tunnel, id: {}, former name: {}, new name: {}",
                     reply.swIfIndex, formerName, swIfName);
             interfaceContext.removeName(formerName, writeContext.getMappingContext());
         }
         // Add new interface to our interface context
-        interfaceContext.addName(reply.swIfIndex, swIfName, writeContext.getMappingContext());
+        interfaceContext.addName(reply.swIfIndex.interfaceindex, swIfName, writeContext.getMappingContext());
     }
 
     private boolean isIpv6(final Gre gre) {
@@ -136,7 +136,7 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
 
         LOG.debug("Deleting gre tunnel for interface: {}. Gre: {}", swIfName, gre);
         final CompletionStage<GreTunnelAddDelReply> greAddDelTunnelReplyCompletionStage =
-            getFutureJVpp().greTunnelAddDel(getGreTunnelRequest((byte) 0 /* is add */, gre.getSrc(),
+            getFutureJVpp().greTunnelAddDel(getGreTunnelRequest(false, gre.getSrc(),
                 gre.getDst(), outerFibId, isIpv6));
 
         getReplyForDelete(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);

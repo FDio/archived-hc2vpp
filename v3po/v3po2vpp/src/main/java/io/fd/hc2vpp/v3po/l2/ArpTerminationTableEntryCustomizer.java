@@ -31,6 +31,7 @@ import io.fd.jvpp.core.future.FutureJVppCore;
 import io.fd.jvpp.core.types.Address;
 import io.fd.jvpp.core.types.AddressFamily;
 import io.fd.jvpp.core.types.AddressUnion;
+import io.fd.jvpp.core.types.BdIpMac;
 import io.fd.jvpp.core.types.Ip4Address;
 import io.fd.jvpp.core.types.MacAddress;
 import java.util.concurrent.CompletionStage;
@@ -97,18 +98,19 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
 
     private BdIpMacAddDel createRequest(final ArpTerminationTableEntry entry, final int bdId, boolean isAdd) {
         final BdIpMacAddDel request = new BdIpMacAddDel();
-        request.bdId = bdId;
+        request.entry = new BdIpMac();
+        request.entry.bdId = bdId;
         request.isAdd = booleanToByte(isAdd);
         MacAddress macAddress = new MacAddress();
         macAddress.macaddress = parseMac(entry.getPhysAddress().getValue());
-        request.mac = macAddress;
+        request.entry.mac = macAddress;
         final IpAddressNoZone ipAddress = entry.getIpAddress();
         Ip4Address ip4Address = new Ip4Address();
         ip4Address.ip4Address = ipAddressToArray(ipAddress);
         Address address = new Address();
         address.af = AddressFamily.ADDRESS_IP4;
         address.un = new AddressUnion(ip4Address);
-        request.ip = address;
+        request.entry.ip = address;
 
         return request;
     }

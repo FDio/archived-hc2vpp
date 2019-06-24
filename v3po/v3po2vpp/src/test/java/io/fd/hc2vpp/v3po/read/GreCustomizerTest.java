@@ -38,6 +38,7 @@ import io.fd.jvpp.core.dto.GreTunnelDetailsReplyDump;
 import io.fd.jvpp.core.dto.GreTunnelDump;
 import io.fd.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.jvpp.core.types.GreTunnel;
+import io.fd.jvpp.core.types.InterfaceIndex;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VppInterfaceAugmentation;
@@ -81,11 +82,11 @@ public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> imp
         final GreTunnelDetailsReplyDump value = new GreTunnelDetailsReplyDump();
         final GreTunnelDetails greTunnelDetails = new GreTunnelDetails();
         greTunnelDetails.tunnel = new GreTunnel();
-        greTunnelDetails.tunnel.isIpv6 = 0;
         greTunnelDetails.tunnel.dst = ipv4AddressToAddress(new Ipv4Address("1.2.3.4"));
         greTunnelDetails.tunnel.src = ipv4AddressToAddress(new Ipv4Address("1.2.3.5"));
         greTunnelDetails.tunnel.outerFibId = 55;
-        greTunnelDetails.tunnel.swIfIndex = 0;
+        greTunnelDetails.tunnel.swIfIndex = new InterfaceIndex();
+        greTunnelDetails.tunnel.swIfIndex.interfaceindex = 0;
         value.greTunnelDetails = Lists.newArrayList(greTunnelDetails);
 
         doReturn(future(value)).when(api).greTunnelDump(any(GreTunnelDump.class));

@@ -18,6 +18,7 @@ package io.fd.hc2vpp.v3po.write;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -34,6 +35,8 @@ import io.fd.jvpp.VppBaseCallException;
 import io.fd.jvpp.VppInvocationException;
 import io.fd.jvpp.core.dto.GreTunnelAddDel;
 import io.fd.jvpp.core.dto.GreTunnelAddDelReply;
+import io.fd.jvpp.core.types.AddressFamily;
+import io.fd.jvpp.core.types.InterfaceIndex;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.VppInterfaceAugmentation;
@@ -49,8 +52,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class GreCustomizerTest extends WriterCustomizerTest implements AddressTranslator {
 
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
-    private static final byte ADD_GRE = 1;
-    private static final byte DEL_GRE = 0;
     private final String IFACE_NAME = "eth0";
     private final int IFACE_ID = 1;
     private InstanceIdentifier<Gre> id = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
@@ -61,7 +62,7 @@ public class GreCustomizerTest extends WriterCustomizerTest implements AddressTr
         final GreBuilder builder = new GreBuilder();
         builder.setSrc(new IpAddressNoZone(new Ipv4AddressNoZone("192.168.20.10")));
         builder.setDst(new IpAddressNoZone(new Ipv4AddressNoZone("192.168.20.11")));
-        builder.setOuterFibId(Long.valueOf(123));
+        builder.setOuterFibId(123L);
         return builder.build();
     }
 
@@ -74,7 +75,8 @@ public class GreCustomizerTest extends WriterCustomizerTest implements AddressTr
 
     private void whenGreAddDelTunnelThenSuccess() {
         final GreTunnelAddDelReply reply = new GreTunnelAddDelReply();
-        reply.swIfIndex = IFACE_ID;
+        reply.swIfIndex = new InterfaceIndex();
+        reply.swIfIndex.interfaceindex = IFACE_ID;
         doReturn(future(reply)).when(api).greTunnelAddDel(any(GreTunnelAddDel.class));
     }
 
@@ -86,7 +88,7 @@ public class GreCustomizerTest extends WriterCustomizerTest implements AddressTr
         ArgumentCaptor<GreTunnelAddDel> argumentCaptor = ArgumentCaptor.forClass(GreTunnelAddDel.class);
         verify(api).greTunnelAddDel(argumentCaptor.capture());
         final GreTunnelAddDel actual = argumentCaptor.getValue();
-        assertEquals(0, actual.tunnel.isIpv6);
+        assertEquals(AddressFamily.ADDRESS_IP4, actual.tunnel.src.af);
         assertArrayEquals(ipAddressToArray(gre.getSrc()), actual.tunnel.src.un.getIp4().ip4Address);
         assertArrayEquals(ipAddressToArray(gre.getDst()), actual.tunnel.dst.un.getIp4().ip4Address);
         assertEquals(gre.getOuterFibId().intValue(), actual.tunnel.outerFibId);
@@ -95,12 +97,12 @@ public class GreCustomizerTest extends WriterCustomizerTest implements AddressTr
 
     private void verifyGreAddWasInvoked(final Gre gre) throws VppInvocationException {
         final GreTunnelAddDel actual = verifyGreAddDelTunnelWasInvoked(gre);
-        assertEquals(ADD_GRE, actual.isAdd);
+        assertTrue(actual.isAdd);
     }
 
     private void verifyGreDeleteWasInvoked(final Gre gre) throws VppInvocationException {
         final GreTunnelAddDel actual = verifyGreAddDelTunnelWasInvoked(gre);
-        assertEquals(DEL_GRE, actual.isAdd);
+        assertFalse(actual.isAdd);
     }
 
     @Test

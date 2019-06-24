@@ -32,6 +32,8 @@ import io.fd.jvpp.core.dto.GreTunnelDetails;
 import io.fd.jvpp.core.dto.GreTunnelDetailsReplyDump;
 import io.fd.jvpp.core.dto.GreTunnelDump;
 import io.fd.jvpp.core.future.FutureJVppCore;
+import io.fd.jvpp.core.types.AddressFamily;
+import io.fd.jvpp.core.types.InterfaceIndex;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.http.fd.io.hc2vpp.yang.v3po.rev190527.GreTunnel;
@@ -89,7 +91,8 @@ public class GreCustomizer extends FutureJVppCustomizer
         LOG.debug("Reading attributes for gre tunnel: {}", key.getName());
         // Dump just a single
         final GreTunnelDump request = new GreTunnelDump();
-        request.swIfIndex = index;
+        request.swIfIndex = new InterfaceIndex();
+        request.swIfIndex.interfaceindex = index;
 
         final CompletionStage<GreTunnelDetailsReplyDump> swInterfaceGreDetailsReplyDumpCompletionStage =
                 getFutureJVpp().greTunnelDump(request);
@@ -112,9 +115,9 @@ public class GreCustomizer extends FutureJVppCustomizer
         LOG.trace("Gre tunnel: {} attributes returned from VPP: {}", key.getName(), reply);
 
         final GreTunnelDetails swInterfaceGreDetails = reply.greTunnelDetails.get(0);
-        if (swInterfaceGreDetails.tunnel.isIpv6 == 1) {
+        if (swInterfaceGreDetails.tunnel.dst.af.equals(AddressFamily.ADDRESS_IP6)) {
             builder.setDst(new IpAddressNoZone(
-                    arrayToIpv4AddressNoZone(swInterfaceGreDetails.tunnel.dst.un.getIp6().ip6Address)));
+                    arrayToIpv6AddressNoZone(swInterfaceGreDetails.tunnel.dst.un.getIp6().ip6Address)));
             builder.setSrc(new IpAddressNoZone(
                     arrayToIpv6AddressNoZone(swInterfaceGreDetails.tunnel.src.un.getIp6().ip6Address)));
         } else {
@@ -128,6 +131,7 @@ public class GreCustomizer extends FutureJVppCustomizer
     }
 
     @Override
+    @Nonnull
     public Initialized<Gre> init(@Nonnull final InstanceIdentifier<Gre> id, @Nonnull final Gre readValue,
                                  @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),

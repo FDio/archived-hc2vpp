@@ -35,6 +35,7 @@ import io.fd.jvpp.core.dto.BdIpMacAddDelReply;
 import io.fd.jvpp.core.types.Address;
 import io.fd.jvpp.core.types.AddressFamily;
 import io.fd.jvpp.core.types.AddressUnion;
+import io.fd.jvpp.core.types.BdIpMac;
 import io.fd.jvpp.core.types.Ip4Address;
 import io.fd.jvpp.core.types.MacAddress;
 import org.junit.Test;
@@ -109,16 +110,17 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
     private BdIpMacAddDel generateBdIpMacAddDelRequest(final byte[] ipAddress, final byte[] macAddress,
                                                        final byte isAdd) {
         final BdIpMacAddDel request = new BdIpMacAddDel();
+        request.entry = new BdIpMac();
         Address address = new Address();
         address.af = AddressFamily.ADDRESS_IP4;
         Ip4Address ip4Address = new Ip4Address();
         ip4Address.ip4Address = ipAddress;
         address.un = new AddressUnion(ip4Address);
-        request.ip = address;
+        request.entry.ip = address;
         MacAddress macAddr = new MacAddress();
         macAddr.macaddress = macAddress;
-        request.mac = macAddr;
-        request.bdId = BD_ID;
+        request.entry.mac = macAddr;
+        request.entry.bdId = BD_ID;
         request.isAdd = isAdd;
         return request;
     }
@@ -136,9 +138,9 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         ArgumentCaptor<BdIpMacAddDel> argumentCaptor = ArgumentCaptor.forClass(BdIpMacAddDel.class);
         verify(api).bdIpMacAddDel(argumentCaptor.capture());
         final BdIpMacAddDel actual = argumentCaptor.getValue();
-        assertArrayEquals(expected.mac.macaddress, actual.mac.macaddress);
-        assertArrayEquals(expected.ip.un.getIp4().ip4Address, actual.ip.un.getIp4().ip4Address);
-        assertEquals(expected.bdId, actual.bdId);
+        assertArrayEquals(expected.entry.mac.macaddress, actual.entry.mac.macaddress);
+        assertArrayEquals(expected.entry.ip.un.getIp4().ip4Address, actual.entry.ip.un.getIp4().ip4Address);
+        assertEquals(expected.entry.bdId, actual.entry.bdId);
         assertEquals(expected.isAdd, actual.isAdd);
     }
 
